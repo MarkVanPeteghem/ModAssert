@@ -1,0 +1,68 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Thread safety</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.1"><link rel="start" href="index.html" title="Modular Assertions version 2.0.6"><link rel="up" href="index.html" title="Modular Assertions version 2.0.6"><link rel="prev" href="ar01s18.html" title="Redefining existing assertion macros"><link rel="next" href="ar01s20.html" title="Considerations related to macros"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Thread safety</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s18.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s20.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id543923"></a>Thread safety</h2></div></div></div><a class="indexterm" name="id543928"></a><a class="indexterm" name="id543932"></a><p>The ModAssert package is thread safe, if one of these three multithreading
+packages is available: Win32 threads, wxWidgets threads, or pThreads. pThreads
+is used if the symbol <span class="symbol">MODASSERT_USE_PTHREADS</span> is defined when ModAssert is built.
+If it is not defined, but <span class="symbol">RICHBOOL_USE_WX</span> is defined when ModAssert is built,
+wxWidgets threads is used. If that is neither the case, but the symbol <span class="symbol">_WIN32</span>
+(which is defined by default with most Windows compilers)
+is defined when ModAssert is built, Win32 threads is used. Otherwise, ModAssert is not
+threadsafe.</p><p>Note: if you use pthreads, <span class="symbol">MODASSERT_USE_PTHREADS</span> only has to be defined when the ModAssert
+library is built. It has no use to define it when you build an application that uses ModAssert.</p><p>pthreads should be used on Linux with gcc, and with Cygwin gcc on Windows, but not for other
+Windows compilers that were tested.</p><p>Thread safety in ModAssert means that only one thread at a time can display and log
+an assertion, and let the responder change parameters. If you want to change parameters that ModAssert uses
+from your own code,
+and want to do so in a thread safe way, use the class <code class="classname">ModAssert::ScopedLock</code> in
+<code class="filename">modassert/threads.hpp</code> to automatically lock:
+</p><pre class="programlisting">
+#include &lt;modassert/threads.hpp&gt;
+...
+{
+    ModAssert::ScopedLock lock;
+    ModAssert::Warning.SetLog(false);
+    
+} // lock is automatically released
+</pre><p>
+This can also be used to temporarily prevent other threads from displaying and
+logging assertions, e.g. if you need to log to a stream that ModAssert also
+logs to.</p><p><code class="classname">ModAssert::ScopedLock</code> has a constructor that takes a
+boolean as an argument, for which the default value is <code class="literal">true</code>; if
+that argument is <code class="literal">true</code>, the lock is locked in the constructor.
+The destructor unlocks the lock.
+It also has methods <code class="code">Lock()</code> and <code class="code">Unlock()</code> to lock and
+unlock the lock at any time. The method <code class="code">bool IsLocked()</code> tells whether
+it is locked.</p><p>A well known advice in multithreaded programming is to not call virtual functions
+from inside a critical section, because a derived class beyond your call might enter a
+critical section, and cause a deadlock. Alas, ModAssert calls virtual functions from its critical
+section when it calls the hooks, the loggers and the responder. So it's best not to enter
+a critical section in a hook, logger or responder. If you have to, make sure you don't enter
+the critical section elsewhere in your application (a critical section that can only be entered
+in your derived class should be safe, at least if you don't use the hook, logger or responder
+directly).</p><p>On some platforms there are no recursive locks. If this is the case, a thread that wants to lock ModAssert while
+it already has the lock, will deadlock. This can happen if you acquire the lock yourself, and acquire it yourself a second
+time, as in the following example:
+</p><pre class="programlisting">
+#include &lt;modassert/threads.hpp&gt;
+
+void foo()
+{
+	ModAssert::ScopedLock lock;
+	ModAssert::Warning.SetLog(false);
+}
+
+void bar()
+{
+	ModAssert::ScopedLock lock;
+	foo(); // will cause a deadlock on some platforms!
+}
+</pre><p>
+ or if you acquire the lock yourself and a modular assertion or check is reported, as in the following example:
+</p><pre class="programlisting">
+#include &lt;modassert/threads.hpp&gt;
+
+void foo()
+{
+	int a=0;
+	ModAssert::ScopedLock lock;
+	MOD_ASSERT(rbEQUAL(a, 1)); // will cause a deadlock on some platforms!
+}
+</pre><p>See also <a href="ar01s17.html#WhenModassertIsActive" title="When ModAssert is active">the section called &#8220;When ModAssert is active&#8221;</a> for further considerations about thread safety in
+ModAssert.</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s18.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ar01s20.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Redefining existing assertion macros </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Considerations related to macros</td></tr></table></div></body></html>

@@ -1,0 +1,15 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Adding ModAssert to individual projects</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.1"><link rel="start" href="index.html" title="Modular Assertions version 2.0.6"><link rel="up" href="index.html" title="Modular Assertions version 2.0.6"><link rel="prev" href="ar01s05.html" title="Installation"><link rel="next" href="ar01s07.html" title="Adding ModAssert to your application"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Adding ModAssert to individual projects</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s05.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s07.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id513003"></a>Adding ModAssert to individual projects</h2></div></div></div><a class="indexterm" name="id513007"></a>
+If you chose to not make ModAssert available to all your projects
+(as explained in the previous section),
+you have to setup every project that uses it correctly as explained in this section.
+Note that you also should make sure that the Rich Booleans library is available,
+see the documentation of the Rich Booleans.
+<p>Make sure that the headerfiles can be included, and that the libraries can be found.
+</p><div class="itemizedlist"><ul type="disc"><li>For Microsoft Visual C++, it is best to make an environment variable called MODASSERT,
+	that contains the directory where ModAssert is located, to make upgrading easier.
+    Then add <code class="filename">$(MODASSERT)/include</code> to your include path
+    (Project Settings -&gt; C/C++ -&gt; Preprocessor).
+    Add <code class="filename">$(MODASSERT)/lib</code> to your additional library path (Project Settings -&gt; Link -&gt; Input).
+    </li><li>For gcc, use the -I and -L command line options to specify the include and
+	library directories.</li><li>For other compilers, consult the documentation of your compiler.</li></ul></div><p>
+</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s05.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ar01s07.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Installation </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Adding ModAssert to your application</td></tr></table></div></body></html>

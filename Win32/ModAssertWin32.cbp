@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="ModAssertWin32" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="GCC-Mingw">
+				<Option output="..\lib\libmodassertWin32-mingw.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="Mingw" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option projectResourceIncludeDirsRelation="2" />
+			</Target>
+			<Target title="GCC-Cygwin">
+				<Option output="..\lib\libmodassertWin32-cygwin.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="Cygwin" />
+				<Option type="2" />
+				<Option compiler="cygwin" />
+				<Option createDefFile="1" />
+				<Option projectResourceIncludeDirsRelation="2" />
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="GCC-Mingw;GCC-Cygwin;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-ansi -pedantic -Wall -W -Wconversion -Wshadow -Wcast-qual -Wwrite-strings" />
+			<Add directory="%RICHBOOL%\include" />
+			<Add directory="..\include" />
+		</Compiler>
+		<Unit filename="src\Win32ComputerName.cpp" />
+		<Unit filename="src\Win32CurrentDirectory.cpp" />
+		<Unit filename="src\Win32DiskSpace.cpp" />
+		<Unit filename="src\Win32Displayer.cpp" />
+		<Unit filename="src\Win32Dlg.cpp" />
+		<Unit filename="src\Win32Handler.cpp" />
+		<Unit filename="src\Win32LastError.cpp" />
+		<Unit filename="src\Win32MemoryStatus.cpp" />
+		<Unit filename="src\Win32OSVersion.cpp" />
+		<Unit filename="src\Win32ProcessId.cpp" />
+		<Unit filename="src\Win32Processor.cpp" />
+		<Unit filename="src\Win32TerminateMessage.cpp" />
+		<Unit filename="src\Win32ThreadId.cpp" />
+		<Unit filename="src\Win32Trace.cpp" />
+		<Unit filename="src\Win32UserName.cpp" />
+		<Unit filename="src\Win32WarningMessage.cpp" />
+		<Unit filename="..\include\modassert\Win32ComputerName.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32CurrentDirectory.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32DiskSpace.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32Displayer.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32Dlg.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32Handler.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32LastError.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32MemoryStatus.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32OSVersion.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32ProcessId.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32Processor.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32TerminateMessage.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32ThreadId.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32Trace.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32UserName.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Unit filename="..\include\modassert\Win32WarningMessage.hpp">
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

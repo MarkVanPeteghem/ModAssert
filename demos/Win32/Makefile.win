@@ -1,0 +1,42 @@
+# Project: DemoWin32
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe -D__DEBUG__
+CC   = gcc.exe -D__DEBUG__
+WINDRES = windres.exe
+RES  = GNUWin32/DemoWin32_private.res
+OBJ  = GNUWin32/DemoWin32.o GNUWin32/Examples.o GNUWin32/OtherFile.o GNUWin32/NoText.o $(RES)
+LINKOBJ  = GNUWin32/DemoWin32.o GNUWin32/Examples.o GNUWin32/OtherFile.o GNUWin32/NoText.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib" -mwindows -lrichbool -lmodassertWin32 -lmodassert -lcomctl32  -g3 
+INCS =  -I"C:/Dev-Cpp/include"  -I"../../Win32" 
+CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"../../Win32" 
+BIN  = DemoWin32.exe
+CXXFLAGS = $(CXXINCS) -ansi -pedantic -Wconversion -Wshadow -Wcast-qual -Wwrite-strings -DWIN32   -fexceptions -g3
+CFLAGS = $(INCS)   -fexceptions -g3
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before DemoWin32.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "DemoWin32.exe" $(LIBS)
+
+GNUWin32/DemoWin32.o: DemoWin32.cpp
+	$(CPP) -c DemoWin32.cpp -o GNUWin32/DemoWin32.o $(CXXFLAGS)
+
+GNUWin32/Examples.o: Examples.cpp
+	$(CPP) -c Examples.cpp -o GNUWin32/Examples.o $(CXXFLAGS)
+
+GNUWin32/OtherFile.o: OtherFile.cpp
+	$(CPP) -c OtherFile.cpp -o GNUWin32/OtherFile.o $(CXXFLAGS)
+
+GNUWin32/NoText.o: NoText.cpp
+	$(CPP) -c NoText.cpp -o GNUWin32/NoText.o $(CXXFLAGS)
+
+GNUWin32/DemoWin32_private.res: DemoWin32_private.rc DemoWin32.rc 
+	$(WINDRES) -i DemoWin32_private.rc --input-format=rc -o GNUWin32/DemoWin32_private.res -O coff  --include-dir ../../include

@@ -1,0 +1,52 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Controlling displaying and logging of assertions and checks at runtime</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.1"><link rel="start" href="index.html" title="Modular Assertions version 2.0.6"><link rel="up" href="index.html" title="Modular Assertions version 2.0.6"><link rel="prev" href="ar01s11.html" title="The available assertion macros"><link rel="next" href="ar01s13.html" title="Enabling and disabling the reporting of Modular Assertions at compile time"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Controlling displaying and logging of assertions and checks at runtime</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s11.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s13.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id529427"></a>Controlling displaying and logging of assertions and checks at runtime</h2></div></div></div><a class="indexterm" name="id529432"></a><a class="indexterm" name="id529437"></a><a class="indexterm" name="id529442"></a><a class="indexterm" name="id529447"></a><a class="indexterm" name="id529451"></a><a class="indexterm" name="id529456"></a><a class="indexterm" name="id529461"></a><a class="indexterm" name="id529466"></a><p>Many functions in this section have a const reference to a <code class="classname">ModAssert::CategoryBase</code>
+	object as an argument. This specifies whether you specify it for assertions or checks.
+	<code class="classname">ModAssert::CategoryBase</code> is an abstract class.
+	In this version the derived concrete classes <code class="classname">ModAssert::Category&lt;ModAssert::Assertions&gt;</code> and
+	<code class="classname">ModAssert::Category&lt;ModAssert::Checks&gt;</code> are available.
+	Use the former class for assertions, the latter for checks.
+	<code class="code">categoryAsserts</code> and <code class="code">categoryChecks</code> are respectively objects of these
+	classes (defined in <code class="filename">modassert/assert.hpp</code>, in the namespace ModAssert).</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id529501"></a>All</h3></div></div></div><a class="indexterm" name="id529505"></a><a class="indexterm" name="id529510"></a><p>The methods <code class="code">void SetDisplayAll(bool b, const ModAssert::CategoryBase &amp;category)</code>
+	and <code class="code">void SetLogAll(bool b, const ModAssert::CategoryBase &amp;category)</code>
+    let you control displaying and logging of all assertions or checks at once.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id529527"></a>Per file</h3></div></div></div><a class="indexterm" name="id529532"></a><a class="indexterm" name="id529537"></a><a class="indexterm" name="id529541"></a><a class="indexterm" name="id529546"></a><p>The methods
+    <code class="code">void SetDisplayInFile(const char *file, bool b, const ModAssert::CategoryBase &amp;category)</code> and
+    <code class="code">void SetLogInFile(const char *file, bool b, const ModAssert::CategoryBase &amp;category)</code> let you
+    control displaying and logging of assertions and checks per source code file (best used with <span class="symbol">__FILE__</span>).
+    The methods <code class="code">bool GetDisplayInFile(const char *file, const ModAssert::CategoryBase &amp;category)</code> and
+    <code class="code">bool GetLogInFile(const char *file, const ModAssert::CategoryBase &amp;category)</code> allow you to check whether assertions in
+    a source code file will be displayed or logged.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id529574"></a>Per level</h3></div></div></div><a class="indexterm" name="id529579"></a><a class="indexterm" name="id529583"></a><a class="indexterm" name="id529588"></a><a class="indexterm" name="id529593"></a><a class="indexterm" name="id529598"></a><p><code class="code">ModAssert::Info</code>, <code class="code">ModAssert::Warning</code>,
+    <code class="code">ModAssert::Error</code> and <code class="code">ModAssert::Fatal</code> are of the type
+    <code class="classname">ModAssert::Level&lt;...&gt;</code>. They have the methods
+	<code class="code">void SetDisplay(bool b, const ModAssert::CategoryBase &amp;category)</code> and
+    <code class="code">void SetLog(bool b, const ModAssert::CategoryBase &amp;category)</code>, to control displaying and logging per level, and
+    the methods <code class="code">bool GetDisplay(bool success, const ModAssert::CategoryBase &amp;category)</code> and
+	<code class="code">bool GetLog(bool success, const ModAssert::CategoryBase &amp;category)</code>, to check
+	if they are displayed or logged. Note that levels handle this separately for assertions and checks.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id529639"></a>Per group</h3></div></div></div><a class="indexterm" name="id529643"></a><a class="indexterm" name="id529648"></a><a class="indexterm" name="id529653"></a><a class="indexterm" name="id529658"></a><a class="indexterm" name="id529663"></a><p>The template class <code class="classname">ModAssert::Group&lt;T&gt;</code> has
+    the methods <code class="code">void SetDisplay(bool b)</code> and
+    <code class="code">void SetLog(bool b)</code>, to control displaying and logging per group.
+    The methods <code class="code">bool GetDisplay(bool success)</code> and <code class="code">bool GetLog(bool success)</code> allow
+    you to check whether assertions with that group will be displayed or logged; the argument specifies whether
+    it is an assertion that failed or that succeeded.
+    These methods call the same methods on the object of type T that they contain.</p><p>Objects of the type <code class="classname">ModAssert::Group&lt;ModAssert::ReportAll&gt;</code>
+    don't have the methods <code class="code">void SetDisplay(bool b)</code> and <code class="code">void SetLog(bool b)</code>,
+    because with these objects you can specify this behaviour separately for failing and succeeding
+    assertions.
+    Therefore they have the methods <code class="code">void SetDisplay(size_t n, bool b)</code> and
+    <code class="code">void SetLog(size_t n, bool b)</code>, where <code class="code">n</code> is 0 for failing assertions,
+    1 for succeeding assertions. Note however that it is not possible to display or log only
+    succeeding assertions. So if you call <code class="code">SetDisplay(0, false)</code>, succeeding
+    assertions will also not be displayed. If you call <code class="code">SetDisplay(0, true)</code>
+    after that, only failing assertions will be displayed. Call <code class="code">SetDisplay(1, true)</code>
+    to display succeeding assertions again. The same applies for <code class="code">void SetLog(size_t n, bool b)</code>.
+    </p><p>Objects of the type <code class="classname">ModAssert::Group&lt;ModAssert::ReportNone&gt;</code>
+    and <code class="classname">ModAssert::Group&lt;ModAssert::ReportFailure&gt;</code> have besides the methods
+    with one argument also the overloaded methods with two arguments,
+    although the first argument is then ignored. They have these methods to allow easy switching
+    between these types.
+    </p><p>Note that group objects don't distinguish between assertions and checks, but you can make separate
+	objects for each if necessary.</p></div><p><code class="code">ModAssert::Group&lt;T&gt;::SetDisplay</code>, <code class="code">SetDisplayInFile</code>
+    and <code class="code">SetDisplayAll</code> are called when an assertion failed, and the user
+    decides to stop displaying all assertions or checks, or just assertions or checks of a file or a group, but you
+    can also call these functions yourself, e.g. when your application starts up.
+    <code class="code">ModAssert::Group&lt;T&gt;::SetLog</code>, <code class="code">SetLogInFile</code> and
+    <code class="code">SetLogAll</code> are not called by ModAssert itself, you have to call
+    them yourself.</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s11.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ar01s13.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">The available assertion macros </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Enabling and disabling the reporting of Modular Assertions at compile time</td></tr></table></div></body></html>

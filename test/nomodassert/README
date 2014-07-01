@@ -1,0 +1,3 @@
+This package tests whether it is possible to build
+an application with ModAssert macros in it where ModAssert
+doesn't report, without linking to the ModAssert library.

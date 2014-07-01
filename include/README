@@ -1,0 +1,4 @@
+These are include files for the ModAssert package.
+They should be installed automatically to another directory
+on your include path by typing `make install' as a superuser
+in the directory above, after `make' with no arguments.

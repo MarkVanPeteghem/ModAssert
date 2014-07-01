@@ -1,0 +1,3 @@
+EXPORTS
+    _Z21AssertionFailureInDLLv @1
+    _Z22SetModAssertStateInDllPN9ModAssert5StateE @2

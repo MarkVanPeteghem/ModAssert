@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="TestMain" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="GCC-Mingw">
+				<Option output="Mingw\TestMain.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="Mingw" />
+				<Option external_deps="..\..\ModAssert.cbp;" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Linker>
+					<Add library="modassertWin32-mingw" />
+					<Add library="modassertConsole-mingw" />
+					<Add library="modassert-mingw" />
+					<Add library="richbool-mingw" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="Mingw/TestMain.exe" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+			<Target title="GCC-Cygwin">
+				<Option output="Cygwin\TestMain.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="Cygwin" />
+				<Option type="1" />
+				<Option compiler="cygwin" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Compiler>
+					<Add option="-DMODASSERT_USE_PTHREADS" />
+				</Compiler>
+				<Linker>
+					<Add library="..\..\lib\libmodassertWin32-cygwin.a" />
+					<Add library="..\..\lib\libmodassertConsole-cygwin.a" />
+					<Add library="..\..\lib\libmodassert-cygwin.a" />
+					<Add library="librichbool-cygwin.a" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="Cygwin/TestMain.exe" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="GCC-Mingw;GCC-Cygwin;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-O3" />
+			<Add option="-ansi -Wconversion -Wshadow -Wcast-qual -Wwrite-strings" />
+			<Add directory="..\Common" />
+			<Add directory="%RICHBOOL%\include" />
+			<Add directory="..\..\include" />
+		</Compiler>
+		<Linker>
+			<Add option="-s" />
+			<Add library="comctl32" />
+		</Linker>
+		<Unit filename="..\common\CreateList.h" />
+		<Unit filename="..\common\GetStreamString.h" />
+		<Unit filename="..\common\ModAssertTest.cpp" />
+		<Unit filename="..\common\ModAssertTest.h" />
+		<Unit filename="..\common\ScopedSetReturnValue.h" />
+		<Unit filename="..\common\StubHook.h" />
+		<Unit filename="..\common\StubLogger.h" />
+		<Unit filename="..\common\main.cpp" />
+		<Unit filename="TestAllowResponses.cpp" />
+		<Unit filename="TestAssert.cpp" />
+		<Unit filename="TestAssert1DefaultParam.cpp" />
+		<Unit filename="TestAssert2DefaultParams.cpp" />
+		<Unit filename="TestAssertD.cpp" />
+		<Unit filename="TestAssertDontReportFile.cpp" />
+		<Unit filename="TestAssertInIf.cpp" />
+		<Unit filename="TestAssertLevel1.cpp" />
+		<Unit filename="TestAssertLevel3.cpp" />
+		<Unit filename="TestAssertLogger.cpp" />
+		<Unit filename="TestAssertOffCheckOff.cpp" />
+		<Unit filename="TestAssertOffCheckOn.cpp" />
+		<Unit filename="TestAssertOnCheckOff.cpp" />
+		<Unit filename="TestAssertOnCheckOn.cpp" />
+		<Unit filename="TestAssertReportFile.cpp" />
+		<Unit filename="TestCheck.cpp" />
+		<Unit filename="TestCheck1DefaultParam.cpp" />
+		<Unit filename="TestCheck2DefaultParams.cpp" />
+		<Unit filename="TestCheckDontReportFile.cpp" />
+		<Unit filename="TestCheckLevel1.cpp" />
+		<Unit filename="TestCheckLevel3.cpp" />
+		<Unit filename="TestCheckReportFile.cpp" />
+		<Unit filename="TestCombinedTypes.cpp" />
+		<Unit filename="TestContext.cpp" />
+		<Unit filename="TestDefaultGroup.cpp" />
+		<Unit filename="TestDefaultOptionalAction.cpp" />
+		<Unit filename="TestDisabled.cpp" />
+		<Unit filename="TestEnabled.cpp" />
+		<Unit filename="TestExpressions.cpp" />
+		<Unit filename="TestFilters.cpp" />
+		<Unit filename="TestGetLevel.cpp" />
+		<Unit filename="TestGroups.cpp" />
+		<Unit filename="TestHook.cpp" />
+		<Unit filename="TestIfSuccess.cpp" />
+		<Unit filename="TestIfTypeReports.hpp" />
+		<Unit filename="TestIgnore.cpp" />
+		<Unit filename="TestLevelToString.cpp" />
+		<Unit filename="TestLoggerId.cpp" />
+		<Unit filename="TestLoggerInfo.cpp" />
+		<Unit filename="TestNoText.cpp" />
+		<Unit filename="TestOptionalAction.cpp" />
+		<Unit filename="TestOutput.cpp" />
+		<Unit filename="TestParamListWithCommas.cpp" />
+		<Unit filename="TestResponderSwitcher.cpp" />
+		<Unit filename="TestSetOptionalAction.cpp" />
+		<Unit filename="TestSetOptionalLogger.cpp" />
+		<Unit filename="TestSideEffects.cpp" />
+		<Unit filename="TestStreamLogger.cpp" />
+		<Unit filename="TestThreadSafety.cpp" />
+		<Unit filename="TestUseBool.cpp" />
+		<Unit filename="TestVerifyV.cpp" />
+		<Unit filename="TestVersion.cpp" />
+		<Unit filename="TestWxAssert.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

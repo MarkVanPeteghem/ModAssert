@@ -1,0 +1,801 @@
+<articleinfo>
+  <title>Modular Assertions version &Version;</title>
+  <subtitle>An avanced assertion package for C++, that can use Rich Booleans</subtitle>
+  <author>
+  <email>info@q-mentum.com</email>
+  </author>
+  <copyright>
+    <year>2004</year>
+    <year>2005</year>
+    <year>2006</year>
+    <year>2007</year>
+	<year>2008</year>
+	<year>2010</year>
+	<year>2011</year>
+    <holder>Q-Mentum</holder>
+  </copyright>
+  <legalnotice><para>
+    Distributed under the wxWindows Licence
+    (see accompanying file COPYING.LIB, and LICENCE.txt for the exception notice, or online at
+    <ulink url='http://opensource.org/licenses/wxwindows.php'>http://opensource.org/licenses/wxwindows.php</ulink>) 
+  </para></legalnotice>
+  <corpauthor><ulink url='http://www.q-mentum.com'>Q-Mentum</ulink></corpauthor>
+  <abstract id='readme'>
+    <para>In C and C++ the traditional assert function is used to tell the user that something unexpected happened,
+        that might cause the program to fail. Macros were written in other packages to extend this mechanism, like
+        <code>ASSERT_EQUAL(a,b)</code>, <code>ASSERT_NOT_EQUAL(a,b)</code>, <code>ASSERT_LESS(a,b)</code>, ...,
+        to give a short explanation like <msgtext>"lefthand is &lt;9&gt;, righthand is &lt;10&gt;"</msgtext>.
+        However, if we want similar VERIFY macros which still evaluate their arguments in non-debug mode,
+        we get <code>VERIFY_EQUAL</code>, <code>VERIFY_NOT_EQUAL</code>, ...,
+        or macros that add a message like <code>ASSERT_EQUAL_MSG</code>, <code>ASSERT_NOT_EQUAL_MSG</code>, ...,
+        so we could end up with hundreds of macros. Clearly this is not practical.
+    </para>
+    <para>The Modular Assertion macros solve this problem. They cannot only have a simple boolean expression as their argument,
+        but also a Rich Boolean, that checks a condition, and if it fails, it holds an analysis of why it fails.
+        E.g., the Rich Boolean <code>rbEQUAL(a,b)</code> could hold the information "`a':&lt;1&gt; == `b':&lt;2&gt; nok"
+        after a failed assertion. The assertion macros themselves only vary in their extra arguments
+        (expressions, messages, level, group, optional action).
+        This package has 128 different types of assertion macros
+        (<code>MOD_ASSERT</code>, <code>MOD_VERIFY</code>, <code>MOD_CHECK</code>, <code>MOD_ASSERT_P</code>, ...).
+        So one could write <code>MOD_ASSERT(rbEQUAL(a,b))</code>, <code>MOD_VERIFY(rbLESS(foo(), 10))</code>,
+        <code>MOD_ASSERT_PG(a, ModAssert::Fatal, rbEQUAL(bar(a),b))</code> etc.
+		128 may seem like too much, but there are 8 basic assertions, that each have 4 optional attributes (making 16 variations),
+		so they are easy to learn.
+    </para>
+    <para>The macros allow an arbitray number of expressions to be evaluated and shown
+    when an assertion or check fails. A level can be assigned to each assertion (Info, Warning, Error or Fatal).
+    Groups can be defined and assigned to assertions. An assertion can have an optional action.
+    Displaying and logging of assertions can each be controlled at runtime per case,
+    level, group, source code file or all at once. This can also be done at compiletime
+    per level, group, source code file or all at once, to reduce the size of the executable.
+    </para>
+    <para>Failed assertions are processed by objects that implement a given interface, so handling
+    of assertions is pluggable. There is a distinction between objects that inform the user and ask
+    what action to undertake, and objects that simply log the information. Three implementations of the
+    first are provided, one for console applications, one for Win32 and one for wxWidgets.
+    Two implementations of the second are provided, and another specific for wxWidgets.
+	You can add a filter to a responder or a logger, to filter out certain assertions.</para>	
+    <para>ModAssert makes a distinction between assertions and checks. Assertions are meant for
+	detecting bugs, while checks are meant for detecting other errors, e.g. invalid input by the user.
+	Checks have a failure action, that is executed if the condition fails. Loggers and responders are
+	aware of this distinction through an argument.</para>
+    <para>ModAssert doesn't have compile time assertions, because that is an entirely different kind
+    of assertion.</para>
+    <para>It is released under the <ulink url='http://opensource.org/licenses/wxwindows.php'>wxWindows Licence</ulink>,
+    so it can be used in both open source and commercial applications, without requiring provision of source,
+    or runtime acknowledgements.</para>
+	<para>Support is available through the
+	<ulink url='https://lists.sourceforge.net/lists/listinfo/modassert-users'>mailinglist</ulink>.</para>
+  </abstract>
+</articleinfo>
+
+<sect1 id='changelog'><title>Change log</title>
+    
+	<sect2><title>New in version 2.0.6</title>
+	<itemizedlist mark='bullet'>
+		<listitem>The autoconf and automake files are made mostly non-recursive, to solve some problems.</listitem>
+	</itemizedlist>
+	</sect2>
+
+	<sect2><title>New in version 2.0.5</title>
+	<itemizedlist mark='bullet'>
+		<listitem>Minor adjustments for the next version of UquoniTest.</listitem>
+	</itemizedlist>
+	</sect2>
+
+	<sect2><title>New in version 2.0.4b</title>
+	<itemizedlist mark='bullet'>
+		<listitem>Some problems with project files were solved.</listitem>
+		<listitem>Code::Blocks project files for LibInDLL and LibInExe were added.</listitem>
+	</itemizedlist>
+	</sect2>
+
+	<sect2><title>New in version 2.0.4</title>
+	<itemizedlist mark='bullet'>
+		<listitem>The functions <code>GetState</code> and <code>SetState</code> are added to use one instance of
+			ModAssert in an executable and the DLLs that are loaded.</listitem>
+		<listitem>Project files for VC++ 2010 are added.</listitem>
+	</itemizedlist>
+	</sect2>
+
+	<sect2><title>New in version 2.0.3</title>
+	<itemizedlist mark='bullet'>
+	<listitem>A problem with the configuration scripts is solved.</listitem>
+	</itemizedlist>
+	</sect2>
+
+	<sect2><title>New in version 2.0.2</title>
+	<itemizedlist mark='bullet'>
+	<listitem>The assertion macro MOD_VERIFY_B and variations are added</listitem>
+	<listitem>The macros IF_NOT_MOD_ASSERT_REPORTS, IF_MOD_ASSERT_REPORTS_ELSE,
+		IF_NOT_MOD_CHECK_REPORTS and IF_MOD_CHECK_REPORTS_ELSE are added</listitem>
+	<listitem>The Properties class can tell whether the assertion or check can stop displaying.
+		The provided responders use this feature.</listitem>
+	<listitem>The provided assertion handlers for consoles, Win32 and WxWidgets now allow to break into code when NDEBUG is defined</listitem>
+	<listitem>When you remove the text from a condition, it is no longer reported as unconditional</listitem>
+	<listitem>Bug fixed: the WxWidgets dialog box now correctly uses GetAllowBreakIntoDebugger() on Linux</listitem>
+	<listitem>Bug fixed: &amp;&amp; is now shown correctly in the Windows dialog box</listitem>
+	</itemizedlist>
+	</sect2>
+
+	<sect2><title>New in version 2.0.1</title>
+	<itemizedlist mark='bullet'>
+	<listitem>The bug that caused a compile error when ModAssert::UseBool is used as a
+		return value of a function, is solved.</listitem>
+	</itemizedlist>
+	</sect2>
+
+    <sect2><title>New in version 2.0</title>
+	<itemizedlist mark='bullet'>
+	<listitem>There are now variations of <code>MOD_VERIFY</code> that
+		return the result of the condition argument, or the first argument of
+		a Rich Boolean if the condition is a Rich Boolean, and variations of
+		<code>MOD_CHECK</code> that return a value or a boolean.</listitem>
+	<listitem>There is now a default responder, that terminates the application
+		if an assertion fails or shows a warning (not if it is a check) depending on the level.
+		You can set the minimum level for both of these.</listitem>
+	<listitem>There is another default responder, that shows a warning if an assertion 
+		fails (not if it is a check). You can set the minimum level
+		for this.</listitem>
+	<listitem>The class AutoResponder is renamed ResponderSwitcher (but there is a typedef to
+	AutoResponder), and can now also add objects derived from Responder.</listitem>
+	<listitem>The functions <code>SetConsoleHandler</code>, <code>SetWin32Handler</code>,
+		and <code>SetWxHandler</code> are deprecated (but still available) and 
+		are replaced by <code>SetupForConsole</code>, <code>SetupForWin32</code>
+		and <code>SetupForWxWidgets</code>, which show debug information in debug builds
+		and continue silently in release builds.
+		They all have an overloaded version that takes a <code>Mode</code> argument,
+		to specify what should happen if an assertion fails: show debug information,
+		show a simple warning, continue silently or terminate.</listitem>
+	<listitem>The new headerfile <filename>modassert/assertd.hpp</filename> has definitions
+		for <code>ASSERT</code> and <code>VERIFY</code> to map to ModAssert equivalents.</listitem>
+	<listitem>The new headerfile <filename>modassert/verifyv.hpp</filename> has definitions
+		for <code>ASSERT</code> and a <code>VERIFY</code> macro that returns its argument
+		to map to ModAssert equivalents.</listitem>
+	<listitem>The new headerfile <filename>modassert/wxassert.hpp</filename> has definitions
+		for all runtime assertions in wxWidgets to map them to ModAssert equivalents.</listitem>
+	<listitem>If ModAssert is not yet active, or no longer active, failing assertions
+		are redirected to assert() (checks are ignored at those stages).</listitem>
+	<listitem>ModAssert groups that are used as member variables of objects should now be
+		declared mutable if you want to use them in const methods. This makes more sense because
+		it stresses that the group is not logically part of the state of the object, and avoids
+		const-casts in ModAssert.</listitem>
+	</itemizedlist>
+	</sect2>
+
+    <sect2><title>New in version 1.5.1</title>
+	<itemizedlist mark='bullet'>
+	<listitem>By default remote drives are no longer used in Win32,
+	but you can turn this on.</listitem>
+	</itemizedlist>
+	</sect2>
+
+    <sect2><title>New in version 1.5</title>
+	<itemizedlist mark='bullet'>
+	<listitem>You can now specify a default optional action per source code
+	file, but still override it if necessary.</listitem>
+	<listitem>The classes InfoProvider and InfoUser are moved to the namespace
+	InfoProviders, as well as the classes derived from InfoProvider. Their
+	interfaces have changed a little.</listitem>
+	<listitem>You can define the preprocessor symbol MOD_ASSERT_NO_TEXT to
+	remove the literal text with the condition from assertions and checks,
+	to reduce the size of the application.</listitem>
+	<listitem>The application infoprovider is added.</listitem>
+	<listitem>Infoproviders for Win32 that give the computername, the username,
+		information about the available drives, the amount of free space on them,
+		the total amount of RAM and available amount of RAM, are added.</listitem>
+	<listitem>Filter objects that only allow assertions and checks,
+	or allow all except assertions and checks, are added.</listitem>
+	<listitem>A bug that caused the info of the Win32 current directory
+	infoprovider to end in a null character, is solved.</listitem>
+	<listitem>Project files for the Code::Blocks IDE are added.</listitem>
+	<listitem>The optional logger is now in the ModAssert package itself.
+	The ModAssertConsole, ModAssertWin32 and ModAssertWxGui libraries use
+	that one instead of their own version.</listitem>
+	<listitem>The optional logger can now have begin and end messages, if desired.</listitem>
+	<listitem>Loggers can be removed by their id, that is returned by AddLogger(...).</listitem>
+	<listitem>Setup code in the demoes is moved to a separate function.</listitem>
+	</itemizedlist>
+	</sect2>
+
+    <sect2><title>New in version 1.4.1</title>
+	<itemizedlist mark='bullet'>
+	<listitem>The headerfiles that cause autolinking for the ModAssertConsole,
+	ModAssertWin32 and ModAssertWxGui libraries, now also cause autolinking for
+	the ModAssert library.</listitem>
+	</itemizedlist>
+	</sect2>
+
+    <sect2><title>New in version 1.4</title>
+	<itemizedlist mark='bullet'>
+	<listitem>You can now specify default parameters per sourcefile</listitem>
+	<listitem>You can now specify a global optional action</listitem>
+	<listitem>For Win32, infoproviders are added that give the current directory,
+		the OS version, and info about the processor</listitem>
+	<listitem>For wxWidgets, infoproviders are added that give the current directory,
+		the OS version, the last system error and the free memory</listitem>
+	<listitem>The Filter derived class FilterMessages is added</listitem>
+	<listitem>InfoUser can now also take InfoProvider objects to include or exclude</listitem>
+	<listitem>With Visual Studio, auto linking is now used</listitem>
+	<listitem>Warning levels are increased to the highest level where possible,
+	and most remaining warnings are eliminated</listitem>
+	</itemizedlist>
+	</sect2>
+	
+    <sect2><title>New in version 1.3</title>
+	<itemizedlist mark='bullet'>
+	<listitem>The license has changed to the wxWindows licence</listitem>
+	<listitem>You can now specify default groups</listitem>
+	<listitem>The macro MOD_CHECK_FAIL is added</listitem>
+	<listitem>The interface of InfoProvider has changed.</listitem>
+	<listitem>Each InfoProvider derived object can determine whether it should
+	be reported in case of an assertion, at the beginning of logging and at the end
+	of logging.</listitem>
+	<listitem>For each logger and responder you can override whether an InfoProvider should be used with it</listitem>
+	<listitem>When you add an InfoProvider with ModAssert, you can attach a filter to it.
+	Filters can now also filter out InfoProviders when messages are logged</listitem>
+	<listitem>You can specify at runtime whether the Exit action, BreakIntoDebugger action and
+		Optional action are allowed by responders. The provided responders take this into account
+		by disabling these options.</listitem>
+	<listitem>The Win32ProcessIdInfoProvider is added for Win32, 
+		and WxProcessIdInfoProvider for WxWidgets platforms</listitem>
+	<listitem>The InfoProviders that give the treadid, now also tell whether it is the main thread or not</listitem>
+	<listitem>Adjustments to Rich Booleans 1.3</listitem>
+	</itemizedlist>
+	</sect2>
+	
+    <sect2><title>New in version 1.2.1</title>
+	<para>Solution and project files specific for Microsoft Visual Studio 2005 are added.</para>
+	</sect2>
+	
+    <sect2><title>New in version 1.2</title>
+	<para>The major change in this release is the strict distinction between assertions and checks,
+	that is introduced in many parts of the library. Unfortunately this means backwards incompatibilty,
+	but only in the backend processing of assertions - the assertion macros haven't changed.</para>
+    <itemizedlist mark='bullet'>
+	<listitem>The class Displayer is renamed to Responder.</listitem>
+	<listitem>The responder, the loggers, the hooks and the infoproviders are now aware whether the assertion comes from
+	a check macro (i.e. the macros that start with <code>MOD_CHECK</code>) or not, and their methods are now const.
+	Unfortunately this changes their interface: their arguments are now grouped in two objects.</listitem>
+	<listitem>The functions GetDisplayAll, SetDisplayAll, GetLogAll, SetLogAll, SetDisplayInFile, GetDisplayInFile
+		SetLogInFile, GetLogInFile, Level&lt;...&gt;::GetDisplay, Level&lt;...&gt;::SetDisplay, Level&lt;...&gt;::GetLog and
+		Level&lt;...&gt;::SetLog  now have an extra argument to distinguish between assertions and checks.</listitem>
+	<listitem>The definition of the symbols MOD_ASSERT_REPORT, MOD_ASSERT_DONT_REPORT, MOD_ASSERT_REPORT_FILE,
+		MOD_ASSERT_DONT_REPORT_FILE and MOD_ASSERT_LEVEL now only influence assertion macro, not check macros.
+		For check macros there are now the equivalent symbols MOD_CHECK_REPORT, MOD_CHECK_DONT_REPORT, MOD_CHECK_REPORT_FILE,
+		MOD_CHECK_DONT_REPORT_FILE and MOD_CHECK_LEVEL</listitem>
+	<listitem>The Responder class's method <code>OnAssert</code> also has an extra argument <code>bool display</code>,
+	that tells if the assertion should be displayed. ModAssert now always passes assertions to the active responder,
+	so responders have to decide themselves whether they handle an assertion.</listitem>
+	<listitem>The Logger class now has a new pure virtual method AddMessage(const RichBool::String &amp; msg).</listitem>
+	<listitem>The inclusion of headerfiles has changed a little. Where you include <filename>modassert/assert.hpp</filename>,
+	you may have to replace it with, or add, <filename>modassert/handler.hpp</filename>.</listitem>
+	<listitem>The method GetType of InfoProvider now returns by const reference instead of by value.</listitem>
+	<listitem>You can now add a filter to loggers and the responder, so they're used only for certain types
+	of assertions. Many implementations of these filters are provided.</listitem>
+	<listitem>The class GroupList now has the method Has(const char*) that returns true only if it has a
+	group with that name.</listitem>
+	<listitem>The provided responders let you optionally log to another logger, that you can set.</listitem>
+	<listitem>The loggers and responders for Win32, wxWidgets and console applications are now put
+	in libraries, to make it easier to use them.</listitem>
+	<listitem>An AutoResponder class is added that implements the Responder interface, that doesn't
+	display anything to the user but decides what response to give based on filters that you add to it.</listitem>
+	<listitem>The class TimeInfoProvider is added, that inherits from InfoProvider, and gives the date
+	and time. This is automatically used if you call ModAssert::SetWin32Handler, ModAssert::SetWxHandler
+	or ModAssert::SetConsoleHandler.</listitem>
+	<listitem>The function SetConsoleModAssertHandler is renamed to SetConsoleHandler, and is put in the
+	ModAssert namespace (this was forgotten in the previous release).</listitem>
+	<listitem>ModAssert now adds a message to a logger when it is added with the date and time,
+	as well as when it is removed.</listitem>
+	<listitem>Assertions are ignored as long as no responder is set and no logger is added, to prevent
+	that the synchronization mechanism is used before it is initialized.</listitem>
+	<listitem>Assertions are ignored after the destructor of a ModAssert::AutoShutdown object is called, to prevent
+	that the synchronization mechanism is used after it is disabled.</listitem>
+	</itemizedlist>
+	</sect2>
+	
+	<sect2><title>New in version 1.1</title>
+    <itemizedlist mark='bullet'>
+	<listitem>You can now add hooks that are notified before the loggers and the displayer</listitem>
+	<listitem>You can now add InfoProviders, to return extra information in a string, that is used
+		by the loggers and the displayer</listitem>
+	<listitem>A logger is now provided that logs the assertion information to a file, but opens
+		the file for every assertion and appends the information</listitem>
+	<listitem>The dialogs now show a green icon if an assertion succeeds</listitem>
+	<listitem>The dialog for Windows 32 now shows the return value of GetLastError() if it is not 0,
+		and the corresponding text.</listitem>
+	<listitem>The functions SetWin32ModAssertHandler, SetWxModAssertHandler
+	and SetConsoleModAssertHandler are renamed to SetWin32Handler,
+	SetWxHandler and SetConsoleHandler, and are put in the ModAssert namespace</listitem>
+	<listitem>The ModAssert handler for Win32 now returns 0 if an assertion or check fails in another thread
+	and no debugger is attached</listitem>
+	</itemizedlist>
+	</sect2>
+	
+	<sect2><title>New in version 1.0</title>
+    <itemizedlist mark='bullet'>
+	<listitem>Makefiles with a configure script are added, so compilation should work on
+		most UNIX-like systems.</listitem>
+	<listitem>The include directory is now called <filename>modassert</filename></listitem>
+    <listitem>The ModAssert handler for MFC is replaced with a ModAssert handler for Win32,
+        using only the pure Win32 API.</listitem>
+    <listitem>A bug is solved where the analysis in ModAssert dialogs was not legible on
+        high resolution screens, by setting the font size to 0, so a reasonable default
+        is used.</listitem>
+    <listitem>A bug is solved where the ModAssert handler for console application allowed
+		'0' as part of the input.</listitem>
+    <listitem>MOD_ASSERT_ENABLE is renamed to MOD_ASSERT_REPORT, MOD_ASSERT_DISABLE is renamed to
+        MOD_ASSERT_DONT_REPORT, MOD_ASSERT_ENABLE_FILE is renamed to MOD_ASSERT_REPORT_FILE,
+        and MOD_ASSERT_DISABLE_FILE is renamed to MOD_ASSERT_DONT_REPORT_FILE.</listitem>
+    <listitem>The project files for Visual Studio now have in addition to
+        MultiThread DLL code generation also configurations for
+        MultiThread and Singlethread code generation.</listitem>
+    <listitem>The macro BREAK_HERE is renamed to MOD_ASSERT_BREAK_HERE.</listitem>
+    <listitem>Level groups can now only be added to a group with operator%, which allows only one level group per combination.</listitem>
+	<listitem>Some non-locking methods are added in handler.cpp to prevent a deadlock on platforms
+	that don't have recursive locks</listitem>
+    </itemizedlist>
+    </sect2>
+
+    <sect2><title>New in version 0.9</title>
+    <itemizedlist mark='bullet'>
+    <listitem>Threadsafety: only one thread at a time can now log and display assertion
+    information</listitem>
+    <listitem>The level <code>ModAssert::Debug</code> is replaced by
+		<code>ModAssert::Warning</code>, and level <code>ModAssert::Error</code>
+		is now the default level (Debug doesn't sound like a severity level,
+		and Error seems more natural for a default)</listitem>
+    <listitem><code>ModAssert::IfSuccess</code> and group objects with template argument
+        <classname>ModAssert::ReportAll</classname> now have <code>operator()</code> to
+        combine them with other group objects to replace <code>operator&amp;&amp;</code>,
+        to preserve their behavior with succeeding assertions</listitem>
+    <listitem>Group objects with template argument <classname>ModAssert::ReportAll</classname>
+        now appear as two groups when displayed, one for succeeding assertions and
+        one for failing assertions</listitem>
+    </itemizedlist>
+    </sect2>
+
+    <sect2><title>New in version 0.8.1</title>
+    <itemizedlist mark='bullet'>
+    <listitem>Tests and demos are adjusted to Rich Booleans version 0.8 (the ModAssert
+    library itself is unchanged).</listitem>
+    <listitem>Breaking into code is tested and works with Dev-C++.</listitem>
+    </itemizedlist>
+    </sect2>
+
+    <sect2><title>New in version 0.8</title>
+    <itemizedlist mark='bullet'>
+    <listitem>It is now possible to have the information of selected assertions
+        displayed and logged if the conditions succeeds.</listitem>
+    <listitem>The class <classname>ModAssert::Type</classname> is renamed to
+        <classname>ModAssert::GroupList</classname>, to avoid confusion with the C++
+        meaning of a type. Therefore the suffix T of the assertion macros is changed to G.</listitem>
+    <listitem>The class <classname>ModAssert::Off</classname> is renamed to
+        <classname>ModAssert::ReportNone</classname>, and the class <classname>ModAssert::On</classname>
+        is renamed to <classname>ModAssert::ReportFailure</classname>, to avoid confusion with
+        the macros <code>MOD_ASSERT_ON</code> and <code>IF_MOD_ASSERT_ON</code>.</listitem>
+    <listitem>The class <classname>ModAssert::ValueList</classname> is renamed to
+        <classname>ModAssert::ParameterList</classname>, to better show the correspondence
+        with the suffix P of the macros.</listitem>
+    <listitem>A bug that caused a crash when <code>wxASSERT</code> (i.e. without a message) is
+        rerouted to MOD_ASSERT, is solved.</listitem>
+    <listitem>A bug that disabled the option to abort when <code>wxASSERT</code> (or another wxWidgets
+        assertion macro) is
+        rerouted to MOD_ASSERT, is solved.</listitem>
+    <listitem>A bug where the Rich Booleans <code>rbAND</code> and <code>rbOR</code> couldn't
+        be used in <code>MOD_VERIFY</code> and <code>MOD_CHECK</code> when assertions are compiled
+        out, is solved.</listitem>
+    </itemizedlist>
+    </sect2>
+    
+    <sect2><title>New in version 0.7</title>
+    <itemizedlist mark='bullet'>
+    <listitem>It is now possible to group assertions by adding a group object
+        to an assertions type. Displaying and logging the assertion data can be set per
+        group. Assertions can also be compiled out per group, drastically improving
+        the possibility to selectively compile out assertions.</listitem>
+    <listitem>Groups and levels can be combined with &amp;&amp; and ||.</listitem>
+    <listitem>Reusable code is separated from the samples, to make reuse easier
+        (especially for MFC)</listitem>
+    <listitem>The class <classname>ModAssert::InformUser</classname> is renamed
+        <classname>ModAssert::Displayer</classname></listitem>
+    <listitem>The interface of <classname>ModAssert::Displayer</classname> and
+        <classname>ModAssert::Logger</classname> have changed to allow the new
+        functionality of the groups.</listitem>
+    <listitem>MOD_ASSERT_KEEP is renamed MOD_ASSERT_ENABLE, and MOD_ASSERT_DISABLE is added
+        to compile out assertions when NDEBUG is not defined.</listitem>
+    <listitem>MOD_ASSERT_ENABLE_FILE and MOD_ASSERT_DISABLE_FILE can be defined in a file
+        to locally turn on or off assertions at compiletime</listitem>
+    <listitem>Methods to control logging for all assertions or per source code file at runtime,
+        are added</listitem>
+    <listitem><code>ModAssert::SetIgnoreAll</code> and <code>ModAssert::GetIgnoreAll</code>
+        are renamed to <code>ModAssert::SetDisplayAll</code> and <code>ModAssert::GetDisplayAll</code>,
+        and the meaning of the boolean is inverted</listitem>
+    <listitem><code>ModAssert::SetIgnoreFile</code> and <code>ModAssert::GetIgnoreFile</code>
+        are renamed to <code>ModAssert::SetDisplayInFile</code> and <code>ModAssert::GetDisplayInFile</code>,
+        and the meaning of the boolean is inverted</listitem>
+    <listitem>The type <classname>ModAssert::Action</classname> is renamed to
+        <classname>ModAssert::Response</classname>, to avoid confusion with optional actions
+        and failure actions.</listitem>
+    <listitem>A bug where the failure action was not performed when assertions are compiled out,
+        is solved.</listitem>
+    </itemizedlist>
+    </sect2>
+
+    <sect2><title>New in version 0.6</title>
+    <itemizedlist mark='bullet'>
+    <listitem>Code for wxWidgets is adjusted to wxWidgets 2.6.x (adjusting include and library
+        directories)</listitem>
+    <listitem>Adjustments to Rich Booleans 0.6 (some classnames changed)</listitem>
+    <listitem>It is now possible to specify more than one action if an assertion failed,
+        e.g. 'ignore file' and 'ignore level' at the same time</listitem>
+    <listitem>Logic to ignore a file or a level is moved to the assertion library</listitem>
+    <listitem>The suffix L to specify a level in an assertion macro changed to T,
+        because in a future version the argument will be generalized to a type of assertion</listitem>
+    <listitem>The suffix A to specify an optional action in an assertion macro changed to O,
+        to make the distinction between optional actions and failure actions more clear</listitem>
+    </itemizedlist>
+    </sect2>
+
+    <sect2><title>New in version 0.5</title>
+    <itemizedlist mark='bullet'>
+    <listitem>A demo console application is added, with a reusable class inherited from
+        <classname>ModAssert::InformUser</classname></listitem>
+    <listitem>Header files have now the extension .hpp, because they all contain C++ code</listitem>
+    <listitem>A bug that caused a chrash when 'debug' is pressed in Release mode, is solved</listitem>
+    <listitem>A bug that caused a chrash when the wxWidgets assertion dialog was closed in Release mode,
+    is solved</listitem>
+    </itemizedlist>
+    </sect2>
+
+    <sect2><title>New in version 0.4</title>
+    <itemizedlist mark='bullet'>
+    <listitem>The macro <code>MOD_CHECK</code> - and variations with suffixes P, L and A - are added,
+        that have an action as an extra argument that will be executed if the condition fails</listitem>
+    <listitem>A bug was solved that made it impossible to use <code>break</code> as an optional action</listitem>
+    <listitem>The macro <code>IF_MOD_ASSERT_ON</code> is added, that evaluates its argument
+        only if ModAssert is on</listitem>
+    </itemizedlist>
+    </sect2>
+
+    <sect2><title>New in version 0.3.1</title>
+    <itemizedlist mark='bullet'>
+    <listitem>Sample code is adjusted to changes in Rich Booleans 0.4</listitem>
+    </itemizedlist>
+    </sect2>
+
+    <sect2><title>New in version 0.3</title>
+    <itemizedlist mark='bullet'>
+    <listitem>The first argument of the macro <code>MOD_ASSERT_P</code> and other macros that
+        can have parameters, now has the form <code>expr1 &lt;&lt; expr2 &lt;&lt; ... &lt;&lt; exprN</code>
+        instead of <code>maPARAM(expr1)(expr2)...(exprN)</code>; the level can no longer be
+        given here</listitem>
+    <listitem>The macros <code>MOD_ASSERT_1P</code>, <code>MOD_ASSERT_2P</code> and other macros that
+        could take one or two parameters, have been removed</listitem>
+    <listitem>Variations of the <code>MOD_ASSERT</code> and others were made that take a level as
+        a separate argument</listitem>
+    <listitem>Assertions can be compiled out per level, if the compiler optimizes</listitem>
+    <listitem>The class <classname>ModAssert::AssertLogger</classname> is renamed to
+        <classname>ModAssert::Logger</classname>, and the methods <code>ModAssert::AddAssertLogger</code>
+        and <code>ModAssert::RemoveAssertLogger</code> are renamed to <code>ModAssert::AddLogger</code>
+        and <code>ModAssert::RemoveLogger</code></listitem>
+    <listitem>The class <classname>ModAssert::StreamLogger</classname> is made, that implements the
+        interface <classname>ModAssert::Logger</classname>, and its constructor has a
+        stream object as its argument, to which output of failing assertions is streamed</listitem>
+    <listitem>The class <classname>ModAssert::Context</classname> is introduced, that contains
+        the filename and linenumber where an assertion occurs. For compilers that support it,
+        it also has the function name. This class can be derived by the
+        user to contain more information, which can be automatically used by all assertion macros</listitem>
+    <listitem>The class <classname>ValueList::List</classname> has been renamed
+        <classname>ModAssert::ValueList</classname>, and the class <classname>ModAssert::AssertData</classname>
+        has been removed.</listitem>
+    <listitem>The class <classname>ModAssert::AskForAction</classname> has been renamed
+        <classname>ModAssert::InformUser</classname>, and the function <code>ModAssert::SetAskForAction</code>
+        has been renamed <code>ModAssert::SetInformUser</code>.</listitem>
+    <listitem>The method <code>ModAssert::RemoveLogger</code> has been added</listitem>
+    </itemizedlist>
+    </sect2>
+
+    <sect2><title>New in version 0.2</title>
+    <itemizedlist mark='bullet'>
+    <listitem>The class <classname>ModAssert::AssertHandler</classname> is removed, and the classes
+    <classname>ModAssert::AskForAction</classname>
+    and <classname>ModAssert::Logger</classname> were added to replace it</listitem>
+    <listitem>Functionality to ignore assertions per case, file and level is implemented</listitem>
+    <listitem>Adjustments for changes in new version of Rich Booleans</listitem>
+    </itemizedlist>
+    </sect2>
+</sect1>
+
+<sect1><title>License</title>
+<para>ModAssert is released under the wxWindows Licence. This is basically the LGPL license,
+but with an exception notice that states that you can use, copy, link, modify and distribute
+the code in binary form under your own terms. So you can use it in e.g. commercial applications
+without having to reveal the source code; you don't even have to mention that you use ModAssert.</para>
+<para>See the files <filename>COPYING.LIB</filename> and <filename>LICENCE.txt</filename> in the 
+main directory for the complete license, or online at
+<ulink url='http://opensource.org/licenses/wxwindows.php'>http://opensource.org/licenses/wxwindows.php</ulink></para>
+</sect1>
+
+<sect1><title>Support</title>
+<para>Q-Mentum provides support for ModAssert, together with Rich Booleans.
+For more information, contact us at <email>sales@q-mentum.com</email>.</para>
+</sect1>
+
+<sect1><title>Requirements</title>
+<itemizedlist mark='bullet'>
+<listitem>A C++ compiler that can compile namespaces and templates with template specialization
+    (partial template specialization is not needed)</listitem>
+<listitem>STL or wxWidgets</listitem>
+<listitem><ulink url='http://sourceforge.net/projects/rich-booleans/'>Rich Booleans</ulink> version 1.5 or better</listitem>
+</itemizedlist>
+</sect1>
+
+<sect1><title>Installation</title>
+<indexterm><primary>Installation</primary></indexterm>
+<para>Make sure the Rich Booleans library is installed properly.</para>
+<para>Download the file and decompress its contents to a directory.</para>
+<sect2><title>Build the library</title>
+Below are instructions to build the ModAssert library in the configurations that you need.
+You certainly need to build the ModAssert library, and possibly also the ModAssertConsole,
+ModAssertWin32 and/or ModAssertWxGui libraries. The projects whose name contains 'demo'
+may be of interest to you to see how you can use the ModAssert library.
+The projects whose name contains 'test'
+are only provided for experienced users who wish to test ModAssert
+in different ways than was already done (although it is unlikely that this is necessary).
+<sect3><title>Using the Visual Studio project files</title>
+<para>Please use the workspace, solution and project files that are specific to the version of your compiler
+(<filename>*.dsw</filename> and <filename>*.dsp</filename> for VC++ 6.0,
+<filename>*7.1.sln</filename> and <filename>*7.1.vcproj</filename> for VC++ 2003,
+<filename>*8.0.sln</filename> and <filename>*8.0.vcproj</filename> for VC++ 2005,
+<filename>*9.0.sln</filename> and <filename>*9.0.vcproj</filename> for VC++ 2008,
+<filename>*10.0.sln</filename> and <filename>*10.0.vcproj</filename> for VC++ 2010).
+Converting these files to another version may require adjustments.</para>
+<para>Note that these project files are not tested with Visual Studio Express but
+you probably can just use the same project files.</para>
+<para>The included Visual Studio project files have many configurations. The configurations that
+have ST in their name (Debug ST, Release ST) are for applications built with the Single-Threaded
+option, the ones that have MT in their name (Debug MT, ...) are for applications built with the Multithreaded
+option, and the ones that have MTD in their name (Debug MTD, Debug Wx MTD, ...) are for applications built with the Multithreaded DLL
+option.</para>
+<para>The configurations that have Wx in their name (Debug Wx MTD, Release Wx MTD) are for use with wxWidgets;
+these have only been tested without Unicode support, and with the static library version.
+For wxWidgets, there are only configuations with MTD in their name, because the wxWidgets libraries
+are built with the Multithreaded DLL option by default.</para>
+<para>The libraries are built in the directory <filename>lib</filename>.</para>
+</sect3>
+<sect3><title>Using the GNU makefiles</title>
+<para>To use the GNU makefiles, enter the command <code>./configure</code>, followed by <code>make</code>.
+You can also build the wxWidgets version by entering the command
+<code>./configure --with-wx</code> instead of <code>./configure</code>,
+this defines the symbol <code>RICHBOOL_USE_WX</code> during compilation.</para>
+</sect3>
+<sect3><title>Using the Windows makefiles for Mingw gcc</title>
+<para>The makefiles <filename>Makefile.win</filename> in several directories can be used to build
+the ModAssert library and the tests, but you will probably have to adjust the directories
+for the include files and library files.
+They have only one configuration, the one that doesn't use wxWidgets.</para>
+</sect3>
+<sect3><title>Using the Code::Blocks project files</title>
+<para>The files with the extension <filename>cbp</filename> and <filename>workspace</filename> in several directories are respectively Code::Blocks project files and workspaces.
+They have only one configuration, the one that doesn't use wxWidgets.</para>
+</sect3>
+<sect3><title>Other compilers</title>
+<para>Create a library project (or makefile), add the <filename>include</filename> directory to
+the include path, and add all the .cpp files, except the ones that start with 'mfc'.</para>
+</sect3>
+</sect2>
+
+<sect2><title>Adjusting your development environment to use ModAssert</title>
+<indexterm><primary>Adjusting your development environment to use ModAssert</primary></indexterm>
+	<para>To use ModAssert in your application or library,
+	you need to specify the include and library directory.
+	There are two options to do this: one option makes ModAssert available
+	to all your projects, the other option is to specify it only for the projects
+	in which you want to use ModAssert. The first option is preferred,
+	especially if you plan to use ModAssert in many projects. There is no
+	danger for confusion with include files from other libraries with the same name,
+	as long as you keep the include files in the <filename>modassert</filename> directory
+	and only add its parent directory to the include path.</para>
+	<para>This section describes how to make ModAssert available to
+	<emphasis>all</emphasis> your projects.</para>
+
+    <sect3><title>Microsoft Visual C++</title>
+    <para>Add the directory called
+	<filename>include</filename> in the ModAssert directory to the VC++ include directories
+    (Tools -> Options -> Projects and solutions -> VC++ Directories,
+	and select Include files in the combo box on the right),
+    and add the directory called <filename>lib</filename> in the ModAssert directory to the VC++ include directories
+    (Tools -> Options -> Projects and solutions -> VC++ Directories, and select Library files in the combo box on the right)</para>
+	</sect3>
+    
+    <sect3><title>gcc</title>
+    <para>Install the library in
+	<filename>/usr/local/lib/</filename> and the header files (the directory <filename>modassert</filename>,
+	not only the headerfiles in it) in
+	<filename>/usr/local/include</filename> (or in other directories that are respectively in LIBRARY_PATH
+	and CPLUS_INCLUDE_PATH). You can do this with the command <code>make install</code>
+	(as a superuser), this builds the library and installs it in
+	<filename>/usr/local/lib/</filename> and puts
+	the header files in <filename>/usr/local/include</filename>.
+	An alternative is to add the directories to LIBRARY_PATH and CPLUS_INCLUDE_PATH.</para>
+	</sect3>
+	
+    <sect3>For other compilers, consult the documentation of your compiler.</sect3>
+
+</sect2>
+</sect1>
+
+<sect1><title>Adding ModAssert to individual projects</title>
+<indexterm><primary>Adding ModAssert to individual projects</primary></indexterm>
+If you chose to not make ModAssert available to all your projects
+(as explained in the previous section),
+you have to setup every project that uses it correctly as explained in this section.
+Note that you also should make sure that the Rich Booleans library is available,
+see the documentation of the Rich Booleans.
+<para>Make sure that the headerfiles can be included, and that the libraries can be found.
+<itemizedlist>
+    <listitem>For Microsoft Visual C++, it is best to make an environment variable called MODASSERT,
+	that contains the directory where ModAssert is located, to make upgrading easier.
+    Then add <filename>$(MODASSERT)/include</filename> to your include path
+    (Project Settings -> C/C++ -> Preprocessor).
+    Add <filename>$(MODASSERT)/lib</filename> to your additional library path (Project Settings -> Link -> Input).
+    </listitem>
+    <listitem>For gcc, use the -I and -L command line options to specify the include and
+	library directories.</listitem>
+    <listitem>For other compilers, consult the documentation of your compiler.</listitem>
+</itemizedlist>
+</para>
+</sect1>
+
+<sect1><title>Adding ModAssert to your application</title>
+<itemizedlist>
+<listitem>Link the ModAssert and the Rich Booleans library with your executable. This is not necessary for
+Visual C++, because ModAssert and RichBool use
+autolinking with Visual C++, i.e. their headerfiles contain directives that cause the linker to include the correct
+library for the configuration that you use, if you include <filename>modassert/handler.hpp</filename>
+in at least one implementation file. In theory this should also work with Borland C++ Builder,
+but this hasn't been tested.</listitem>
+<listitem>Set the assertion handler at initialization time (typically in the <code>main</code> method,
+or a <classname>App</classname> object).
+    <itemizedlist mark='opencircle'>
+        <listitem>If you use the Windows 32 API, you can use the <classname>ModAssert::HandlerWin32</classname>
+            class by calling <code>ModAssert::SetWin32Handler()</code> (see <xref linkend='Win32'/>).</listitem>
+        <listitem>If you use wxWidgets, you can use the <classname>ModAssert::HandlerWx</classname>
+            class by calling <code>ModAssert::SetWxHandler()</code> (see <xref linkend='WxWidgets'/>).</listitem>
+        <listitem>For console applications, you can use the <classname>ModAssert::HandlerConsole</classname>
+            class by calling <code>ModAssert::SetConsoleHandler()</code> (see <xref linkend='Console'/>).</listitem>
+        <listitem>Otherwise, you can write your own ModAssertHandler
+            (see <xref linkend='modasserthandler'/> on how to do this).</listitem>
+    </itemizedlist>
+</listitem>
+<listitem>Include the headerfile <filename>modassert/assert.hpp</filename> in every file where you want to use
+Modular Assertions.</listitem>
+</itemizedlist>
+<para>The example projects in the directory <filename>demos</filename> that are included in the download
+might help clarify how to do all this.</para>
+
+<sect2><title>Breaking into code</title>
+<indexterm><primary>Breaking into code</primary></indexterm>
+<para>If an assertion or check is reported, and a <classname>Responder</classname> object is installed
+    (see <xref linkend='Display'/>), you get the option to debug, i.e. to break into the
+    code. There is code to do this for different compilers, but this has only been tested with
+    Microsoft Visual C++ 6.0, .NET and Dev-C++. If it doesn't work with your compiler, add the definition
+    <code>#define MOD_ASSERT_BREAK_HERE ModAssert::ManualBreak()</code> in the file <filename>include/modassert/assert.hpp</filename>
+    after the other definitions of <code>MOD_ASSERT_BREAK_HERE</code> (depending on your compiler, it might already
+    be defined to this), and manually set a breakpoint in the method <code>ManualBreak()</code>
+    in the file <filename>src/handler.cpp</filename>.</para>
+<para>Note that breaking into the code is only possible if a debugger is attached. Therefore this option is
+	disabled if the symbol <code>NDEBUG</code> is defined. If it is not defined, the Win32 ModAssert handler
+	checks if this is the case using the function <code>IsDebuggerPresent()</code>. If not, the option to debug
+	is disabled. Other ModAssert handlers don't do this; in that case selecting the debug option may cause
+	a crash.</para>
+</sect2>
+</sect1>
+
+<sect1><title>The purpose of assertion macros</title>
+<indexterm><primary>Purpose of assertion macros</primary></indexterm>
+<indexterm><primary>unexpected errors</primary></indexterm>
+<para>Assertion macros allow a programmer to check conditions of which they know that they
+<emphasis>should</emphasis> be true at a certain point, if all goes well.
+These errors are also called <emphasis>unexpected</emphasis> errors. This can show problems long before
+they manifest themselves as a bug or a crash. E.g. if a method to find a value in a
+container returns an index bigger than the size of the container, this is obviously an error.
+If that index is stored, and used some time later to index the array, we will notice this error,
+but we may not know where the index was calculated. Adding an assertion after the calculation
+of the index like <code>MOD_ASSERT(idx&lt;vec.size())</code> would immediately reveal the problem.
+With a Rich Boolean you could write <code>MOD_ASSERT(rbLESS(idx, vec.size()))</code>, so you would also know
+the value of <code>idx</code> and <code>vec.size()</code>.</para>
+<para>One common usage for assertion macros are contracts. These are pre or post conditions,
+or invariants (in case of an object). Pre and post conditions should be fulfilled at respectively
+the entry or exit of a function. Invariants apply to the state of an object, that should be fulfilled
+at both the exit and entry of every method.</para>
+<para>Another example is a method that initializes a pointer, and that should be called only
+once. The method could then check that the pointer is <code>NULL</code> when the method is entered.</para>
+<para>It takes some experience to learn to recognize where a programmer can use assertions.
+A good starting point is to add assertions if you encounter a nasty bug. See what assertions you
+could add in the affected code, by identifying conditions that should hold, but might not judged
+on what goes wrong.</para>
+</sect1>
+
+<sect1><title>The purpose of macros for error handling</title>
+<indexterm><primary>Purpose of assertion macros</primary><secondary>for error handling</secondary></indexterm>
+<indexterm><primary>expected errors</primary></indexterm>
+<para>ModAssert also provides macros for handling errors (see <xref linkend='ModCheck'/>), that are not due
+to bugs, but factors out of control of the application developer, e.g. invalid input of the user,
+or a network connection that can't be made. These errors are called <emphasis>expected</emphasis> errors.
+Typically, you would return an error code or throw
+an exception. With the macros for error handling you can do the same, but also have the
+information logged. These macros are called <emphasis>checks</emphasis> in this library. The reasons
+to use these are entirely different from the reasons
+to use assertion macros, but their functionality is so similar that ModAssert provides macros for
+these as well.
+Actually this package is called ModAssert for historical reasons.</para>
+</sect1>
+
+<sect1><title>Comparison to other assertion libraries</title>
+<indexterm><primary>Comparison to other assertion libraries</primary></indexterm>
+    <para>There are other assertion libraries which have about the same functionality
+    as this one, but are different in two key areas:
+    <itemizedlist mark='bullet'>
+    <listitem>Many other assertion libraries have just one assert macro, that takes a boolean expression,
+        and allow you to add expressions to it using <code>operator()</code>
+        and levels using <code>.level(Error)</code>. So you have something like
+        <programlisting>assert(foo()&lt;a)(foo())(a)(b).level(Error);</programlisting>However, by design
+        such libraries need to create a local class and do all the work in a member function
+        of that class. The main disadvantage of this is that if you want to break into the
+        code, you break into that function, and have to step out of it with the debugger.
+        Another disadvantage is that selectively compiling out assertions is not possible.</listitem>
+    <listitem>Many other assertion libraries don't give extra information, e.g. if you want to check
+        if two numbers are equal, you only get a yes/no answer, not the value of the numbers,
+        which would help immensely when you solve bugs in your code. Some assertion libraries
+        have macros like <code>ASSERT_EQUAL</code>, that will display the value of the two
+        arguments upon failure, but they don't have much more of them,
+        because if they also want macros like <code>VERIFY_EQUAL</code>, they have to duplicate these.</listitem>
+    </itemizedlist>
+    The ModAssert library solves these two problems in the following way:
+    <itemizedlist mark='bullet'>
+    <listitem>ModAssert relies more on macros, so that if you want to break into the code
+        you are directly in the function where the assertion macro is, for most of the macros. Therefore it uses a
+        more traditional approach, namely specifying the extra data (expressions, level, ...)
+        as extra arguments, and define different macros that accept the different types of
+        arguments. E.g. the above example would be written as
+        <programlisting>MOD_ASSERT_PG(foo() &lt;&lt; a &lt;&lt; b, ModAssert::Error, foo()&lt;a);</programlisting>
+        There are similar macros <code>MOD_ASSERT</code>, <code>MOD_ASSERT_P</code> and
+        <code>MOD_ASSERT_G</code>, and even more, that you use depending on which arguments you want to add.
+        Another advantage of this approach with macros, is that assertions can be
+        compiled out per level and group (if the compiler optimizes).
+		ModAssert also has other assertions and checks that return a value, but breaking into
+		the debugger will bring you in to another function, of which you have to jump out.
+		So you can choose what is most important for you.</listitem>
+    <listitem>The condition of an assertion macro in ModAssert can be a boolean expression,
+        but also a Rich Boolean, which gives extra information if the expression fails.
+        The ModAssert assertion macros process this extra information. Using a Rich Boolean,
+        the above example could be rewritten as
+        <programlisting>MOD_ASSERT_PG(b, ModAssert::Error, rbLESS(foo(), a));</programlisting>and the output
+        would include the values of <code>foo()</code> and <code>a</code> in something like
+        "(12) &lt; (9) nok" (so <code>foo()</code> and <code>a</code> don't have to be displayed separately).
+        This is just a simple
+        Rich Boolean, there are nearly 60 Rich Booleans, varying from checking for
+        equality to comparing containers of containers with a predicate per element.
+        Every Rich Boolean gives you as much information on the failing condition as possible.
+        And you can write Rich Booleans for your own specific needs.</listitem>
+    </itemizedlist>
+</para>
+<para>Some assertion packages only have assertion macros that return a boolean, indicating whether
+the assertion succeeded. The most assertion macros in ModAssert don't return a value, because
+it would no longer be possible to break into the debugger where the function is, and you would
+have to jump out of the function every time, which becomes tiresome if you have to do it a lot.
+ModAssert has the macro
+<code>MOD_CHECK</code> (and variations) that have a failure action, to replace <code>if (!ASSERT(...))</code>.
+This makes it clear that this is a check for an error that is not due to a bug, and that the application
+can recover from the error by executing the failure action. Failing assertions on the other hand
+should ideally result in termination of the application, and the rest of your code should assume that
+the condition succeeded.</para>
+<para>However, since version 2.0 ModAssert has macros that return a boolean, or even a value
+if you use a Rich Boolean. This is mainly to allow code like
+<code>MOD_VERIFY_V(rbDIFF(wnd, NULL))-&gt;Display();</code>, but you can also use it to recover
+from bugs, like <code>if (!MOD_VERIFY_B(wnd)) {...}</code>, if your application has to be
+very safe. It is best to still use <code>MOD_CHECK</code>
+for expected errors, and use the new macros for unexpected errors.</para>
+</sect1>

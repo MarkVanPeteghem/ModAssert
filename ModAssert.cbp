@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="ModAssert" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="GCC-Mingw">
+				<Option output="lib\libmodassert-mingw.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="Mingw" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option projectResourceIncludeDirsRelation="2" />
+				<Compiler>
+					<Add option="-pedantic" />
+					<Add option="-W" />
+					<Add option="-Wall" />
+					<Add option="-ansi -Wconversion -Wshadow -Wcast-qual -Wwrite-strings" />
+				</Compiler>
+			</Target>
+			<Target title="GCC-Cygwin">
+				<Option output="lib\libmodassert-cygwin.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="Cygwin" />
+				<Option type="2" />
+				<Option compiler="cygwin" />
+				<Option createDefFile="1" />
+				<Option projectResourceIncludeDirsRelation="2" />
+				<Compiler>
+					<Add option="-pedantic" />
+					<Add option="-Wall" />
+					<Add option="-W" />
+					<Add option="-ansi -Wconversion -Wshadow -Wcast-qual -Wwrite-strings" />
+					<Add option="-DMODASSERT_USE_PTHREADS" />
+				</Compiler>
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="GCC-Mingw;GCC-Cygwin;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-ansi -pedantic -Wall -W -Wconversion -Wshadow -Wcast-qual -Wwrite-strings" />
+			<Add directory="%RICHBOOL%\include" />
+			<Add directory="include" />
+		</Compiler>
+		<Unit filename="include\modassert\appinfo.hpp" />
+		<Unit filename="include\modassert\assert.hpp" />
+		<Unit filename="include\modassert\assertd.hpp" />
+		<Unit filename="include\modassert\autoresponder.hpp" />
+		<Unit filename="include\modassert\categories.hpp" />
+		<Unit filename="include\modassert\category.hpp" />
+		<Unit filename="include\modassert\categorybase.hpp" />
+		<Unit filename="include\modassert\combine_groups.hpp" />
+		<Unit filename="include\modassert\context.hpp" />
+		<Unit filename="include\modassert\filters.hpp" />
+		<Unit filename="include\modassert\group.hpp" />
+		<Unit filename="include\modassert\grouplst.hpp" />
+		<Unit filename="include\modassert\handler.hpp" />
+		<Unit filename="include\modassert\hold_ref.hpp" />
+		<Unit filename="include\modassert\hook.hpp" />
+		<Unit filename="include\modassert\ifsuccess.hpp" />
+		<Unit filename="include\modassert\info.hpp" />
+		<Unit filename="include\modassert\infostore.hpp" />
+		<Unit filename="include\modassert\infouser.hpp" />
+		<Unit filename="include\modassert\levels.hpp" />
+		<Unit filename="include\modassert\logger.hpp" />
+		<Unit filename="include\modassert\logtype.hpp" />
+		<Unit filename="include\modassert\parmlist.hpp" />
+		<Unit filename="include\modassert\properties.hpp" />
+		<Unit filename="include\modassert\report_data.hpp" />
+		<Unit filename="include\modassert\report_type.hpp" />
+		<Unit filename="include\modassert\responder.hpp" />
+		<Unit filename="include\modassert\response.hpp" />
+		<Unit filename="include\modassert\result.hpp" />
+		<Unit filename="include\modassert\strmlog.hpp" />
+		<Unit filename="include\modassert\threads.hpp" />
+		<Unit filename="include\modassert\timeinfo.hpp" />
+		<Unit filename="include\modassert\use_bool.hpp" />
+		<Unit filename="include\modassert\verifyv.hpp" />
+		<Unit filename="include\modassert\version.hpp" />
+		<Unit filename="include\modassert\wxassert.hpp" />
+		<Unit filename="src\appinfo.cpp" />
+		<Unit filename="src\categories.cpp" />
+		<Unit filename="src\context.cpp" />
+		<Unit filename="src\filters.cpp" />
+		<Unit filename="src\handler.cpp" />
+		<Unit filename="src\ifsuccess.cpp" />
+		<Unit filename="src\info.cpp" />
+		<Unit filename="src\infostore.cpp" />
+		<Unit filename="src\infouser.cpp" />
+		<Unit filename="src\levels.cpp" />
+		<Unit filename="src\logger.cpp" />
+		<Unit filename="src\parmlist.cpp" />
+		<Unit filename="src\responder_switcher.cpp" />
+		<Unit filename="src\strmlog.cpp" />
+		<Unit filename="src\terminate_message.cpp" />
+		<Unit filename="src\threads.cpp" />
+		<Unit filename="src\timeinfo.cpp" />
+		<Unit filename="src\use_bool.cpp" />
+		<Unit filename="src\warning_message.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

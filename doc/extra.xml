@@ -1,0 +1,216 @@
+<sect1 id='redefine-other-assertions'><title>Redefining existing assertion macros</title>
+<indexterm><primary>Redefining existing assertion macros</primary></indexterm>
+<para>There are headerfiles in ModAssert that redefine other
+assertion macros to ModAssert assertions. This way you just have to
+include that headerfile instead of the one that has the original
+definitions to use ModAssert. If you can't prevent including of
+the headerfile with the original definitions(e.g. because it is already
+included through another headerfile), just make sure that
+you include the ModAssert headerfile after the original one.
+</para>
+
+<sect2><title>assertd.hpp</title>
+<indexterm><primary>assertd.hpp</primary></indexterm>
+<para>The headerfile <filename>modassert/assertd.hpp</filename>
+redefines the macros <code>ASSERT</code> and <code>VERIFY</code> to
+<code>MOD_ASSERT</code> and <code>MOD_VERIFY</code> respectively.</para>
+</sect2>
+
+<sect2><title>verifyv.hpp</title>
+<indexterm><primary>verifyv.hpp</primary></indexterm>
+<para>The headerfile <filename>modassert/verifyv.hpp</filename>
+redefines the macros <code>ASSERT</code> and <code>VERIFY</code> to
+<code>MOD_ASSERT</code> and <code>MOD_VERIFY_V</code> respectively.</para>
+</sect2>
+
+<sect2><title>wxassert.hpp</title>
+<indexterm><primary>wxassert.hpp</primary></indexterm>
+<para>The headerfile <filename>modassert/wxassert.hpp</filename>
+redefines the macros <code>wxASSERT</code>, <code>wxASSERT_MSG</code>, <code>wxFAIL</code>, <code>wxFAIL_MSG </code>,
+<code>wxCHECK</code>, <code>wxCHECK_MSG</code>, <code>wxCHECK_RET</code>, <code>wxCHECK2</code> and <code>wxCHECK2_MSG</code>
+to ModAssert equivalents.
+</para>
+</sect2>
+
+</sect1>
+
+<sect1><title>Thread safety</title>
+<indexterm><primary>Thread safety</primary></indexterm>
+<indexterm><primary>ScopedLock class</primary></indexterm>
+<para>The ModAssert package is thread safe, if one of these three multithreading
+packages is available: Win32 threads, wxWidgets threads, or pThreads. pThreads
+is used if the symbol <symbol>MODASSERT_USE_PTHREADS</symbol> is defined when ModAssert is built.
+If it is not defined, but <symbol>RICHBOOL_USE_WX</symbol> is defined when ModAssert is built,
+wxWidgets threads is used. If that is neither the case, but the symbol <symbol>_WIN32</symbol>
+(which is defined by default with most Windows compilers)
+is defined when ModAssert is built, Win32 threads is used. Otherwise, ModAssert is not
+threadsafe.</para>
+<para>Note: if you use pthreads, <symbol>MODASSERT_USE_PTHREADS</symbol> only has to be defined when the ModAssert
+library is built. It has no use to define it when you build an application that uses ModAssert.</para>
+<para>pthreads should be used on Linux with gcc, and with Cygwin gcc on Windows, but not for other
+Windows compilers that were tested.</para>
+<para>Thread safety in ModAssert means that only one thread at a time can display and log
+an assertion, and let the responder change parameters. If you want to change parameters that ModAssert uses
+from your own code,
+and want to do so in a thread safe way, use the class <classname>ModAssert::ScopedLock</classname> in
+<filename>modassert/threads.hpp</filename> to automatically lock:
+<programlisting>
+#include &lt;modassert/threads.hpp&gt;
+...
+{
+    ModAssert::ScopedLock lock;
+    ModAssert::Warning.SetLog(false);
+    
+} // lock is automatically released
+</programlisting>
+This can also be used to temporarily prevent other threads from displaying and
+logging assertions, e.g. if you need to log to a stream that ModAssert also
+logs to.</para>
+<para><classname>ModAssert::ScopedLock</classname> has a constructor that takes a
+boolean as an argument, for which the default value is <literal>true</literal>; if
+that argument is <literal>true</literal>, the lock is locked in the constructor.
+The destructor unlocks the lock.
+It also has methods <code>Lock()</code> and <code>Unlock()</code> to lock and
+unlock the lock at any time. The method <code>bool IsLocked()</code> tells whether
+it is locked.</para>
+<para>A well known advice in multithreaded programming is to not call virtual functions
+from inside a critical section, because a derived class beyond your call might enter a
+critical section, and cause a deadlock. Alas, ModAssert calls virtual functions from its critical
+section when it calls the hooks, the loggers and the responder. So it's best not to enter
+a critical section in a hook, logger or responder. If you have to, make sure you don't enter
+the critical section elsewhere in your application (a critical section that can only be entered
+in your derived class should be safe, at least if you don't use the hook, logger or responder
+directly).</para>
+<para>On some platforms there are no recursive locks. If this is the case, a thread that wants to lock ModAssert while
+it already has the lock, will deadlock. This can happen if you acquire the lock yourself, and acquire it yourself a second
+time, as in the following example:
+<programlisting>
+#include &lt;modassert/threads.hpp&gt;
+
+void foo()
+{
+	ModAssert::ScopedLock lock;
+	ModAssert::Warning.SetLog(false);
+}
+
+void bar()
+{
+	ModAssert::ScopedLock lock;
+	foo(); // will cause a deadlock on some platforms!
+}
+</programlisting>
+ or if you acquire the lock yourself and a modular assertion or check is reported, as in the following example:
+<programlisting>
+#include &lt;modassert/threads.hpp&gt;
+
+void foo()
+{
+	int a=0;
+	ModAssert::ScopedLock lock;
+	MOD_ASSERT(rbEQUAL(a, 1)); // will cause a deadlock on some platforms!
+}
+</programlisting></para>
+<para>See also <xref linkend='WhenModassertIsActive' /> for further considerations about thread safety in
+ModAssert.</para>
+</sect1>
+
+
+<sect1><title>Considerations related to macros</title>
+<para>Some programmers avoid macros because of the problems that are associated
+with them. However, the macros in the ModAssert package are constructed
+with great care, to avoid these dangers.
+<itemizedlist mark='bullet'>
+<listitem>The arguments of the macros are evaluated at most once, except for the groups
+argument; however, using groups as an argument is very unlikely to have side effects.
+Note that <code>MOD_ASSERT</code> and variations of it are removed entirely if reporting
+of assertions is disabled at compile time, so the arguments are not evaluated.
+Consider using <code>MOD_VERIFY</code> or a variation of it if
+the condition has necessary side effects, and you can't easily move the side effect out of it.
+The condition of <code>MOD_CHECK</code> is always evaluated.
+Rich Booleans also evaluate their arguments only once.
+Therefore constructions like <code>MOD_VERIFY_GO(group1, ++c, "inc c", rbEQUAL(a++, b++))</code>
+are safe and do what you would expect,
+but of course <code>++c</code> is only evaluated if the user of the application chooses to.
+Also note that the parameters and the text of the optional action are only evaluated
+if the assertion or check is reported, so you should not write code in these arguments
+that has side effects. Of course the optional action is only evaluated
+if the user wants this to happen. The level or group argument can be evaluated up
+to three times, but this is usually a constant expression with no side effects.</listitem>
+<listitem>The arguments of the macros are separated by commas and parentheses from other expressions
+in the macros, so they can't interfere with these other expressions in the macros</listitem>
+<listitem>The ModAssert macros are wrapped in <code>if { ... } else 0</code> (a variation
+of <code>do { ... } while (0)</code>), so they
+can be used safely in a if-else construct without surrounding bracelets</listitem>
+</itemizedlist>
+</para>
+</sect1>
+
+<sect1><title>Security</title>
+<indexterm><primary>Security</primary></indexterm>
+<para>Please remember that with security sensitive data, you should not use Rich Booleans
+in assertions and checks. In these cases it is better to use a plain boolean condition.
+You should neither use such data in the parameterlist.
+<programlisting>// don't do this!
+MOD_CHECK(rbEQUAL(password, str), return false);
+
+// don't do this!
+MOD_CHECK_P(str, calc_md5(str)==md5, return false);
+
+// safe:
+MOD_CHECK(calc_md5(str)==md5, return false);
+</programlisting>
+</para>
+</sect1>
+
+<sect1><title>Warning levels</title>
+<indexterm><primary>Warning levels</primary></indexterm>
+<para>Where possible, ModAssert is compiled with the highest warning levels.
+In some cases this was not possible:
+<itemizedlist mark='bullet'>
+<listitem>With Visual C++ 6.0, there are too many warnings in the STL headers,
+so it is set to level 3 for building the library, and probably also best for code that uses Rich Booleans</listitem>
+<listitem>With Visual C++.NET 2003 and 2005 on warning level 4, there is a warning about a constant condition in an if-statement
+for every assertion and check. This can be prevented by disabling warning number 4127.</listitem>
+<listitem>With any version of Visual C++ there will be a warning about unreachable code in
+<filename>richbool/getvalue.hpp</filename></listitem>
+<listitem>With gcc, -W and -Wall should not be used in code that uses Rich Boolean macros, because
+there will be warnings about the lefthand of a comma operator not having any effect.
+The flags -ansi -pedantic -Wconversion -Wshadow -Wcast-qual -Wwrite-strings can be used,
+ModAssert doesn't produce warnings if these are enabled. But -pedantic should be omitted if you
+use wxWidgets, because this gives an error in some of the header files of wxWidgets.</listitem>
+</itemizedlist>
+</para>
+</sect1>
+
+<sect1 id='context'><title>Extending the context (advanced)</title>
+<indexterm><primary>Extending the context</primary></indexterm>
+<indexterm><primary>MOD_ASSERT_CONTEXT</primary></indexterm>
+<indexterm><primary>Context class</primary></indexterm>
+<indexterm><primary>MOD_ASSERT_FUNCTION</primary></indexterm>
+    <para>When an assertion or check is reported, the macro <code>MOD_ASSERT_CONTEXT</code> is called
+    to construct an object of the type <classname>ModAssert::Context</classname>. This contains
+    the filename and the linenumber where the assertion occurred, and if your compiler
+    supports it, the name of the function where it occurred.</para>
+    <para>You can customize this mechanism by adding extra information. To do this, derive a class from
+    <classname>ModAssert::Context</classname>, and redefine the macro <code>MOD_ASSERT_CONTEXT</code>
+    to construct an object of your class with the necessary arguments. Override the method
+    <code>streamout</code>, to have the information in your class displayed, and call
+    <code>streamout</code> of the parent class.</para>
+    <para>The constructor of <classname>ModAssert::Context</classname> has three parameters:
+    the filename, the linenumber and the functionname. Your derived class should at least have these
+    three as constructor arguments and pass it to the constructor of
+    <classname>ModAssert::Context</classname>, and your redefinition of the macro should
+    give <code>__FILE__</code>, <code>__LINE__</code> and <code>MOD_ASSERT_FUNCTION</code>
+    as values for these arguments of the constructor.</para>
+    <para>Then include the headerfile where you define your derived class and your redefinition
+    of the macro, after the headerfile <filename>modassert/assert.hpp</filename>.</para>
+    <para>Note: the ModAssert library itself doesn't need to be rebuilt with this redefined
+    macro <code>MOD_ASSERT_CONTEXT</code>. It uses references to the base class
+    <classname>ModAssert::Context</classname>, and the extra information is obtained
+    through the virtual method <code>streamout</code>.</para>
+    <para>This method was introduced to e.g. add the thread id, the time, a backtrace,
+    or the state of your application. However, this can also be done with an
+	<classname>InfoProvider</classname> derived object (see <xref linkend='InfoProvider' />), which is easier, since you don't need
+	to add an include file to every source file where you want it. If some information is only interesting in certain sourcefiles,
+	you should use default parameters.</para>
+</sect1>

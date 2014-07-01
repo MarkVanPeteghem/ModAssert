@@ -1,0 +1,224 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Using the available responders and loggers</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.1"><link rel="start" href="index.html" title="Modular Assertions version 2.0.6"><link rel="up" href="index.html" title="Modular Assertions version 2.0.6"><link rel="prev" href="ar01s15.html" title="Disabling condition text"><link rel="next" href="ar01s17.html" title="Processing assertions (advanced)"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Using the available responders and loggers</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s15.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s17.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="available"></a>Using the available responders and loggers</h2></div></div></div><a class="indexterm" name="id484412"></a><a class="indexterm" name="id484416"></a><p>The assertion information is only useful if it is displayed or logged.
+You can derive classes from abstract classes to handle the
+information when an assertion or check is reported (see <a href="ar01s17.html" title="Processing assertions (advanced)">the section called &#8220;Processing assertions (advanced)&#8221;</a>).
+But there are also a few implementations provided,
+that can be easily reused in your application, if it uses the same environment.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="Win32"></a>Windows 32</h3></div></div></div><a class="indexterm" name="id484434"></a><a class="indexterm" name="id484442"></a><a class="indexterm" name="id484449"></a><p>For Windows 32bit follow these steps:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc">Build the project ModAssertWin32 in the configuration(s) that you need.</li><li style="list-style-type: disc">Add <code class="filename">$(MODASSERT)/include</code> to your resources include path.</li><li style="list-style-type: disc">Add <code class="filename">modassert/modassert.rc</code> to your resources.
+To do this in Visual Studio, right click your resources and choose 'Resource includes', and add
+the line <code class="code">#include "modassert/modassert.rc"</code> under 'Compile-time directives'.</li><li style="list-style-type: disc">If you want to run your application under Windows XP and you don't use MFC, add these lines
+to the initialization of your application:
+<pre class="programlisting">INITCOMMONCONTROLSEX InitCtrls;
+InitCtrls.dwSize = sizeof(InitCtrls);
+
+InitCtrls.dwICC = ICC_WIN95_CLASSES;
+InitCommonControlsEx(&amp;InitCtrls);
+</pre>
+Include <code class="filename">commctrl.h</code> to do this, and link to <code class="filename">comctl32.lib</code>.
+This is necessary to be able to use the listcontrol in the assertion dialog box. Otherwise the
+dialogbox simply won't be shown.
+</li><li style="list-style-type: disc">Link to the appropriate STD version of ModAssertWin32, ModAssert and RichBool.</li><li style="list-style-type: disc">Call <code class="code">ModAssert::SetupForWin32(HINSTANCE h)</code> or
+<code class="code">ModAssert::SetupForWin32(HINSTANCE h, ModAssert::Mode mode)</code>
+during the initialization of your application,
+where <code class="code">h</code> is the instance handle of your application.
+See <a href="ar01s16.html#specify-mode" title="Overriding the default behaviour">the section called &#8220;Overriding the default behaviour&#8221;</a> for more info about the mode.
+Include the file <code class="filename">modassert/Win32Handler.hpp</code> to call this method.</li></ul></div><p>
+</p><p>Note: with Visual C++, the ModAssert, ModAssertWin32 and RichBool library are linked to automatically
+if you include the headerfile <code class="filename">modassert/Win32Handler.hpp</code>, so you can skip the
+fifth step above.</p><p>Note: with gcc, you should link to the modassertwin32 library before the modassert library,
+so use "-lmodassertwin32 -lmodassert".</p><p>See the project in <code class="filename">demos/Win32</code> or <code class="filename">demos/MFC</code> for an example.</p><p>An alternative that gives you more control is to include the headerfiles that start with Win32 in the
+<code class="filename">include/modassert</code> directory, instantiate the objects that you want yourself and give them to ModAssert.
+</p><p>If an assertion or check is reported, this will trace its information to the trace window. Furthermore,
+it does the following according to the mode:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc">in testMode: if the assertion or check is reported from the main thread,
+it will display a dialog with all the available information,
+that gives you the choice of breaking into the debugger (if a debugger is attached to the process),
+abort, stop displaying the assertion, etc. Check all the responses
+that you want, or none if you want nothing to be done, and click the ok-button. If the
+assertion or check is reported from another thread, the application automatically breaks into the debugger
+(if a debugger is attached to the process, otherwise you will only know that there was an assertion
+from the trace window, or from another assertion logger that you added).</li><li style="list-style-type: disc">In continueWithWarningOnFailure and terminateOnFailure mode, it will show
+a warning in a messagebox for the appropriate level, with the parameters of the assertion or check macro,
+or a messagebox that the application will end, at least if it happens on the main thread.
+It is recommended to give meaningful names to the variables that you provide in an assertion or check
+if a warning is given, because this is meant for users of your application.</li></ul></div><p>
+</p><p>Info providers: The dialog, the trace window and other loggers that you add, will show the date and time,
+the current directory, the thread id, the amount of free memory, the total and free space on all drives,
+and the value of <code class="code">GetLastError()</code> if it was not 0, with the corresponding text.
+At the beginning of every logfile the OS version, the processor type and the processid will be given.
+Note: the OS version can't detect Windows Vista.
+</p><p>Before calling <code class="code">ModAssert::SetupForWin32()</code> you can optionally call
+the following methods. They only have effect if they are called before <code class="code">ModAssert::SetupForWin32()</code>.
+</p><div class="itemizedlist"><a class="indexterm" name="id484589"></a><a class="indexterm" name="id484594"></a><ul type="bullet"><li style="list-style-type: disc"><code class="code">void SetUseRemoteDrives(bool b)</code>: specifies whether remote drives
+should be used or not. By default remote drives are not used, because requesting info about
+them may be slow.</li><li style="list-style-type: disc"><code class="code">void SetUseDrive(char drive, bool b)</code>: specifies whether the drive with the given letter
+should be used or not. By default, drives a: and b: are not used, while all other drives will be used
+if they are present.</li></ul></div><p>
+</p><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id484613"></a>Getting the objects</h4></div></div></div><a class="indexterm" name="id484618"></a><a class="indexterm" name="id484623"></a><a class="indexterm" name="id484628"></a><a class="indexterm" name="id484632"></a><a class="indexterm" name="id484637"></a><a class="indexterm" name="id484642"></a><a class="indexterm" name="id484647"></a><a class="indexterm" name="id484652"></a><a class="indexterm" name="id484656"></a><a class="indexterm" name="id484661"></a><a class="indexterm" name="id484666"></a><a class="indexterm" name="id484671"></a><a class="indexterm" name="id484676"></a><a class="indexterm" name="id484680"></a><p>You can get a reference to the displayer, the trace logger and the infoproviders that are
+used after calling <code class="code">ModAssert::SetupForWin32()</code> with these functions that are declared in
+<code class="filename">modassert/Win32Handler.hpp</code>:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="code">Responder&amp; GetWin32Displayer()</code>: returns a reference to the object that displays the
+assertion info in a dialog box</li><li style="list-style-type: disc"><code class="code">Logger&amp; GetWin32Trace()</code>: returns a reference to the object that
+logs the info using <code class="code">OutputDebugString</code></li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWin32ThreadIdInfoProvider()</code>: returns a reference to the object that
+gives the thread id</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWin32LastErrorInfoProvider()</code>: returns a reference to the object that
+gives the last system error</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWin32TimeInfoProvider()</code>: returns a reference to the object that
+gives the time and date</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWin32ProcessIdInfoProvider()</code>: returns a reference to the object that
+gives the processid</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWin32OSVersionInfoProvider()</code>: returns a reference to the object that
+gives a description of the operating system</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWin32CurrentDirectoryInfoProvider()</code>: returns a reference to the object that
+gives the current directory</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWin32ProcessorInfoProvider()</code>: returns a reference to the object that
+gives a description of the processor</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWin32TotalMemoryInfoProvider()</code>: returns a reference to the object that
+tells how much RAM the computer has</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWin32FreeMemoryInfoProvider()</code>: returns a reference to the object that
+tells how much RAM is available</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; size_t GetNrDetectedDrives()</code>: returns how many drives
+were detected on the computer, which is also the number of associated infoproviders that give info about the
+drive and how much free space there is on it</li><li style="list-style-type: disc"><code class="code">InfoProviders::Win32DiskInfoProvider&amp; GetDiskInfoProvider(size_t idx)</code>: returns a reference to the object that
+gives information about the drive with the index <code class="code">idx</code>. <code class="code">idx</code> should be between 0
+and <code class="code">GetNrDetectedDrives()-1</code>.</li><li style="list-style-type: disc"><code class="code">InfoProviders::Win32FreeDiskSpaceInfoProvider&amp; GetFreeDiskSpaceInfoProvider(size_t idx)</code>: returns a reference
+to the object that tells how much free space there is left on the drive with the index <code class="code">idx</code>.
+<code class="code">idx</code> should be between 0 and <code class="code">GetNrDetectedDrives()-1</code>.</li><li style="list-style-type: disc"><code class="code">InfoProviders::Win32DiskInfoProvider&amp; GetDiskInfoProvider(char drive)</code>: returns a reference to the object that
+gives information about the drive with the letter <code class="code">drive</code>.</li><li style="list-style-type: disc"><code class="code">InfoProviders::Win32FreeDiskSpaceInfoProvider&amp; GetFreeDiskSpaceInfoProvider(char drive)</code>: returns a reference
+to the object that tells how much free space there is left on the drive with the letter <code class="code">drive</code>.</li></ul></div><p>
+</p><p>Note: The classes <code class="classname">InfoProviders::Win32DiskInfoProvider</code>
+and <code class="classname">InfoProviders::Win32FreeDiskSpaceInfoProvider</code> have a method 
+<code class="code">char GetDriveLetter() const</code>, that returns the drive letter.
+</p></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="WxWidgets"></a>wxWidgets</h3></div></div></div><a class="indexterm" name="id484854"></a><a class="indexterm" name="id484862"></a><a class="indexterm" name="id484869"></a><p>For wxWidgets, follow these steps:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc">Build the project ModAssertWxGui in the configuration(s) that you need.</li><li style="list-style-type: disc">Define the symbol <span class="symbol">RICHBOOL_USE_WX</span> for your whole application</li><li style="list-style-type: disc">Link to the wxWidgets version of ModAssertWxGui, ModAssert and RichBool</li><li style="list-style-type: disc">Call <code class="code">ModAssert::SetupForWxWidgets()</code> or
+<code class="code">ModAssert::SetupForWxWidgets(ModAssert::Mode mode)</code> during the initialization of your application.
+See <a href="ar01s16.html#specify-mode" title="Overriding the default behaviour">the section called &#8220;Overriding the default behaviour&#8221;</a> for more info about the mode.
+To do this, include <code class="filename">modassert/wxhandler.hpp</code>.</li></ul></div><p>
+Note: with Visual C++, the ModAssert, ModAssertWxGui and RichBool library are linked to automatically
+if you include the headerfile <code class="filename">modassert/wxhandler.hpp</code>, so you can skip the
+third step above.</p><p>See the project in <code class="filename">demos/Wx</code> for an example.</p><p>An alternative that gives you more control is to include the headerfiles that start with Wx in the
+<code class="filename">include/modassert</code> directory, instantiate the objects that you want yourself and give them to ModAssert.
+</p><p>If an assertion or check is reported, this will log the assertion information with <code class="code">wxLogDebug</code>.
+Furthermore, it does the following according to the mode:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc">in testMode: if the assertion or check is reported from the main thread,
+it will display a dialog with all the available information,
+that gives you the choice of breaking into the debugger (except if <span class="symbol">NDEBUG</span> is defined),
+abort, permanently stop displaying the assertion, etc. Check all the responses
+that you want, or none if you want nothing to be done, and click the ok-button. If the
+assertion or check is reported from another thread, the application automatically breaks into the debugger
+(except if <span class="symbol">NDEBUG</span> is defined, in that case you will only know that there
+was an assertion from the logs).</li><li style="list-style-type: disc">In continueWithWarningOnFailure and terminateOnFailure mode, if an assertion or check
+is reported in the main thread, it will show
+a warning in a messagebox for the appropriate level, with the parameters of the assertion or check macro,
+or a message that the application will end (depending on the mode and the level).
+It is recommended to give meaningful names to the variables that you provide here,
+because this is meant for users of your application.</li></ul></div><p>
+</p><p>Info providers: the dialog, <code class="code">wxLogDebug</code> and other loggers that you add, will show the date and time,
+the current directory, the amount of free memory, the return value of <code class="code">wxSysErrorCode()</code> and
+<code class="code">wxSysErrorMsg()</code>, and the thread id.
+At the beginning of every logfile the os version and the processid will be given.
+</p><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id534012"></a>Getting the objects</h4></div></div></div><a class="indexterm" name="id534016"></a><a class="indexterm" name="id534021"></a><a class="indexterm" name="id534026"></a><a class="indexterm" name="id534031"></a><a class="indexterm" name="id534036"></a><a class="indexterm" name="id534040"></a><a class="indexterm" name="id534045"></a><a class="indexterm" name="id534050"></a><a class="indexterm" name="id534055"></a><p>You can get a reference to the displayer, the trace logger and the infoproviders that are
+used after calling <code class="code">ModAssert::SetupForWxWidgets()</code> with these functions that are declared in
+<code class="filename">modassert/wxhandler.hpp</code>:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="code">Responder&amp; GetWxDisplayer()</code>: returns a reference to the object that displays the
+assertion info in a dialog box</li><li style="list-style-type: disc"><code class="code">Logger&amp; GetWxLogger()</code>: returns a reference to the object that
+logs the info using <code class="code">wxLog</code></li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWxThreadIdInfoProvider()</code>: returns a reference to the object that
+gives the thread id</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWxTimeInfoProvider()</code>: returns a reference to the object that
+gives the time and date</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWxProcessIdInfoProvider()</code>: returns a reference to the object that
+gives the processid</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWxOsVersionInfoProvider()</code>: returns a reference to the object that
+gives a description of the operating system</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWxCurrentDirectoryInfoProvider()</code>: returns a reference to the object that
+gives the current directory</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWxFreeMemoryInfoProvider()</code>: returns a reference to the object that
+gives the amount of free memory</li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetWxSysErrorInfoProvider()</code>: returns a reference to the object that
+gives information about the last system error</li></ul></div><p>
+</p><p>Note: if you get link errors, it may be necessary to put <code class="filename">libmodassertWxGui-*.lib</code>
+<span class="emphasis"><em>before</em></span> <code class="filename">libmodassert-*.lib</code> in the link options.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id534156"></a>Integrating with wxASSERT</h4></div></div></div><a class="indexterm" name="id534160"></a><a class="indexterm" name="id534165"></a><p>If you use wxWidgets and your application uses a <code class="classname">wxApp</code> derived object,
+you could override <code class="code">void OnAssert(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg)</code>
+(or <code class="code">void OnAssert(const wxChar *file, int line, const wxChar *cond, const wxChar *msg)</code>
+if you use an old version of wxWidgets)
+to redirect the messages of existing <code class="code">wxASSERT</code> and other wxWidgets assertion macros
+to the ModAssert framework, by calling <code class="code">ModAssert::HandleAssert</code>.
+This way the assertion will be logged and shown to the user
+like the assertion macros of the ModAssert framework. In this case you can't use all the
+functionality of the ModAssert framework, like choosing to stop displaying an individual assertion,
+but at least you can redirect <code class="code">wxASSERT</code> and other wxWidgets assertions in code that you can't change,
+to the same dialog and loggers. See the file <code class="filename">ModAssertWxApp.cpp</code>
+in the ModAssertDemoWx project for an example. One disadvantage that may be important, is that ModAssert
+doesn't know if the assertion comes from a <code class="code">wxCHECK</code> kind of macro or not. In the example it
+assumes that it doesn't.</p><p>For a better alternative that requires adding an include file,
+see <a href="ar01s18.html" title="Redefining existing assertion macros">the section called &#8220;Redefining existing assertion macros&#8221;</a></p></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="Console"></a>Console applications</h3></div></div></div><a class="indexterm" name="id534217"></a><a class="indexterm" name="id534224"></a><a class="indexterm" name="id534231"></a><p>For console applications, follow these steps:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc">Build the project ModAssertConsole in the configuration(s) that you need.</li><li style="list-style-type: disc">Link to the STD version of ModAssertConsole, ModAssert and RichBool</li><li style="list-style-type: disc">Next, call <code class="code">ModAssert::SetupForConsole()</code> or
+<code class="code">ModAssert::SetupForConsole(ModAssert::Mode mode)</code> during the initialization of your application.
+See <a href="ar01s16.html#specify-mode" title="Overriding the default behaviour">the section called &#8220;Overriding the default behaviour&#8221;</a> for more info about the mode.
+This function is declared in <code class="filename">modassert/consolehandler.hpp</code>.</li></ul></div><p>
+</p><p>Note: with Visual C++, the ModAssert, ModAsserConsole and RichBool library are linked to automatically
+if you include the headerfile <code class="filename">modassert/consolehandler.hpp</code>, so you can skip the
+second step above.</p><p>Note: with gcc, you should link to the modassertConsole library before the modassert library,
+so use "-lmodassertConsole -lmodassert".</p><p>See the project in <code class="filename">demos/Console</code> for an example.</p><p>If an assertion or check is reported, this will log the assertion information to <code class="code">std::cerr</code>.
+Furthermore, it does the following according to the mode:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc">in testMode: it will display the actions that you can choose from,
+like breaking into the debugger (except for a Release version),
+ignore the assertion, abort, stop displaying the assertion, etc (note: this hasn't been tested
+with a failing assertion in another thread). You can enter one or more responses by entering all their letters,
+or 'I' if no action should be taken.</li><li style="list-style-type: disc">In continueWithWarningOnFailure and terminateOnFailure mode, it will show
+a warning on std::cout, for the appropriate level, with the parameters of the assertion or check macro.
+It is recommended to give meaningful names to the variables that you provide here,
+because this is meant for users of your application.</li></ul></div><p>
+</p><p>Info providers: This will also show the date and time on <code class="code">std::cerr</code> and
+other loggers that you add.
+</p><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id534315"></a>Getting the objects</h4></div></div></div><a class="indexterm" name="id534320"></a><a class="indexterm" name="id534325"></a><a class="indexterm" name="id534330"></a><p>You can get a reference to the displayer, the logger and the infoproviders that are
+used after calling <code class="code">ModAssert::SetupForConsole()</code> with these functions that are declared in
+<code class="filename">modassert/Win32Handler.hpp</code>:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="code">Responder&amp; GetConsoleDisplayer()</code>: returns a reference to the object
+that asks for a response</li><li style="list-style-type: disc"><code class="code">Logger&amp; GetScreenLogger()</code>: returns a reference to the object that
+logs the info on <code class="code">std::cerr</code></li><li style="list-style-type: disc"><code class="code">InfoProviders::InfoProvider&amp; GetConsoleTimeInfoProvider()</code>: returns a reference to the object that
+gives the time and date</li></ul></div><p>
+</p></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="specify-mode"></a>Overriding the default behaviour</h3></div></div></div><a class="indexterm" name="id534380"></a><p>The functions <code class="code">SetupForConsole</code>, <code class="code">SetupForWin32</code>
+and <code class="code">SetupForWxWidgets</code> have overloads that take an argument of the type
+<code class="code">ModAssert::Mode</code> (for <code class="code">SetupForWin32</code> after the
+<code class="code">HINSTANCE</code> argument), that specifies what should happen if an assertion
+fails. Note that this only has an influence if reporting of assertions is enabled.
+The possible values of this argument are:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="code">ModAssert::testMode</code>: shows information about the assertion.
+How it is shown depends on the function that you called. This is the default if
+<code class="code">NDEBUG</code> is not defined.</li><li style="list-style-type: disc"><code class="code">ModAssert::continueSilentlyOnFailure</code>: continues silently if an assertion fails.
+This is the default if <code class="code">NDEBUG</code> is defined.</li><li style="list-style-type: disc"><code class="code">ModAssert::continueWithWarningOnFailure</code>: this shows a warning to the user
+if an assertion fails and continues the application, if the level is <code class="code">ModAssert::Warning</code>
+or higher. You can adjust this level by calling <code class="code">ModAssert::SetMinimumWarningLevel</code>
+with the minimum level as the argument.</li><li style="list-style-type: disc"><code class="code">ModAssert::terminateOnFailure</code>: this terminates the application
+if an assertion fails, if the level is <code class="code">ModAssert::Fatal</code> or higher.
+If the level of the assertion is at least <code class="code">ModAssert::Warning</code> but less than
+<code class="code">ModAssert::Fatal</code>, it shows a warning.
+You can adjust these levels by calling <code class="code">ModAssert::SetMinimumTerminateLevel</code>
+and <code class="code">ModAssert::SetMinimumWarningLevel</code> with the minimum level as the argument.</li></ul></div><p>
+
+Calling the setup function with the argument <code class="code">ModAssert::testMode</code>, is useful if an error
+only occurs in release mode, but you preferably should remove it again afterwards,
+because this is probably not the behaviour that the users of your application want.
+A failing check will not terminate the application or show a warning, and will only show debug info
+if <code class="code">ModAssert::testMode</code> is used.
+In any case the loggers and hooks are still called.</p><p>
+<a class="indexterm" name="id534481"></a>
+<a class="indexterm" name="id534486"></a>
+<a class="indexterm" name="id534490"></a>
+<a class="indexterm" name="id534495"></a>
+After calling a setup function, you can call <code class="code">ModAssert::GetWarningMessage()</code>
+that returns a pointer to a <code class="classname">WarningMessage</code> object, and
+<code class="code">ModAssert::GetTerminateMessage()</code> that returns a pointer to a
+<code class="classname">TerminateMessage</code> object.
+These are called by ModAssert if a warning or a terminate message has to be shown. They both have a method
+<code class="code">void SetText(const std::string &amp;str)</code> to change their message, and
+<code class="code">const std::string &amp; GetText()</code> to retrieve it.
+Depending on the mode that you supplied to the setup function, these pointers may be NULL or not,
+so check their return value.</p><p>If reporting of assertions is disabled at compile time, assertions are ignored,
+and the application will not terminate, show a warning or show debug info due to a failing assertion.
+</p><p>It is recommended to define the symbol <code class="code">MOD_ASSERT_REPORT</code> for the whole
+application, so that reporting of assertions is enabled,
+and call any of the functions <code class="code">SetupForConsole</code>, <code class="code">SetupForWin32</code>
+or <code class="code">SetupForWxWidgets</code> with the appropriate argument if the default is not
+acceptable for your application.
+It is also recommended to have at least one logger, so you know why the application went wrong.
+In source files where performance is critical, you can define the symbol
+<code class="code">MOD_ASSERT_DONT_REPORT_FILE</code> to disable assertions in that file,
+or give the assertions in the specific code a group argument that turns off
+reporting in release mode (by selecting its type with conditional compiling).
+</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id534552"></a>The optional logger</h3></div></div></div><a class="indexterm" name="id534556"></a><a class="indexterm" name="id534561"></a><a class="indexterm" name="id534566"></a><p>Optionally you can call <code class="code">ModAssert::SetOptionalLogger(const ModAssert::Logger *logger, const char *text=0, bool extraInfo=false)</code>
+to give the user the option to log to this logger, if the responder allows this.
+This is useful if you want certain interesting assertions to be logged in another file. This method is defined in
+<code class="filename">modassert/handler.hpp</code>. If <code class="code">extraInfo</code> is <code class="literal">true</code>,
+the logger also gets the begin and end message, like loggers that are added with
+<code class="code">ModAssert::AddLogger(...)</code>. The responders in the libraries ModAssertWin32,
+ModAssertWxGui and ModAssertConsole all allow you to log to the optional logger if there
+is one. See the demos for examples.</p><p>If you write your own responder, and want to use the optional logger,
+you can retrieve it with <code class="code">const Logger* GetOptionalLogger()</code>,
+and the corresponding text with <code class="code">const char* GetOptionalLoggerText()</code>.</p><p>If you want to disable the use of the optional logger, call
+<code class="code">ModAssert::SetOptionalLogger</code> with a NULL pointer for the logger.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s15.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ar01s17.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Disabling condition text </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Processing assertions (advanced)</td></tr></table></div></body></html>

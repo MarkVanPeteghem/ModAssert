@@ -1,0 +1,1283 @@
+<sect1 id='available'><title>Using the available responders and loggers</title>
+<indexterm><primary>Using the available responders and loggers</primary></indexterm>
+<indexterm><primary>Available responders and loggers</primary></indexterm>
+<para>The assertion information is only useful if it is displayed or logged.
+You can derive classes from abstract classes to handle the
+information when an assertion or check is reported (see <xref linkend='modasserthandler' />).
+But there are also a few implementations provided,
+that can be easily reused in your application, if it uses the same environment.</para>
+
+<sect2 id='Win32'><title>Windows 32</title>
+<indexterm><primary>Using the available responders and loggers</primary><secondary>Win32</secondary></indexterm>
+<indexterm><primary>Available responders and loggers</primary><secondary>Win32</secondary></indexterm>
+<indexterm><primary>SetupForWin32</primary></indexterm>
+<para>For Windows 32bit follow these steps:
+<itemizedlist mark='bullet'>
+<listitem>Build the project ModAssertWin32 in the configuration(s) that you need.</listitem>
+<listitem>Add <filename>$(MODASSERT)/include</filename> to your resources include path.</listitem>
+<listitem>Add <filename>modassert/modassert.rc</filename> to your resources.
+To do this in Visual Studio, right click your resources and choose 'Resource includes', and add
+the line <code>#include "modassert/modassert.rc"</code> under 'Compile-time directives'.</listitem>
+<listitem>If you want to run your application under Windows XP and you don't use MFC, add these lines
+to the initialization of your application:
+<programlisting>INITCOMMONCONTROLSEX InitCtrls;
+InitCtrls.dwSize = sizeof(InitCtrls);
+
+InitCtrls.dwICC = ICC_WIN95_CLASSES;
+InitCommonControlsEx(&amp;InitCtrls);
+</programlisting>
+Include <filename>commctrl.h</filename> to do this, and link to <filename>comctl32.lib</filename>.
+This is necessary to be able to use the listcontrol in the assertion dialog box. Otherwise the
+dialogbox simply won't be shown.
+</listitem>
+<listitem>Link to the appropriate STD version of ModAssertWin32, ModAssert and RichBool.</listitem>
+<listitem>Call <code>ModAssert::SetupForWin32(HINSTANCE h)</code> or
+<code>ModAssert::SetupForWin32(HINSTANCE h, ModAssert::Mode mode)</code>
+during the initialization of your application,
+where <code>h</code> is the instance handle of your application.
+See <xref linkend='specify-mode' /> for more info about the mode.
+Include the file <filename>modassert/Win32Handler.hpp</filename> to call this method.</listitem>
+</itemizedlist>
+</para>
+<para>Note: with Visual C++, the ModAssert, ModAssertWin32 and RichBool library are linked to automatically
+if you include the headerfile <filename>modassert/Win32Handler.hpp</filename>, so you can skip the
+fifth step above.</para>
+<para>Note: with gcc, you should link to the modassertwin32 library before the modassert library,
+so use "-lmodassertwin32 -lmodassert".</para>
+<para>See the project in <filename>demos/Win32</filename> or <filename>demos/MFC</filename> for an example.</para>
+<para>An alternative that gives you more control is to include the headerfiles that start with Win32 in the
+<filename>include/modassert</filename> directory, instantiate the objects that you want yourself and give them to ModAssert.
+</para>
+<para>If an assertion or check is reported, this will trace its information to the trace window. Furthermore,
+it does the following according to the mode:
+<itemizedlist mark='bullet'>
+<listitem>in testMode: if the assertion or check is reported from the main thread,
+it will display a dialog with all the available information,
+that gives you the choice of breaking into the debugger (if a debugger is attached to the process),
+abort, stop displaying the assertion, etc. Check all the responses
+that you want, or none if you want nothing to be done, and click the ok-button. If the
+assertion or check is reported from another thread, the application automatically breaks into the debugger
+(if a debugger is attached to the process, otherwise you will only know that there was an assertion
+from the trace window, or from another assertion logger that you added).</listitem>
+<listitem>In continueWithWarningOnFailure and terminateOnFailure mode, it will show
+a warning in a messagebox for the appropriate level, with the parameters of the assertion or check macro,
+or a messagebox that the application will end, at least if it happens on the main thread.
+It is recommended to give meaningful names to the variables that you provide in an assertion or check
+if a warning is given, because this is meant for users of your application.</listitem>
+</itemizedlist>
+</para>
+<para>Info providers: The dialog, the trace window and other loggers that you add, will show the date and time,
+the current directory, the thread id, the amount of free memory, the total and free space on all drives,
+and the value of <code>GetLastError()</code> if it was not 0, with the corresponding text.
+At the beginning of every logfile the OS version, the processor type and the processid will be given.
+Note: the OS version can't detect Windows Vista.
+</para>
+<para>Before calling <code>ModAssert::SetupForWin32()</code> you can optionally call
+the following methods. They only have effect if they are called before <code>ModAssert::SetupForWin32()</code>.
+<itemizedlist mark='bullet'>
+<indexterm><primary>SetUseRemoteDrives</primary></indexterm>
+<indexterm><primary>SetUseDrive</primary></indexterm>
+<listitem><code>void SetUseRemoteDrives(bool b)</code>: specifies whether remote drives
+should be used or not. By default remote drives are not used, because requesting info about
+them may be slow.</listitem>
+<listitem><code>void SetUseDrive(char drive, bool b)</code>: specifies whether the drive with the given letter
+should be used or not. By default, drives a: and b: are not used, while all other drives will be used
+if they are present.</listitem>
+</itemizedlist>
+</para>
+<sect3><title>Getting the objects</title>
+<indexterm><primary>GetWin32Displayer</primary></indexterm>
+<indexterm><primary>GetWin32Trace</primary></indexterm>
+<indexterm><primary>GetWin32ThreadIdInfoProvider</primary></indexterm>
+<indexterm><primary>GetWin32LastErrorInfoProvider</primary></indexterm>
+<indexterm><primary>GetWin32TimeInfoProvider</primary></indexterm>
+<indexterm><primary>GetWin32ProcessIdInfoProvider</primary></indexterm>
+<indexterm><primary>GetWin32OSVersionInfoProvider</primary></indexterm>
+<indexterm><primary>GetWin32CurrentDirectoryInfoProvider</primary></indexterm>
+<indexterm><primary>GetWin32ProcessorInfoProvider</primary></indexterm>
+<indexterm><primary>GetWin32TotalMemoryInfoProvider</primary></indexterm>
+<indexterm><primary>GetWin32FreeMemoryInfoProvider</primary></indexterm>
+<indexterm><primary>GetNrDetectedDrives</primary></indexterm>
+<indexterm><primary>GetDiskInfoProvider</primary></indexterm>
+<indexterm><primary>GetFreeDiskSpaceInfoProvider</primary></indexterm>
+<para>You can get a reference to the displayer, the trace logger and the infoproviders that are
+used after calling <code>ModAssert::SetupForWin32()</code> with these functions that are declared in
+<filename>modassert/Win32Handler.hpp</filename>:
+<itemizedlist mark='bullet'>
+<listitem><code>Responder&amp; GetWin32Displayer()</code>: returns a reference to the object that displays the
+assertion info in a dialog box</listitem>
+<listitem><code>Logger&amp; GetWin32Trace()</code>: returns a reference to the object that
+logs the info using <code>OutputDebugString</code></listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWin32ThreadIdInfoProvider()</code>: returns a reference to the object that
+gives the thread id</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWin32LastErrorInfoProvider()</code>: returns a reference to the object that
+gives the last system error</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWin32TimeInfoProvider()</code>: returns a reference to the object that
+gives the time and date</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWin32ProcessIdInfoProvider()</code>: returns a reference to the object that
+gives the processid</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWin32OSVersionInfoProvider()</code>: returns a reference to the object that
+gives a description of the operating system</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWin32CurrentDirectoryInfoProvider()</code>: returns a reference to the object that
+gives the current directory</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWin32ProcessorInfoProvider()</code>: returns a reference to the object that
+gives a description of the processor</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWin32TotalMemoryInfoProvider()</code>: returns a reference to the object that
+tells how much RAM the computer has</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWin32FreeMemoryInfoProvider()</code>: returns a reference to the object that
+tells how much RAM is available</listitem>
+
+<listitem><code>InfoProviders::InfoProvider&amp; size_t GetNrDetectedDrives()</code>: returns how many drives
+were detected on the computer, which is also the number of associated infoproviders that give info about the
+drive and how much free space there is on it</listitem>
+<listitem><code>InfoProviders::Win32DiskInfoProvider&amp; GetDiskInfoProvider(size_t idx)</code>: returns a reference to the object that
+gives information about the drive with the index <code>idx</code>. <code>idx</code> should be between 0
+and <code>GetNrDetectedDrives()-1</code>.</listitem>
+<listitem><code>InfoProviders::Win32FreeDiskSpaceInfoProvider&amp; GetFreeDiskSpaceInfoProvider(size_t idx)</code>: returns a reference
+to the object that tells how much free space there is left on the drive with the index <code>idx</code>.
+<code>idx</code> should be between 0 and <code>GetNrDetectedDrives()-1</code>.</listitem>
+
+<listitem><code>InfoProviders::Win32DiskInfoProvider&amp; GetDiskInfoProvider(char drive)</code>: returns a reference to the object that
+gives information about the drive with the letter <code>drive</code>.</listitem>
+<listitem><code>InfoProviders::Win32FreeDiskSpaceInfoProvider&amp; GetFreeDiskSpaceInfoProvider(char drive)</code>: returns a reference
+to the object that tells how much free space there is left on the drive with the letter <code>drive</code>.</listitem>
+</itemizedlist>
+</para>
+<para>Note: The classes <classname>InfoProviders::Win32DiskInfoProvider</classname>
+and <classname>InfoProviders::Win32FreeDiskSpaceInfoProvider</classname> have a method 
+<code>char GetDriveLetter() const</code>, that returns the drive letter.
+</para>
+</sect3>
+</sect2>
+
+<sect2 id='WxWidgets'><title>wxWidgets</title>
+<indexterm><primary>Using the available responders and loggers</primary><secondary>wxWidgets</secondary></indexterm>
+<indexterm><primary>Available responders and loggers</primary><secondary>wxWidgets</secondary></indexterm>
+<indexterm><primary>SetupForWxWidgets</primary></indexterm>
+<para>For wxWidgets, follow these steps:
+<itemizedlist mark='bullet'>
+<listitem>Build the project ModAssertWxGui in the configuration(s) that you need.</listitem>
+<listitem>Define the symbol <symbol>RICHBOOL_USE_WX</symbol> for your whole application</listitem>
+<listitem>Link to the wxWidgets version of ModAssertWxGui, ModAssert and RichBool</listitem>
+<listitem>Call <code>ModAssert::SetupForWxWidgets()</code> or
+<code>ModAssert::SetupForWxWidgets(ModAssert::Mode mode)</code> during the initialization of your application.
+See <xref linkend='specify-mode' /> for more info about the mode.
+To do this, include <filename>modassert/wxhandler.hpp</filename>.</listitem>
+</itemizedlist>
+Note: with Visual C++, the ModAssert, ModAssertWxGui and RichBool library are linked to automatically
+if you include the headerfile <filename>modassert/wxhandler.hpp</filename>, so you can skip the
+third step above.</para>
+<para>See the project in <filename>demos/Wx</filename> for an example.</para>
+<para>An alternative that gives you more control is to include the headerfiles that start with Wx in the
+<filename>include/modassert</filename> directory, instantiate the objects that you want yourself and give them to ModAssert.
+</para>
+<para>If an assertion or check is reported, this will log the assertion information with <code>wxLogDebug</code>.
+Furthermore, it does the following according to the mode:
+<itemizedlist mark='bullet'>
+<listitem>in testMode: if the assertion or check is reported from the main thread,
+it will display a dialog with all the available information,
+that gives you the choice of breaking into the debugger (except if <symbol>NDEBUG</symbol> is defined),
+abort, permanently stop displaying the assertion, etc. Check all the responses
+that you want, or none if you want nothing to be done, and click the ok-button. If the
+assertion or check is reported from another thread, the application automatically breaks into the debugger
+(except if <symbol>NDEBUG</symbol> is defined, in that case you will only know that there
+was an assertion from the logs).</listitem>
+<listitem>In continueWithWarningOnFailure and terminateOnFailure mode, if an assertion or check
+is reported in the main thread, it will show
+a warning in a messagebox for the appropriate level, with the parameters of the assertion or check macro,
+or a message that the application will end (depending on the mode and the level).
+It is recommended to give meaningful names to the variables that you provide here,
+because this is meant for users of your application.</listitem>
+</itemizedlist>
+</para>
+<para>Info providers: the dialog, <code>wxLogDebug</code> and other loggers that you add, will show the date and time,
+the current directory, the amount of free memory, the return value of <code>wxSysErrorCode()</code> and
+<code>wxSysErrorMsg()</code>, and the thread id.
+At the beginning of every logfile the os version and the processid will be given.
+</para>
+<sect3><title>Getting the objects</title>
+<indexterm><primary>GetWxDisplayer</primary></indexterm>
+<indexterm><primary>GetWxLogger</primary></indexterm>
+<indexterm><primary>GetWxThreadIdInfoProvider</primary></indexterm>
+<indexterm><primary>GetWxTimeInfoProvider</primary></indexterm>
+<indexterm><primary>GetWxProcessIdInfoProvider</primary></indexterm>
+<indexterm><primary>GetWxOsVersionInfoProvider</primary></indexterm>
+<indexterm><primary>GetWxCurrentDirectoryInfoProvider</primary></indexterm>
+<indexterm><primary>GetWxFreeMemoryInfoProvider</primary></indexterm>
+<indexterm><primary>GetWxSysErrorInfoProvider</primary></indexterm>
+<para>You can get a reference to the displayer, the trace logger and the infoproviders that are
+used after calling <code>ModAssert::SetupForWxWidgets()</code> with these functions that are declared in
+<filename>modassert/wxhandler.hpp</filename>:
+<itemizedlist mark='bullet'>
+<listitem><code>Responder&amp; GetWxDisplayer()</code>: returns a reference to the object that displays the
+assertion info in a dialog box</listitem>
+<listitem><code>Logger&amp; GetWxLogger()</code>: returns a reference to the object that
+logs the info using <code>wxLog</code></listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWxThreadIdInfoProvider()</code>: returns a reference to the object that
+gives the thread id</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWxTimeInfoProvider()</code>: returns a reference to the object that
+gives the time and date</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWxProcessIdInfoProvider()</code>: returns a reference to the object that
+gives the processid</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWxOsVersionInfoProvider()</code>: returns a reference to the object that
+gives a description of the operating system</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWxCurrentDirectoryInfoProvider()</code>: returns a reference to the object that
+gives the current directory</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWxFreeMemoryInfoProvider()</code>: returns a reference to the object that
+gives the amount of free memory</listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetWxSysErrorInfoProvider()</code>: returns a reference to the object that
+gives information about the last system error</listitem>
+</itemizedlist>
+</para>
+<para>Note: if you get link errors, it may be necessary to put <filename>libmodassertWxGui-*.lib</filename>
+<emphasis>before</emphasis> <filename>libmodassert-*.lib</filename> in the link options.</para>
+</sect3>
+
+<sect3><title>Integrating with wxASSERT</title>
+<indexterm><primary>wxASSERT</primary></indexterm>
+<indexterm><primary>Integrating with wxASSERT</primary></indexterm>
+<para>If you use wxWidgets and your application uses a <classname>wxApp</classname> derived object,
+you could override <code>void OnAssert(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg)</code>
+(or <code>void OnAssert(const wxChar *file, int line, const wxChar *cond, const wxChar *msg)</code>
+if you use an old version of wxWidgets)
+to redirect the messages of existing <code>wxASSERT</code> and other wxWidgets assertion macros
+to the ModAssert framework, by calling <code>ModAssert::HandleAssert</code>.
+This way the assertion will be logged and shown to the user
+like the assertion macros of the ModAssert framework. In this case you can't use all the
+functionality of the ModAssert framework, like choosing to stop displaying an individual assertion,
+but at least you can redirect <code>wxASSERT</code> and other wxWidgets assertions in code that you can't change,
+to the same dialog and loggers. See the file <filename>ModAssertWxApp.cpp</filename>
+in the ModAssertDemoWx project for an example. One disadvantage that may be important, is that ModAssert
+doesn't know if the assertion comes from a <code>wxCHECK</code> kind of macro or not. In the example it
+assumes that it doesn't.</para>
+<para>For a better alternative that requires adding an include file,
+see <xref linkend='redefine-other-assertions' /></para>
+</sect3>
+
+</sect2>
+
+<sect2 id='Console'><title>Console applications</title>
+<indexterm><primary>Using the available responders and loggers</primary><secondary>Console applications</secondary></indexterm>
+<indexterm><primary>Available responders and loggers</primary><secondary>Console applications</secondary></indexterm>
+<indexterm><primary>SetupForConsole</primary></indexterm>
+<para>For console applications, follow these steps:
+<itemizedlist mark='bullet'>
+<listitem>Build the project ModAssertConsole in the configuration(s) that you need.</listitem>
+<listitem>Link to the STD version of ModAssertConsole, ModAssert and RichBool</listitem>
+<listitem>Next, call <code>ModAssert::SetupForConsole()</code> or
+<code>ModAssert::SetupForConsole(ModAssert::Mode mode)</code> during the initialization of your application.
+See <xref linkend='specify-mode' /> for more info about the mode.
+This function is declared in <filename>modassert/consolehandler.hpp</filename>.</listitem>
+</itemizedlist>
+</para>
+<para>Note: with Visual C++, the ModAssert, ModAsserConsole and RichBool library are linked to automatically
+if you include the headerfile <filename>modassert/consolehandler.hpp</filename>, so you can skip the
+second step above.</para>
+<para>Note: with gcc, you should link to the modassertConsole library before the modassert library,
+so use "-lmodassertConsole -lmodassert".</para>
+<para>See the project in <filename>demos/Console</filename> for an example.</para>
+<para>If an assertion or check is reported, this will log the assertion information to <code>std::cerr</code>.
+Furthermore, it does the following according to the mode:
+<itemizedlist mark='bullet'>
+<listitem>in testMode: it will display the actions that you can choose from,
+like breaking into the debugger (except for a Release version),
+ignore the assertion, abort, stop displaying the assertion, etc (note: this hasn't been tested
+with a failing assertion in another thread). You can enter one or more responses by entering all their letters,
+or 'I' if no action should be taken.</listitem>
+<listitem>In continueWithWarningOnFailure and terminateOnFailure mode, it will show
+a warning on std::cout, for the appropriate level, with the parameters of the assertion or check macro.
+It is recommended to give meaningful names to the variables that you provide here,
+because this is meant for users of your application.</listitem>
+</itemizedlist>
+</para>
+<para>Info providers: This will also show the date and time on <code>std::cerr</code> and
+other loggers that you add.
+</para>
+
+<sect3><title>Getting the objects</title>
+<indexterm><primary>GetConsoleDisplayer</primary></indexterm>
+<indexterm><primary>GetScreenLogger</primary></indexterm>
+<indexterm><primary>GetConsoleTimeInfoProvider</primary></indexterm>
+<para>You can get a reference to the displayer, the logger and the infoproviders that are
+used after calling <code>ModAssert::SetupForConsole()</code> with these functions that are declared in
+<filename>modassert/Win32Handler.hpp</filename>:
+<itemizedlist mark='bullet'>
+<listitem><code>Responder&amp; GetConsoleDisplayer()</code>: returns a reference to the object
+that asks for a response</listitem>
+<listitem><code>Logger&amp; GetScreenLogger()</code>: returns a reference to the object that
+logs the info on <code>std::cerr</code></listitem>
+<listitem><code>InfoProviders::InfoProvider&amp; GetConsoleTimeInfoProvider()</code>: returns a reference to the object that
+gives the time and date</listitem>
+</itemizedlist>
+</para>
+</sect3>
+</sect2>
+
+<sect2 id='specify-mode'><title>Overriding the default behaviour</title>
+<indexterm><primary>Overriding the default behaviour</primary></indexterm>
+<para>The functions <code>SetupForConsole</code>, <code>SetupForWin32</code>
+and <code>SetupForWxWidgets</code> have overloads that take an argument of the type
+<code>ModAssert::Mode</code> (for <code>SetupForWin32</code> after the
+<code>HINSTANCE</code> argument), that specifies what should happen if an assertion
+fails. Note that this only has an influence if reporting of assertions is enabled.
+The possible values of this argument are:
+<itemizedlist mark='bullet'>
+<listitem><code>ModAssert::testMode</code>: shows information about the assertion.
+How it is shown depends on the function that you called. This is the default if
+<code>NDEBUG</code> is not defined.</listitem>
+<listitem><code>ModAssert::continueSilentlyOnFailure</code>: continues silently if an assertion fails.
+This is the default if <code>NDEBUG</code> is defined.</listitem>
+<listitem><code>ModAssert::continueWithWarningOnFailure</code>: this shows a warning to the user
+if an assertion fails and continues the application, if the level is <code>ModAssert::Warning</code>
+or higher. You can adjust this level by calling <code>ModAssert::SetMinimumWarningLevel</code>
+with the minimum level as the argument.</listitem>
+<listitem><code>ModAssert::terminateOnFailure</code>: this terminates the application
+if an assertion fails, if the level is <code>ModAssert::Fatal</code> or higher.
+If the level of the assertion is at least <code>ModAssert::Warning</code> but less than
+<code>ModAssert::Fatal</code>, it shows a warning.
+You can adjust these levels by calling <code>ModAssert::SetMinimumTerminateLevel</code>
+and <code>ModAssert::SetMinimumWarningLevel</code> with the minimum level as the argument.</listitem>
+</itemizedlist>
+
+Calling the setup function with the argument <code>ModAssert::testMode</code>, is useful if an error
+only occurs in release mode, but you preferably should remove it again afterwards,
+because this is probably not the behaviour that the users of your application want.
+A failing check will not terminate the application or show a warning, and will only show debug info
+if <code>ModAssert::testMode</code> is used.
+In any case the loggers and hooks are still called.</para>
+<para>
+<indexterm><primary>GetWarningMessage</primary></indexterm>
+<indexterm><primary>GetTerminateMessage</primary></indexterm>
+<indexterm><primary>WarningMessage class</primary></indexterm>
+<indexterm><primary>TerminateMessage class</primary></indexterm>
+After calling a setup function, you can call <code>ModAssert::GetWarningMessage()</code>
+that returns a pointer to a <classname>WarningMessage</classname> object, and
+<code>ModAssert::GetTerminateMessage()</code> that returns a pointer to a
+<classname>TerminateMessage</classname> object.
+These are called by ModAssert if a warning or a terminate message has to be shown. They both have a method
+<code>void SetText(const std::string &amp;str)</code> to change their message, and
+<code>const std::string &amp; GetText()</code> to retrieve it.
+Depending on the mode that you supplied to the setup function, these pointers may be NULL or not,
+so check their return value.</para>
+<para>If reporting of assertions is disabled at compile time, assertions are ignored,
+and the application will not terminate, show a warning or show debug info due to a failing assertion.
+</para>
+<para>It is recommended to define the symbol <code>MOD_ASSERT_REPORT</code> for the whole
+application, so that reporting of assertions is enabled,
+and call any of the functions <code>SetupForConsole</code>, <code>SetupForWin32</code>
+or <code>SetupForWxWidgets</code> with the appropriate argument if the default is not
+acceptable for your application.
+It is also recommended to have at least one logger, so you know why the application went wrong.
+In source files where performance is critical, you can define the symbol
+<code>MOD_ASSERT_DONT_REPORT_FILE</code> to disable assertions in that file,
+or give the assertions in the specific code a group argument that turns off
+reporting in release mode (by selecting its type with conditional compiling).
+</para>
+</sect2>
+<sect2><title>The optional logger</title>
+<indexterm><primary>Optional logger</primary></indexterm>
+<indexterm><primary>SetOptionalLogger</primary></indexterm>
+<indexterm><primary>GetOptionalLogger</primary></indexterm>
+<para>Optionally you can call <code>ModAssert::SetOptionalLogger(const ModAssert::Logger *logger, const char *text=0, bool extraInfo=false)</code>
+to give the user the option to log to this logger, if the responder allows this.
+This is useful if you want certain interesting assertions to be logged in another file. This method is defined in
+<filename>modassert/handler.hpp</filename>. If <code>extraInfo</code> is <literal>true</literal>,
+the logger also gets the begin and end message, like loggers that are added with
+<code>ModAssert::AddLogger(...)</code>. The responders in the libraries ModAssertWin32,
+ModAssertWxGui and ModAssertConsole all allow you to log to the optional logger if there
+is one. See the demos for examples.</para>
+<para>If you write your own responder, and want to use the optional logger,
+you can retrieve it with <code>const Logger* GetOptionalLogger()</code>,
+and the corresponding text with <code>const char* GetOptionalLoggerText()</code>.</para>
+<para>If you want to disable the use of the optional logger, call
+<code>ModAssert::SetOptionalLogger</code> with a NULL pointer for the logger.</para>
+</sect2>
+
+</sect1>
+
+
+<sect1 id='modasserthandler'><title>Processing assertions (advanced)</title>
+<indexterm><primary>Processing assertions</primary></indexterm>
+<para>This section explains how to process assertions if you don't use any of the
+provided setup functions described in the previous sections, e.g. if you use a
+different GUI. It is also of interest if you want to modify part of the
+behaviour a setup function described in the previous sections.</para>
+<para>It also explains how to write your own loggers, which can be useful
+even if you use a setup function described in the previous sections.</para>
+<sect2 id='Display'><title>The Responder object</title>
+<indexterm><primary>SetResponder</primary></indexterm>
+<indexterm><primary>Responder class</primary></indexterm>
+<para>If a modular assertion or check is reported, the information about it is passed to the virtual method</para>
+<para>
+<methodsynopsis><type>ModAssert::Response</type><methodname>OnAssert</methodname>
+    <methodparam><type>const Properties &amp;</type><parameter>properties</parameter></methodparam>
+    <methodparam><type>const Result &amp;</type><parameter>result</parameter></methodparam>
+    <methodparam><type>bool</type><parameter>display</parameter></methodparam>
+</methodsynopsis>
+</para>
+<para>
+of the class <classname>ModAssert::Responder</classname>, which has to be overridden by
+a derived class. See below for a description of the classes <classname>Properties</classname>
+and <classname>Result</classname>.
+<code>display</code> tells whether the assertion should be displayed. Responders that display an assertion
+to the user, should check this; if it is <literal>false</literal>, it should not display it. The value of this boolean
+is determined by ModAssert, and can be influenced with <code>ModAssert::SetDisplayAll(...)</code>,
+<code>ModAssert::SetDisplayInFile(...)</code>, the method <code>SetDisplay()</code> of the
+group and level objects, the filter that is set with <code>ModAssert::SetDisplayFilter(...)</code> and the boolean
+that every statement assertion and check keeps,
+which is set to <literal>false</literal> if the user selects 'stop displaying this assertion'
+(expression assertions and checks don't have such a boolean because of the impossibility to have
+a static variable in an expression).
+</para>
+<para>To handle assertions with a responder, derive a class from <classname>ModAssert::Responder</classname>
+and override this method. Your class could e.g. show a dialog to the user, or print it out, and ask for an action;
+or it could decide on its own what response to return.
+Then create an object of your class, and pass it to
+<code>ModAssert::SetResponder</code> (defined in <filename>modassert/handler.hpp</filename>).
+Only one object of the type <classname>ModAssert::Responder</classname>
+can be active at a time. To disable displaying of assertions, call
+<code>ModAssert::SetResponder(NULL)</code>. Important: call this function only after <code>main</code>
+is entered (see <xref linkend='WhenModassertIsActive' />).</para>
+<para>
+<indexterm><primary>Response</primary></indexterm>
+<indexterm><primary>Abort</primary></indexterm>
+<indexterm><primary>StopDisplayingThis</primary></indexterm>
+<indexterm><primary>StopDisplayingFile</primary></indexterm>
+<indexterm><primary>StopDisplayingAll</primary></indexterm>
+<indexterm><primary>BreakIntoDebugger</primary></indexterm>
+<indexterm><primary>Optional</primary></indexterm>
+<indexterm><primary>StopDisplayingCustom</primary></indexterm>
+The return value is a <code>ModAssert::Response</code>, and can be <code>Abort</code>,
+<code>StopDisplayingThis</code>, <code>StopDisplayingFile</code>, 
+<code>StopDisplayingAll</code>,
+<code>BreakIntoDebugger</code>, <code>Optional</code> or <code>StopDisplayingCustom&lt;N&gt;</code>,
+where <symbol>N</symbol> can be from 1 to 8 (all in the <code>ModAssert</code> namespace).
+<itemizedlist mark='bullet'>
+<listitem>Use <code>Abort</code> if you want the application to end by calling <code>abort()</code>.</listitem>
+<listitem>Use <code>StopDisplayingThis</code> if you no longer want this particular assertion displayed
+(this has no effect on expression assertions and checks).</listitem>
+<listitem>Use <code>StopDisplayingFile</code> if you no longer want assertions in the same file displayed.</listitem>
+<listitem>Use <code>StopDisplayingAll</code> if you no longer want any assertions displayed.</listitem>
+<listitem>Use <code>BreakIntoDebugger</code> if you want to break into the debugger. Note that this may crash
+your application if no debugger is attached.</listitem>
+<listitem>Use <code>Optional</code> if you want the optional action to be executed. If there is no optional action,
+this has no effect.</listitem>
+<listitem>Use <code>StopDisplayingCustom&lt;N&gt;</code> to stop displaying assertions of a given type,
+like <code>ModAssert::Error</code> or a custom group.</listitem>
+</itemizedlist>
+It can also be a combination of these, by or'ing them. If no action has to be taken, return
+<code>(ModAssert::Response)0</code>.
+The order in which they are processed after the responder returns, is as follows:
+<itemizedlist mark='bullet'>
+<listitem>First <code>StopDisplayingThis</code>, <code>StopDisplayingFile</code>,
+<code>StopDisplayingAll</code> and <code>StopDisplayingCustom&lt;N&gt;</code> are processed.</listitem>
+<listitem>Next <code>BreakIntoDebugger</code> is processed.</listitem>
+<listitem>Next <code>Optional</code> is processed.</listitem>
+<listitem>Next <code>Abort</code> is processed.</listitem>
+</itemizedlist>
+<example><title>Overriding <code>ModAssert::Responder::OnAssert</code></title>
+<programlisting>
+ModAssert::Response MyAssertHandler::OnAssert(
+		const Properties &amp;properties,
+		const Result &amp;assertionResult,
+		bool display)
+{
+	// if your responder needs the attention of the user,
+	// check the value of display:
+	if (!display)
+		return (ModAssert::Response)0;
+
+	// show information to the user
+	...
+
+	// return a response:
+	return ModAssert::BreakIntoDebugger | ModAssert::StopDisplayingCustom1;
+}
+</programlisting>
+</example>
+</para>
+</sect2>
+
+<sect2><title>The class WarningMessage</title>
+<indexterm><primary>WarningMessage class</primary></indexterm>
+<para><classname>WarningMessage</classname> is a class that is defined in the file
+<filename>modassert/warning_message.hpp</filename> and is derived from <classname>Responder</classname>,
+that is called when an assertion fails and a setup function was called with the mode
+<code>continueWithWarningOnFailure</code> or <code>terminateOnFailure</code> (depending on the
+level of the assertion). It has the method
+<code>void SetText(const std::string &amp; str)</code> to set the message to display, and
+<code>const std::string&amp; GetText()</code> to retrieve that message.</para>
+<para>If you need a custom warning message, derive your own class of <classname>WarningMessage</classname>
+and override <code>OnAssert</code> (of the class <classname>Responder</classname>).
+Preferably use the message that is returned by its parent method <code>GetText()</code>.</para>
+<para>Then create an object of your class, and pass a pointer to it to
+<code>ModAssert::SetWarningMessage</code>.</para>
+</sect2>
+
+<sect2><title>The class TerminateMessage</title>
+<indexterm><primary>TerminateMessage</primary></indexterm>
+<para><classname>TerminateMessage</classname> is a class that is defined in the file
+<filename>modassert/terminate_message.hpp</filename>,
+that is called when the application will terminate due to a failing assertion fails
+(i.e. if a setup function was called with the mode <code>terminateOnFailure</code>
+and the level of the assertion is high enough). It has the method
+<code>void SetText(const std::string &amp; str)</code> to set the message to display, and
+<code>const std::string&amp; GetText()</code> to retrieve that message.</para>
+<para>If you need a custom terminate message, derive your own class of <classname>TerminateMessage</classname>
+and override <code>void OnAssert(const Properties &amp;properties, const Result &amp;result)</code>.
+Preferably use the message that is returned by its parent method <code>GetText()</code>.</para>
+<para>Then create an object of your class, and pass a pointer to it to <code>ModAssert::SetTerminateMessage</code>.</para>
+</sect2>
+
+<sect2><title>The function Setup</title>
+<indexterm><primary>Setup</primary></indexterm>
+<para>Instead of calling <code>ModAssert::SetResponder</code>, <code>ModAssert::SetWarningMessage</code>
+and <code>ModAssert::SetTerminateMessage</code>, you can also call
+<code>void ModAssert::Setup(const ModAssert::Responder *responder)</code>
+which only sets the responder if <code>NDEBUG</code> is not defined, and calls
+<code>UseBool::SetCheck</code> with <code>true</code> if <code>NDEBUG</code> is not defined,
+<code>false</code> otherwise.</para>
+<para>For more control, you can call the overloaded
+<code>void ModAssert::Setup(ModAssert::Mode mode, const ModAssert::Responder *responder,
+ModAssert::WarningMessage *warningMessage, ModAssert::TerminateMessage *terminateMessage)</code>,
+which ignores whether <code>NDEBUG</code> is defined, and takes care of setting up
+ModAssert to handle assertions according to the mode.
+It calls <code>UseBool::SetCheck</code> with <code>true</code> if <code>mode</code> is <code>ModAssert::testMode</code>,
+<code>false</code> otherwise.</para>
+</sect2>
+
+<sect2><title>The Logger objects</title>
+<indexterm><primary>Logger class</primary></indexterm>
+<indexterm><primary>AddLogger</primary></indexterm>
+<indexterm><primary>RemoveLogger</primary></indexterm>
+<para>In addition, the information is also given to a number of objects that implement
+the interface <classname>ModAssert::Logger</classname>, by calling the pure virtual method
+</para>
+<para>
+<methodsynopsis><type>void</type><methodname>OnAssert</methodname>
+    <methodparam><type>const Properties &amp;</type><parameter>properties</parameter></methodparam>
+    <methodparam><type>const Result &amp;</type><parameter>result</parameter></methodparam>
+</methodsynopsis>
+</para>
+<para>
+on them, which has to be implemented by derived classes. The arguments are the same as for
+<code>ModAssert::Responder::OnAssert</code>, except that <code>display</code> 
+is not given. Note that this method returns <code>void</code>.
+See below for a description of the classes <classname>Properties</classname>
+and <classname>Result</classname>.
+</para>
+<para>In addition, this class has another pure virtual method
+<methodsynopsis><type>void</type><methodname>AddMessage</methodname>
+	<methodparam><type>const std::string &amp;</type><parameter>message</parameter></methodparam>
+</methodsynopsis>
+For now, this is only called (multiple times) when the logger is added to ModAssert and when it is removed or when the destructor
+of a <code>ModAssert::AutoShutdown</code> object is called, but it may be called at other times in the future.
+Derived classes should implement this method. Note that they should add a newline themselves if necessary.
+</para>
+<para>Note: replace <classname>std::string</classname> with <classname>wxString</classname> if you use wxWidgets.
+</para>
+<para>To use loggers, derive one or more classes from <classname>ModAssert::Logger</classname>,
+implement <code>OnAssert</code> and <code>AddMessage</code>, and add them by calling
+<code>ModAssert::AddLogger</code> with
+pointers to the objects. This method returns an id of the type <code>size_t</code>, that is
+unique for every logger and at least 1. You can remove a logger again by calling
+<code>ModAssert::RemoveLogger</code> with a pointer to the object or its id.
+These functions are defined in <filename>modassert/handler.hpp</filename>.
+ModAssert doesn't copy loggers, so the logger object must exist until it is removed (manually or by the destructor
+of a <code>ModAssert::AutoShutdown</code> object) or until the application ends.
+Important: call <code>ModAssert::AddLogger</code> only after <code>main</code>
+is entered (see <xref linkend='WhenModassertIsActive' />).</para>
+<para>Note: the <classname>ModAssert::Context</classname> object in <code>properties</code> and
+the <classname>ModAssert::ParameterList</classname> object in <code>result</code>
+are temporay objects on the stack, so they no longer exist after <code>OnAssert</code>
+is called on these objects, so you can't store pointers to them for later usage.
+However, the <classname>ModAssert::ParameterList</classname> object can be cloned.</para>
+</sect2>
+
+<sect2><title>Hooks</title>
+<indexterm><primary>Hook class</primary></indexterm>
+<indexterm><primary>AddHook</primary></indexterm>
+<indexterm><primary>RemoveHook</primary></indexterm>
+<para>In addition, the information is also given to a number of objects that implement
+the interface <classname>ModAssert::Hook</classname>, by calling the virtual method
+</para>
+<para>
+<methodsynopsis><type>void</type><methodname>OnAssert</methodname>
+    <methodparam><type>const Properties &amp;</type><parameter>properties</parameter></methodparam>
+    <methodparam><type>const Result &amp;</type><parameter>result</parameter></methodparam>
+</methodsynopsis>
+</para>
+<para>
+on them, which has to be implemented by derived classes. These are called before any logger or responder
+is notified of the assertion. The arguments are the same as for <code>ModAssert::Logger::OnAssert</code>.
+See below for a description of the classes <classname>Properties</classname>
+and <classname>Result</classname>.</para>
+<para>To use hooks, derive one or more classes from <classname>ModAssert::Hook</classname>,
+implement <code>OnAssert</code>, and add objects of those classes by calling <code>ModAssert::AddHook</code>
+with a pointer to the objects. You can remove a hook again by calling <code>ModAssert::RemoveHook</code>
+with a pointer to the object. These two functions are defined in <filename>modassert/handler.hpp</filename>.
+The hook object must exist until it is removed or until the application ends.
+Important: call <code>ModAssert::AddHook</code> only after <code>main</code>
+is entered (see <xref linkend='WhenModassertIsActive' />).</para>
+<para>Note: the <classname>ModAssert::Context</classname> object in <code>properties</code> and
+the <classname>ModAssert::ParameterList</classname> object in <code>result</code>
+are temporay objects on the stack, so they no longer exist after <code>OnAssert</code>
+is called on these objects, so you can't store pointers to them for later usage.
+However, the <classname>ModAssert::ParameterList</classname> object can be cloned.</para>
+<para>Hooks are only useful in some rare situations. One situation is storing the return value
+of <code>GetLastError()</code> in Windows. The return value of that function is altered if you
+log to a file or display a dialog box, so it has to be stored before any logger or the responder is called.
+See the Win32 demo for an example of how this is done. Another usage may be a 'rainy day fund'.</para>
+</sect2>
+
+<sect2 id='Properties'><title>The class <classname>ModAssert::Properties</classname></title>
+<indexterm><primary>Properties class</primary></indexterm>
+<para>A <classname>ModAssert::Properties</classname> object represents all the
+attributes of an assertion or a check that are always the same. It has the following
+public methods:
+<itemizedlist mark='bullet'>
+<listitem><code>const CategoryBase* GetCategory() const</code>: returns an object that describes the category
+of the assertion or check. The caller should not delete this.</listitem>
+<listitem><code>bool IsUnconditional()</code>: returns whether the assertion or check is unconditional
+(e.g. <literal>false</literal> for <code>MOD_ASSERT</code>, <literal>true</literal> for <code>MOD_FAIL</code>)</listitem>
+<listitem><code>const Context&amp; GetContext() const</code>: returns the context</listitem>
+<listitem><code>const char* GetCondition() const</code>: returns the condition as a character string.
+The caller should not delete this.</listitem>
+<listitem><code>const GroupList* GetGroupList() const</code>: returns a list of all the groups that were added
+(or were added as a default). The caller should not delete this.</listitem>
+<listitem><code>const char* GetOptional() const</code>: returns a character string with the optional action;
+this is <literal>NULL</literal> if no optional action was given. The caller should not delete this.</listitem>
+<listitem><code>bool CanStopDisplayingThis() const</code>: returns whether the flag
+<code>StopDisplayingThis</code> in the return value of a responder will have any influence
+(e.g. it will have no influence on expression assertions and checks). If this returns false,
+your responder should not offer the possibility to stop displaying an assertion or check.</listitem>
+</itemizedlist>
+</para>
+</sect2>
+
+<sect2 id='Result'><title>The class <classname>ModAssert::Result</classname></title>
+<indexterm><primary>Result class</primary></indexterm>
+<para>A <classname>ModAssert::Result</classname> object represents all the
+attributes of an assertion or a check that can vary every time it is evaluated.
+It has the following public methods:
+<itemizedlist mark='bullet'>
+<listitem><code>bool Succeeded() const</code>: returns <literal>false</literal> if the condition failed,
+<literal>true</literal> otherwise</listitem>
+<listitem><code>const RichBool::SharedAnalysis GetAnalysis() const</code>: returns the analysis
+of the condition if a Rich Boolean was used</listitem>
+<listitem><code>const ParameterList* GetParameterList() const</code>: returns the parameterlist
+if parameters were added; <literal>NULL</literal> otherwise. The caller should not delete this.</listitem>
+</itemizedlist>
+</para>
+</sect2>
+
+<sect2 id='Category'><title>The class <classname>ModAssert::CategoryBase</classname></title>
+<indexterm><primary>CategoryBase class</primary></indexterm>
+<para>A <classname>ModAssert::CategoryBase</classname> object represents the
+category of an assertion or a check. It has the following public methods:
+<itemizedlist mark='bullet'>
+<listitem><code>bool IsAssertion() const</code>: returns <literal>true</literal> if it represents an
+assertion, <literal>false</literal> otherwise</listitem>
+<listitem><code>bool IsCheck() const</code>: returns <literal>true</literal> if it represents a
+check, <literal>false</literal> otherwise</listitem>
+<listitem><code>const char* GetName() const</code>: returns the name of the category
+it represents as a character string. The caller should not delete this. For now this can only be <literal>"assert"</literal>
+or <literal>"check"</literal>.</listitem>
+</itemizedlist>
+</para>
+</sect2>
+
+<sect2 id='WhenModassertIsActive'><title>When ModAssert is active</title>
+<indexterm><primary>When ModAssert is active</primary></indexterm>
+<indexterm><primary>AutoShutdown class</primary></indexterm>
+<para>It is important that <code>ModAssert::SetResponder</code>, <code>ModAssert::AddLogger</code> and
+<code>ModAssert::AddHook</code> should only be called after
+the <code>main</code> function has been entered and before it is left.
+I.e. it should not be called from the constructor or destructor of a global object.
+These functions are thread safe. Furthermore, calling one of these functions activates ModAssert
+and failing assertions are synchronized to
+be thread safe, but before <code>main</code> is entered, you can not be sure that the multithreading library
+of your platform is initialized, so this could lead to a crash.</para>
+<para>Likewise, when the function <code>main</code> is exited, different libraries may shutdown. Also the
+multithreading libraries on many platforms. Since ModAssert synchronizes assertions, this may lead
+to a crash if an assertion is reported after your multithreading library has shut down. Assertions
+may be present in code called by destructors of global objects, so this danger is real.</para>
+<para>Therefore ModAssert offers you a way of letting it know that it should shut down as well,
+and ignore assertions from that moment on. This is done in an exceptionsafe way, by declaring
+an object of the class <classname>ModAssert::AutoShutdown</classname>, which is declared in
+<filename>modassert/handler.hpp</filename>.
+Its destructor sends a message to the loggers that ModAssert stops logging, removes all loggers and the responder.
+Therefore you should declare a non-static object of this class on the stack in your <code>main</code> (or another
+similar function), right before or after you initialize ModAssert by setting a responder or adding a logger.
+You should only create one such object in your application.
+So your <code>main</code> function may look like this:
+<programlisting>
+#include "modassert/assert.hpp"
+#include "modassert/ConsoleHandler.hpp"
+
+int main(int argc, char* argv[])
+{
+	ModAssert::AutoShutdown modAssertAutoShutdown;
+
+	// Assume we use the Console handler:
+	ModAssert::SetupForConsole();
+
+	...
+}</programlisting>
+</para>
+<para>Note that loggers should be defined before the <classname>ModAssert::AutoShutdown</classname>
+object (or be global objects), unless you remove them yourself before its destructor is called. Otherwise the destructor
+of <classname>ModAssert::AutoShutdown</classname> will try to log the end message to loggers that no longer exist.</para>
+<para>In some environments you can't change <code>main</code> (e.g. wxWidgets), but you can override an
+application objects methods to do the same. In that case, simply create a <classname>ModAssert::AutoShutdown</classname>
+object in a method that is called when the application ends.
+<programlisting>bool MyApp::OnInit()
+{
+	// these objects are static, otherwise they would be destroyed
+	// as soon as this method is left:
+	static MyResponder myResponder;
+	static MyLogger myLogger;
+
+	ModAssert::SetResponder(&amp;myResponder);
+	ModAssert::AddLogger(&amp;myLogger);
+
+	... // other setup
+
+	return TRUE;
+}
+
+int MyApp::OnExit()
+{
+	// Add this line to make sure that ModAssert exits
+	// gracefully when the application ends.
+	// This will actually be done from the destructor of this object.
+	ModAssert::AutoShutdown modAssertAutoShutdown;
+	
+	// other shut down code
+	...
+}</programlisting></para>
+<para>Some programmers find it tempting to derive a class from <classname>ModAssert::Responder</classname>,
+<classname>ModAssert::Logger</classname> or <classname>ModAssert::Hook</classname>,
+and let the constructor automatically add it to ModAssert,
+and let the destructor remove it again, so you only have to define them as a global object. But in the view
+of synchronization, this is clearly not a good idea.</para>
+</sect2>
+
+<sect2><title>Filters for the responder, the loggers, the hooks and the infoproviders</title>
+<indexterm><primary>Filters</primary></indexterm>
+<para>The functions <code>ModAssert::AddLogger</code>, <code>ModAssert::AddHook</code>
+and  <code>ModAssert::AddInfoProvider</code>
+can take a second argument, a pointer to an object derived from <classname>ModAssert::Filter</classname>,
+that has a default value of <code>NULL</code>. These objects decide for their corresponding logger and hook
+whether it should be notified about an assertion.</para>
+<para>You can also give a pointer to such an object to the method
+<code>ModAssert::SetDisplayFilter</code> (defined in <filename>modassert/handler.hpp</filename>),
+to let the responder decide whether it should display an assertion.
+Responders are always notified of an assertion, but have an extra argument <code>bool display</code>,
+that is determined by that filter (amongst other things), that tells whether an assertion should be displayed.
+If a <code>NULL</code> value is given, there is no influence.</para>
+<para><classname>ModAssert::Filter</classname> has two virtual methods:</para>
+<para><methodsynopsis><type>bool</type><methodname>Accept</methodname>
+     <methodparam><type>const Properties &amp;</type><parameter>properties</parameter></methodparam>
+    <methodparam><type>const Result &amp;</type><parameter>result</parameter></methodparam>
+</methodsynopsis>
+<methodsynopsis><type>bool</type><methodname>Accept</methodname>
+    <methodparam><type>const LogType &amp;</type><parameter>logType</parameter></methodparam>
+</methodsynopsis></para>
+<para>which should return true if the filter accepts the assertion or logging type. In the base class they
+always return <code>true</code>. It also has a const non-virtual method:
+<methodsynopsis><type>const std::string&amp;</type><methodname>GetDescription</methodname></methodsynopsis>
+which gives a description of the filter.
+</para>
+<para>Note: replace <classname>std::string</classname> with <classname>wxString</classname> if you use wxWidgets.
+</para>
+<para>There are several classes derived from <classname>Filter</classname>, described below.</para>
+<para>If you derive your own class of <classname>Filter</classname>, you should override at least one
+of the two <code>Accept</code> methods. Furthermore, the constructor should assign a value
+to the protected member <code>description</code>.</para>
+
+<sect3><title>FilterIfFailed</title>
+<indexterm><primary>FilterIfFailed class</primary></indexterm>
+<para><classname>ModAssert::FilterIfFailed</classname> will only accept assertions that failed, i.e. it will not
+pass succeeding assertions that should be reported. You can use the predefined object <code>ModAssert::filterIfFailed</code>,
+that is of this class, so you don't need to define an object yourself.</para>
+</sect3>
+
+<sect3><title>FilterIfAssert</title>
+<indexterm><primary>FilterIfAssert class</primary></indexterm>
+<para><classname>ModAssert::FilterIfAssert</classname> will only accept assertions, i.e. that come from the macros that begin
+with <code>MOD_ASSERT</code>, <code>MOD_VERIFY</code> or <code>MOD_FAIL</code>.
+You can use the predefined object <code>ModAssert::filterIfAssert</code>,
+that is of this class, so you don't need to define an object yourself.</para>
+</sect3>
+
+<sect3><title>FilterIfCheck</title>
+<indexterm><primary>FilterIfCheck class</primary></indexterm>
+<para><classname>ModAssert::FilterIfCheck</classname> will only accept checks, i.e. that come from the macros that begin
+with <code>MOD_CHECK</code>. You can use the predefined object <code>ModAssert::filterIfCheck</code>,
+that is of this class, so you don't need to define an object yourself.</para>
+</sect3>
+
+<sect3><title>FilterIfHasGroup</title>
+<indexterm><primary>FilterIfHasGroup class</primary></indexterm>
+<para><classname>ModAssert::FilterIfHasGroup</classname> has a constructor that takes a <code>const char *</code>,
+the name of a group. It will only accept assertions that have that group.</para>
+</sect3>
+
+<sect3><title>FilterMinimumLevel</title>
+<indexterm><primary>FilterMinimumLevel class</primary></indexterm>
+<para><classname>ModAssert::FilterMinimumLevel</classname> has a constructor that takes a <code>int</code> or
+a level object. It will only accept assertions that have at least that level.</para>
+<para>Note: with Visual C++ 6.0 you can only pass a level object to the constructor.</para>
+</sect3>
+
+<sect3><title>FilterMaximumLevel</title>
+<indexterm><primary>FilterMaximumLevel class</primary></indexterm>
+<para><classname>ModAssert::FilterMaximumLevel</classname> has a constructor that takes a <code>int</code> or
+a level object. It will only accept assertions that have at most that level.</para>
+<para>Note: with Visual C++ 6.0 you can only pass a level object to the constructor.</para>
+</sect3>
+
+<sect3><title>FilterInFile</title>
+<indexterm><primary>FilterInFile class</primary></indexterm>
+<para><classname>ModAssert::FilterInFile</classname> has a constructor that takes a <code>const char *</code>,
+the name of a file. It will only accept assertions that appear in that source file. It is recommended to
+use this with the predefined symbol <code>__FILE__</code>, so that moving source code doesn't
+change the applications behaviour.</para>
+</sect3>
+
+<sect3><title>FilterMessages</title>
+<indexterm><primary>FilterMessages class</primary></indexterm>
+<para><classname>ModAssert::FilterMessages</classname> will only accept messages, i.e. no
+assertions and checks. It is a class without member data, so you can just use
+the instantiation <code>ModAssert::filterMessages</code>.</para>
+</sect3>
+
+<sect3><title>FilterLogType</title>
+<indexterm><primary>FilterLogType class</primary></indexterm>
+<para><classname>ModAssert::FilterLogType</classname> has a constructor that takes four booleans.
+The first specifies whether logging of assertions and checks is accepted,
+the second specifies whether logging when a logger is added is accepted,
+the third specifies whether logging when a logger is removed is accepted,
+the fourth specifies whether logging data at other times (not assertions and checks) is accepted (this is not yet used).</para>
+<para>Two objects of this type are already provided by ModAssert:
+<code>filterNoAssertionsAndChecks</code>, that doesn't allow assertions and checks, and
+<code>filterOnlyAssertionsAndChecks</code>, that only allows assertions and checks.</para>
+</sect3>
+
+<sect3><title>FilterNot</title>
+<indexterm><primary>FilterNot class</primary></indexterm>
+<para><classname>ModAssert::FilterNot</classname> has a constructor that takes a reference to a <classname>ModAssert::Filter</classname>
+object. It returns the negation of that filter. The filter that is given to the constructor should exist at least as long as the object
+itself exists.</para>
+<para>Two objects of this class are predefined:
+<code>ModAssert::filterIfSuccess</code> that has <code>ModAssert::filterIfFailed</code> as an argument in
+its constructor, <code>ModAssert::filterIfNotAssert</code> that has <code>ModAssert::filterIfAssert</code>
+as an argument in its constructor, and <code>ModAssert::filterIfNotCheck</code> that has <code>ModAssert::filterIfCheck</code>
+as an argument in its constructor.</para>
+</sect3>
+
+<sect3><title>FilterAnd</title>
+<indexterm><primary>FilterAnd class</primary></indexterm>
+<para><classname>ModAssert::FilterAnd</classname> has a constructor that takes two references to <classname>ModAssert::Filter</classname>
+objects. It will only accept assertions that those filters both accept. The filters that are given to the
+constructor should exist at least as long as the object itself exists.</para>
+</sect3>
+
+<sect3><title>FilterOr</title>
+<indexterm><primary>FilterOr class</primary></indexterm>
+<para><classname>ModAssert::FilterOr</classname> has a constructor that takes two references to <classname>ModAssert::Filter</classname>
+objects. It will only accept assertions that at least one of those filters accepts. The filters that are given
+to the constructor should exist at least as long as the object itself exists.</para>
+</sect3>
+</sect2>
+
+<sect2><title>The ResponderSwitcher class</title>
+<indexterm><primary>ResponderSwitcher class</primary></indexterm>
+<para>In <filename>modassert/responder_switcher.hpp</filename> the class
+<classname>ModAssert::ResponderSwitcher</classname> is defined. It is derived from <classname>ModAssert::Responder</classname>,
+but doesn't show the assertion information to the user like other responders. Instead its implementation of
+<code>OnAssert</code> decides on its own which response should be returned and/or what other <classname>ModAssert::Responder</classname>
+should be called,
+based on filters that you add to it.</para>
+<para>The method <code>void AddFilter(ModAssert::Filter *filter, ModAssert::Response response)</code> lets you
+specify that if the filter accepts the assertion, <code>response</code> will be returned.
+The method <code>void AddFilter(ModAssert::Filter *filter, const ModAssert::Responder *responder)</code> lets you
+specify that if the filter accepts the assertion, <code>OnAssert</code> on <code>responder</code> will be called with the same
+arguments, and its return value is returned.</para>
+<para>You can give as many filters as you want.
+The filters will be checked in the order that you added them. The response of the first matching filter will be returned by
+<code>OnAssert</code>. The method <code>void SetDefaultResponse(Response response)</code> lets you
+specify which value should be returned if no matching filter is found, or no filter was added. The method
+<code>void SetDefaultResponder(const Responder *responder)</code> lets you
+specify a responder that should be called if no matching filter is found, or no filter was added, to return its return value.
+Only one of these two can be in effect, so they override each others settings. If you don't call any of these,
+the default response is 0.
+</para>
+<para>The method <code>bool HasDefaultResponse()</code> returns whether a const default response is set.
+The method <code>bool HasDefaultResponder()</code> returns whether a default responder is set. Only one of these
+two can return true. The method <code>Response GetDefaultResponse()</code> return the default response if one was set;
+only call this if <code>bool HasDefaultResponse()</code> returns true. <code>const Responder* GetDefaultResponder()</code>
+returns the default responder, if one was set; only call this if <code>bool HasDefaultResponder()</code> returns true.</para>
+<para>Note: since <classname>ModAssert::ResponderSwitcher</classname> is derived from
+<classname>ModAssert::Responder</classname>, it is possible to have a circular reference if you add a
+<classname>ModAssert::ResponderSwitcher</classname> to another <classname>ModAssert::ResponderSwitcher</classname>,
+possibly resulting in an infinite loop. There is no checking for this, so some attention is needed here.</para>
+<para>In the file <filename>modassert/autoresponder.hpp</filename> there is a typedef of
+<classname>ModAssert::AutoResponder</classname> to
+<classname>ModAssert::ResponderSwitcher</classname> for backward compatibility.</para>
+</sect2>
+
+<sect2 id='InfoProvider'><title>Providing extra information</title>
+<indexterm><primary>Providing extra information</primary></indexterm>
+<indexterm><primary>Extra information</primary></indexterm>
+<indexterm><primary>InfoProvider class</primary></indexterm>
+<indexterm><primary>Granularityclass</primary></indexterm>
+<indexterm><primary>AddInfoProvider</primary></indexterm>
+<indexterm><primary>RemoveInfoProvider</primary></indexterm>
+<indexterm><primary>beginInfoProviders</primary></indexterm>
+<indexterm><primary>endInfoProviders</primary></indexterm>
+<indexterm><primary>GetAllInfo</primary></indexterm>
+<para>It is often useful to add extra information to the loggers and the responder when an
+assertion failed. Examples are the thread id, time and date, the OS version, the version of
+your application, a backtrace, or the state of your application (e.g. the documents that are loaded and the active
+document). You can do this by implementing the interface <classname>InfoProviders::InfoProvider</classname>
+which is declared in the file <filename>modassert/info.hpp</filename>.
+It has a constructor that takes a <classname>InfoProviders::Granularity</classname> value,
+and three virtual methods
+</para>
+<para>
+<methodsynopsis><type>const std::string&amp;</type><methodname>GetType</methodname>
+</methodsynopsis>
+<methodsynopsis><type>bool</type><methodname>HasInfo</methodname>
+</methodsynopsis>
+<methodsynopsis><type>std::string</type><methodname>GetInfo</methodname>
+</methodsynopsis>
+</para>
+<para>Note: replace <classname>std::string</classname> with <classname>wxString</classname> if you use wxWidgets.
+</para>
+<para>The <classname>InfoProviders::Granularity</classname> value in the constructor
+specifies what type of info the infoprovider gives, so ModAssert knows when it
+should be used. It can be one of the following values:
+<indexterm><primary>volatileInfo</primary></indexterm>
+<indexterm><primary>thread</primary></indexterm>
+<indexterm><primary>process</primary></indexterm>
+<indexterm><primary>application</primary></indexterm>
+<indexterm><primary>machine</primary></indexterm>
+<indexterm><primary>customGranularity</primary></indexterm>
+<itemizedlist mark='bullet'>
+<listitem><code>volatileInfo</code>: this is used for info that is volatile, i.e. that can change
+from one call to the next in the same application. If it is, it will always be used.
+Examples are the time, the current directory and the amount of free memory.</listitem>
+<listitem><code>thread</code>: this is used for info that is always the same in a thread.
+The trivial example is the thread id.</listitem>
+<listitem><code>process</code>: this is used for info that is always the same in a process.
+The trivial example is the process id.</listitem>
+<listitem><code>application</code>: this is used for info that is always the same in an
+application. An example is the application name. This is different from <code>process</code>
+because some info may be the same for different instantiations of the same application.</listitem>
+<listitem><code>machine</code>: this is used for info that is always the same on a machine.
+Examples are CPU info and the OS version.</listitem>
+</itemizedlist>
+Note: there is also a granularity <code>customGranularity</code>. If you need to define other granularities,
+use values starting at this value. The maximum value is the number of bits in an <code>unsigned int</code>
+minus one.</para>
+<para>InfoUser objects can specify for each of these granularities (except <code>volatileInfo</code>)
+if it will receive info from more than one InfoProvider object of that granularity or not.
+If it will, it will use the info every time an assertion or check is reported as well as
+when a logger is added or removed; otherwise only when a logger is added,
+because it will always be the same.
+This is mostly of concern for loggers, because they get various info when they are
+added or removed; responders are only called when an assertion or check is reported.
+E.g. by default, they will only use
+application specific and machine specific info at the begin, when a logger is added,
+because it has no use to repeat it every time info is logged to it. If you tell it it is for more than
+one application, e.g. a log file that is used by many applications, it will always use
+application specific info, so you know from which application it comes.
+If you tell it it is for more than one machine, e.g. a log file that is on a shared network folder, it will always use
+machine specific info, so you know every time from which machine it comes.</para>
+<para>Note: if you have a logfile for many applications on a single machine,
+the logger will contain machine specific info every time a logger for that logfile
+is added, so this info will be repeated many times. There is no mechanism in ModAssert
+to prevent this, but it is not a big problem.</para>
+<para><code>HasInfo</code> is implemented by <classname>ModAssert::InfoProvider</classname>, and returns
+<literal>true</literal>. Derived classes that don't always have useful information,
+should override this method.
+This prevents cluttered output if there are many InfoProviders that rarely have useful information.
+The other two virtual methods have to be implemented by derived classes. <code>GetType</code> should return a brief description of
+the information (e.g. "thread id"), and should always be the same (it is best to create a static const string object
+in the function, and return that). <code>GetInfo</code> should return the information as a string.</para>
+<para><classname>InfoProvider</classname> has one more method that tell what
+granularity the information has: <code>Granularity GetGranularity() const</code> (the value given in
+the constructor, see above).</para>
+<para>Create an object of your derived class, and
+add it by giving a pointer to it to <code>ModAssert::AddInfoProvider</code>,
+which is declared in <filename>modassert/infostore.hpp</filename>. Optionally you can add
+a pointer to a filter as a second argument, to determine when the infoprovider should be used. You can remove an
+InfoProvider again with <code>ModAssert::RemoveInfoProvider</code>.</para>
+<para>The objects that are added that way are called by any logger or responder
+that is provided in this package. It is recommended to do this also in loggers and responders that
+you create yourself. You can iterate over the active infoproviders by calling <code>ModAssert::beginInfoProviders(...)</code>
+and <code>ModAssert::endInfoProviders()</code>, also declared in <filename>modassert/infostore.hpp</filename>,
+which respectively return the iterator to the first and past the last
+infoprovider. <code>ModAssert::beginInfoProviders(...)</code> has two overloaded versions, of which
+the arguments specify which infoproviders should be ignored when you traverse the range, so you don't
+have to take into account whether an InfoProvider should be used.
+Infoproviders for which <code>HasInfo()</code> returns <literal>false</literal> are always ignored.
+<code>beginInfoProviders(const Properties &amp;p, const Result &amp;r, const InfoUser &amp;iu)</code>
+should be used by Responders and Loggers when an assertion or a check is reported. The properties and the result
+are given to the method <code>OnAssert</code>, so you simply pass these. The classes
+<classname>ModAssert::Responder</classname> and <classname>ModAssert::Logger</classname>
+are both derived from <classname>ModAssert::InfoUser</classname>, so you can give <code>*this</code>
+for the last argument.
+<code>beginInfoProviders(const LogType &amp;lt, const InfoUser &amp;iu)</code>
+is used by the class <code>Logger</code>, you normally don't need it. The iterators are of the class <classname>InfoProviderIterator</classname>.
+You can also get the information of all the infoproviders at once in a string by calling
+<code>ModAssert::GetAllInfo</code>. There are two overloaded versions of this function,
+with the same arguments as <code>ModAssert::beginInfoProviders</code>, and an optional 
+<code>const char *</code> argument that specifies the separator (default is <literal>"\n"</literal>).</para>
+<para>The loggers and responders in ModAssert, as well as <code>ModAssert::GetAllInfo</code>, show the information
+in the format "&lt;type&gt;: &lt;info&gt;" for every InfoProvider that is not filtered out.</para>
+<para>See the project Win32, Console or WxWidgets for examples of how all this is done.</para>
+<para>Note: this class has nothing to do with the level <code>ModAssert::Info</code>.</para>
+</sect2>
+
+<sect2><title>The class TimeInfoProvider</title>
+<indexterm><primary>TimeInfoProvider</primary></indexterm>
+<para>In the file <filename>modassert/timeinfo.hpp</filename> there is the class
+<classname>InfoProviders::TimeInfoProvider</classname>, which is derived from
+<classname>InfoProviders::InfoProvider</classname>. Its implementation of <code>GetType</code>
+returns the string "time", and its implementation of <code>GetInfo</code> returns a string
+with the time and date. It uses the function <code>ctime()</code> in the STD configuration.
+In the wxWidgets configuration it uses <code>now.FormatISODate()+' '+now.FormatISOTime()</code>.</para>
+</sect2>
+
+<sect2><title>The class ApplicationInfoProvider</title>
+<indexterm><primary>ApplicationInfoProvider</primary></indexterm>
+<para>In the file <filename>modassert/appinfo.hpp</filename> there is the class
+<classname>InfoProviders::ApplicationInfoProvider</classname>, which is derived from
+<classname>InfoProviders::InfoProvider</classname>. Its constructor takes a
+<classname>std::string</classname> (or <classname>wxString</classname> if you use wxWidgets)
+with the name (and perhaps the version) of the application. Its implementation of <code>GetType</code>
+returns the string "application", and its implementation of <code>GetInfo</code> returns the string
+that was passed in its constructor. Create an object of this class and add it if you want to use it.</para>
+</sect2>
+
+<sect2><title>The class InfoUser</title>
+<indexterm><primary>InfoUser</primary></indexterm>
+<para>The classes <classname>ModAssert::Responder</classname> and
+<classname>ModAssert::Logger</classname> are both derived from
+the class <classname>InfoProviders::InfoUser</classname>. This class has functionality
+to specify at which granularities it works. It can also
+overrule when certain InfoProviders should give information to it (note however that the filter that is
+given with an InfoProvider, can decide to not use an InfoProvider when the InfoUser and/or
+the InfoProvider want to, but not decide to use an InfoProvider when the InfoUser and/or
+the InfoProvider don't want to). This can be useful in certain situations, e.g. if a logfile is used
+by different applications, the processid is useful when an assertion is reported.</para>
+<para><classname>ModAssert::InfoUser</classname> has the following methods:
+<itemizedlist mark='bullet'>
+
+<listitem><methodsynopsis><type>void</type><methodname>AddGranularity</methodname>
+     <methodparam><type>Granularity</type><parameter>granularity</parameter></methodparam>
+</methodsynopsis>
+This specifies that the object is meant for more than one item of the granularity,
+so it will use info of that granularity every time an assertion or check fails.
+</listitem>
+
+<listitem><methodsynopsis><type>void</type><methodname>RemoveGranularity</methodname>
+     <methodparam><type>Granularity</type><parameter>granularity</parameter></methodparam>
+</methodsynopsis>
+This specifies that the object is not meant for more than one item of the granularity,
+so it will no longer use info of that granularity every time an assertion or check fails.
+</listitem>
+
+<listitem><methodsynopsis><type></type><methodname>HasGranularity</methodname>
+     <methodparam><type>Granularity</type><parameter>granularity</parameter></methodparam>
+</methodsynopsis>
+This tells whether the object is meant for more than one item of the granularity.
+</listitem>
+
+<listitem><methodsynopsis><type>void</type><methodname>UseInfo</methodname>
+     <methodparam><type>const InfoProvider &amp;</type><parameter>ip</parameter></methodparam>
+     <methodparam><type>When</type><parameter>when</parameter></methodparam>
+</methodsynopsis>
+This specifies when the given infoprovider should, regardless of granularities.
+<code>When</code> can be <code>Never</code>, <code>Once</code> or <code>Always</code>.
+If it is <code>Never</code>, the infoprovider is never used by this object.
+If it is <code>Once</code>, it is only used when once, e.g. when a logger is added
+to ModAssert.
+If it is <code>Always</code>, it is always used, e.g. also for every assertion and
+check that is reported, and at the end. You usually don't need this method.
+</listitem>
+
+<listitem><methodsynopsis><type>bool</type><methodname>ShouldUseInfo</methodname>
+     <methodparam><type>const InfoProvider &amp;</type><parameter>ip</parameter></methodparam>
+     <methodparam><type>When</type><parameter>when</parameter></methodparam>
+</methodsynopsis>
+Returns whether this InfoUser object should use the info of the InfoProvider when logging of the given type is done.
+This takes into account what the InfoProvider object specified in its constructor, and whether it
+was given to <code>ShouldUseInfo</code>. <code>when</code> should be <code>Once</code> or
+<code>Always</code>. If it returns <literal>true</literal> when <code>when</code> is <code>Always</code>,
+it will also return <literal>true</literal> when <code>when</code> is <code>Once</code>.</listitem>
+
+</itemizedlist>
+</para>
+</sect2>
+
+<sect2><title>The class LogType</title>
+<indexterm><primary>LogType</primary></indexterm>
+<para>The class <classname>LogType</classname> is used to specify what kind of logging is done.
+It has one member <code>type</code>, an enum defined inside <classname>LogType</classname>,
+that can have these values:
+<itemizedlist mark='bullet'>
+<listitem><code>AtBegin</code>: used when a logger is added to ModAssert</listitem>
+<listitem><code>AtEnd</code>: used when a logger is removed from ModAssert</listitem>
+<listitem><code>InBetween</code>: not yet used</listitem>
+</itemizedlist></para>
+</sect2>
+
+<sect2><title>A note on the lifetime of objects given to ModAssert</title>
+<para>ModAssert never copies objects that you pass to it. It neither takes ownership of them.
+This refers to objects of classes that are derived from <classname>Logger</classname>,
+<classname>Hook</classname>, <classname>Filter</classname> and <classname>InfoProvider</classname>.
+This was done to prevent the reporting of memory leaks.
+</para>
+<para>Therefore it is best to create these objects in the main function, or make them
+global in an implementation file, so they are created on the stack
+and live until the end of the application. However, you should always give them to
+ModAssert after the main method is entered, otherwise the arrays to store them in may not yet be initialized,
+and the thread library of your platform may not yet be operable at that time. So don't use selfregistering objects
+to give objects to ModAssert.</para>
+</sect2>
+
+<sect2><title>Exceptions thrown by loggers and hooks</title>
+<indexterm><primary>Exceptions thrown by loggers and hooks</primary></indexterm>
+<para>If an assertion is handled, the hooks are called first, then the loggers and then the responder.
+No exceptions are caught by ModAssert, so if a logger throws an exception, the loggers
+after it and the responder will not be called. Likewise, if a hook throws an exception, the hooks
+after it, the loggers and the responder will not be called. If the responder throws an exception,
+nothing is affected. In any case ModAssert will stay in a valid state.
+</para>
+</sect2>
+
+<sect2><title>The StreamLogger objects</title>
+<indexterm><primary>StreamLogger</primary></indexterm>
+    <para>An implementation of the interface <classname>ModAssert::Logger</classname>
+    is already provided, the <classname>ModAssert::StreamLogger</classname> class.
+    Its constructor takes a stream as an argument, and will write the debugging information
+    to that stream if an assertion or check is reported. By default the streams are of the type
+    <classname>std::ostream</classname>.</para>
+    <para>If <code>RICHBOOL_USE_WX</code> is defined,
+    the stream can be of type <classname>wxTextOutputStream</classname> or
+    <classname>wxOutputStream</classname>, but in that case it's actually better to use the logger class
+    <classname>ModAssertWxLog</classname>, that is in the files <filename>Wx/modassert/ModAssertWxLog.h</filename>
+    and <filename>Wx/modassert/ModAssertWxLog.cpp</filename>. This class
+    uses <code>wxLogDebug</code> to output the information, so you can redirect this output to
+    wherever you like using the methods that wxWidgets provides for that.</para>
+</sect2>
+
+<sect2><title>The AppendToFileLogger objects</title>
+<indexterm><primary>AppendToFileLogger</primary></indexterm>
+    <para>Another implementation of the interface <classname>ModAssert::Logger</classname>
+    is provided, the <classname>ModAssert::AppendToFileLogger</classname> class.
+    Its constructor takes a filename as an argument, and will write the debugging information
+    to that file if an assertion or check is reported. Every time an assertion or check is logged, the file is opened in append
+	mode, the information is logged, and the file is closed again.</para>
+    <para>Note that this is not the same as passing a filestream to a <classname>StreamLogger</classname>
+	object, because then the file is left open as long as the stream object exists (or you close the file yourself).</para>
+</sect2>
+
+<sect2><title>The class <classname>ModAssert::GroupList</classname></title>
+<indexterm><primary>GroupList</primary></indexterm>
+<para><classname>ModAssert::GroupList</classname> represents the assertion groups that were
+passed in the macro (<code>ModAssert::Error</code> if none is given), e.g.
+<code>ModAssert::Error</code>, <code>modAssertGroup1</code>, <code>ModAssert::Error &amp;&amp; modAssertGroup1</code>
+(if <code>modAssertGroup1</code> is of the class <classname>ModAssert::Group&lt;ModAssert::ReportFailure&gt;</classname>).
+<classname>ModAssert::GroupList</classname> has the following four methods of interest:
+
+<itemizedlist mark='bullet'>
+    <listitem><code>size_t GetSize()</code>: returns the number of embedded types; e.g. 1 for
+    <code>ModAssert::Error</code>, 2 for <code>ModAssert::Error &amp;&amp; modAssertGroup1</code>
+    if <code>modAssertGroup1</code> is of type <code>ModAssert::Group&lt;ModAssert::ReportFailure&gt;</code>,
+    2 for <code>modAssertGroup1</code> (because <code>ModAssert::Error</code> is added implicitly)</listitem>
+    <listitem><code>const std::string&amp; GetName(size_t idx)</code>: returns the name
+    of the embedded type with index <code>idx</code></listitem>
+    <listitem><code>int GetLevel()</code>: returns the level of the groups. Certain loggers might
+    want to ignore assertions of certain levels.</listitem>
+    <listitem><code>bool Has(const char *groupName)</code>: returns whether a group with the given name
+	is present in the group. Certain loggers might want to exclude or include certain groups.</listitem>
+</itemizedlist>
+</para>
+<para>Note: replace <classname>std::string</classname> with <classname>wxString</classname> if you use wxWidgets.
+</para>
+<para>It has other methods to determine if assertions of the type should be logged or displayed,
+and also for the embedded types. But these are not of interest here, because
+<code>ModAssert::Responder::OnAssert</code> and <code>ModAssert::Logger::OnAssert</code>
+will only be called if <code>GetDisplay()</code> and <code>GetLog()</code> return true
+respectively.
+</para>
+<para>It has also other methods to stop displaying and/or logging for embedded types, but
+this is better done with the return value of <code>ModAssert::Responder::OnAssert</code>.
+</para>
+</sect2>
+
+<sect2><title>The class <classname>ModAssert::ParameterList</classname></title>
+<indexterm><primary>ParameterList</primary></indexterm>
+<indexterm><primary>Message</primary></indexterm>
+<indexterm><primary>Value</primary></indexterm>
+<indexterm><primary>eMessage</primary></indexterm>
+<indexterm><primary>eValue</primary></indexterm>
+<para>Objects of the class <classname>ModAssert::ParameterList</classname> hold
+the parameters that are given in assertion macros with a suffix <code>P</code>.
+They hold these in a linked list. Each node holds an expression and its value,
+or a message if it was a string literal. The class can distinguish between string literals
+and other expressions that return a <code>const char *</code> by parsing the stringized
+macro argument (this uses a simple, fast algorithm that passes once through
+the string and supposes that the string represents a correct set of streamed expressions -
+otherwise the code wouldn't have compiled).
+</para>
+<para>Objects of this type can be streamed to a stream. If you need to display them in some
+other way (e.g. in a GUI), you can access the first data by its method <code>GetMessage()</code>,
+and the following ones with the method <code>GetNext()</code>. These are of the type
+<classname>ModAssert::ParameterList::Message</classname>. It has a method
+<code>virtual MessageType GetType() const</code>, that returns
+<code>ModAssert::ParameterList::eMessage</code> if it is a
+<classname>ModAssert::ParameterList::Message</classname>,
+and <code>ModAssert::ParameterList::eValue</code> if it is a
+<classname>ModAssert::ParameterList::Value</classname>, that is derived from
+<classname>ModAssert::ParameterList::Message</classname>.
+<classname>ModAssert::ParameterList::Message</classname> has also a method
+<code>const ModAssert::SubString&amp; GetMessage()</code>, which holds a substring of
+the stringized macro argument. <classname>ModAssert::SubString</classname> can be
+converted to <classname>std::string</classname>, and has the methods
+<code>const char* begin()</code>, <code>const char* end()</code> and <code>size_t size()</code>.
+<classname>ModAssert::ParameterList::Value</classname> has a method
+<code>const std::string&amp; GetValue()</code> which returns the value of the expression
+as a string; the expression itself is obtained with <code>GetMessage()</code>
+of <classname>ModAssert::ParameterList::Message</classname>.</para>
+<para>Note: replace <classname>std::string</classname> with <classname>wxString</classname> if you use wxWidgets.
+</para>
+<para>
+So code to process a parameterlist
+typically looks like
+<programlisting>
+for (ModAssert::ParameterList::Message *node=pParameterList->GetFirst();
+	node; node = node->GetNext())
+{
+	std::string str = node->GetMessage();
+	if (node->GetType()==ModAssert::ParameterList::eMessage)
+	{
+	    ...
+	}
+	else if (node->GetType()==ModAssert::ParameterList::eValue)
+	{
+		ModAssert::ParameterList::Value *nodeValue =
+			(ModAssert::ParameterList::Value*)node;
+		const std::string &amp;value = nodeValue->GetValue();
+		...
+	}
+}
+</programlisting>
+</para>
+</sect2>
+</sect1>

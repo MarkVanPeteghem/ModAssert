@@ -1,0 +1,3 @@
+EXPORTS
+    _Z14SetupModAssertb @1
+    _Z22GetModAssertStateInDllv @2

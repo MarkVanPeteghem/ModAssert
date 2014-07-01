@@ -1,0 +1,55 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Comparison to other assertion libraries</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.1"><link rel="start" href="index.html" title="Modular Assertions version 2.0.6"><link rel="up" href="index.html" title="Modular Assertions version 2.0.6"><link rel="prev" href="ar01s09.html" title="The purpose of macros for error handling"><link rel="next" href="ar01s11.html" title="The available assertion macros"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Comparison to other assertion libraries</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s09.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s11.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id513276"></a>Comparison to other assertion libraries</h2></div></div></div><a class="indexterm" name="id513281"></a><p>There are other assertion libraries which have about the same functionality
+    as this one, but are different in two key areas:
+    </p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc">Many other assertion libraries have just one assert macro, that takes a boolean expression,
+        and allow you to add expressions to it using <code class="code">operator()</code>
+        and levels using <code class="code">.level(Error)</code>. So you have something like
+        <pre class="programlisting">assert(foo()&lt;a)(foo())(a)(b).level(Error);</pre>However, by design
+        such libraries need to create a local class and do all the work in a member function
+        of that class. The main disadvantage of this is that if you want to break into the
+        code, you break into that function, and have to step out of it with the debugger.
+        Another disadvantage is that selectively compiling out assertions is not possible.</li><li style="list-style-type: disc">Many other assertion libraries don't give extra information, e.g. if you want to check
+        if two numbers are equal, you only get a yes/no answer, not the value of the numbers,
+        which would help immensely when you solve bugs in your code. Some assertion libraries
+        have macros like <code class="code">ASSERT_EQUAL</code>, that will display the value of the two
+        arguments upon failure, but they don't have much more of them,
+        because if they also want macros like <code class="code">VERIFY_EQUAL</code>, they have to duplicate these.</li></ul></div><p>
+    The ModAssert library solves these two problems in the following way:
+    </p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc">ModAssert relies more on macros, so that if you want to break into the code
+        you are directly in the function where the assertion macro is, for most of the macros. Therefore it uses a
+        more traditional approach, namely specifying the extra data (expressions, level, ...)
+        as extra arguments, and define different macros that accept the different types of
+        arguments. E.g. the above example would be written as
+        <pre class="programlisting">MOD_ASSERT_PG(foo() &lt;&lt; a &lt;&lt; b, ModAssert::Error, foo()&lt;a);</pre>
+        There are similar macros <code class="code">MOD_ASSERT</code>, <code class="code">MOD_ASSERT_P</code> and
+        <code class="code">MOD_ASSERT_G</code>, and even more, that you use depending on which arguments you want to add.
+        Another advantage of this approach with macros, is that assertions can be
+        compiled out per level and group (if the compiler optimizes).
+		ModAssert also has other assertions and checks that return a value, but breaking into
+		the debugger will bring you in to another function, of which you have to jump out.
+		So you can choose what is most important for you.</li><li style="list-style-type: disc">The condition of an assertion macro in ModAssert can be a boolean expression,
+        but also a Rich Boolean, which gives extra information if the expression fails.
+        The ModAssert assertion macros process this extra information. Using a Rich Boolean,
+        the above example could be rewritten as
+        <pre class="programlisting">MOD_ASSERT_PG(b, ModAssert::Error, rbLESS(foo(), a));</pre>and the output
+        would include the values of <code class="code">foo()</code> and <code class="code">a</code> in something like
+        "(12) &lt; (9) nok" (so <code class="code">foo()</code> and <code class="code">a</code> don't have to be displayed separately).
+        This is just a simple
+        Rich Boolean, there are nearly 60 Rich Booleans, varying from checking for
+        equality to comparing containers of containers with a predicate per element.
+        Every Rich Boolean gives you as much information on the failing condition as possible.
+        And you can write Rich Booleans for your own specific needs.</li></ul></div><p>
+</p><p>Some assertion packages only have assertion macros that return a boolean, indicating whether
+the assertion succeeded. The most assertion macros in ModAssert don't return a value, because
+it would no longer be possible to break into the debugger where the function is, and you would
+have to jump out of the function every time, which becomes tiresome if you have to do it a lot.
+ModAssert has the macro
+<code class="code">MOD_CHECK</code> (and variations) that have a failure action, to replace <code class="code">if (!ASSERT(...))</code>.
+This makes it clear that this is a check for an error that is not due to a bug, and that the application
+can recover from the error by executing the failure action. Failing assertions on the other hand
+should ideally result in termination of the application, and the rest of your code should assume that
+the condition succeeded.</p><p>However, since version 2.0 ModAssert has macros that return a boolean, or even a value
+if you use a Rich Boolean. This is mainly to allow code like
+<code class="code">MOD_VERIFY_V(rbDIFF(wnd, NULL))-&gt;Display();</code>, but you can also use it to recover
+from bugs, like <code class="code">if (!MOD_VERIFY_B(wnd)) {...}</code>, if your application has to be
+very safe. It is best to still use <code class="code">MOD_CHECK</code>
+for expected errors, and use the new macros for unexpected errors.</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s09.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ar01s11.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">The purpose of macros for error handling </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> The available assertion macros</td></tr></table></div></body></html>

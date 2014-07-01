@@ -1,0 +1,21 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Extending the context (advanced)</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.1"><link rel="start" href="index.html" title="Modular Assertions version 2.0.6"><link rel="up" href="index.html" title="Modular Assertions version 2.0.6"><link rel="prev" href="ar01s22.html" title="Warning levels"><link rel="next" href="ix01.html" title="Index"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Extending the context (advanced)</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s22.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ix01.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="context"></a>Extending the context (advanced)</h2></div></div></div><a class="indexterm" name="id544134"></a><a class="indexterm" name="id544139"></a><a class="indexterm" name="id544144"></a><a class="indexterm" name="id544148"></a><p>When an assertion or check is reported, the macro <code class="code">MOD_ASSERT_CONTEXT</code> is called
+    to construct an object of the type <code class="classname">ModAssert::Context</code>. This contains
+    the filename and the linenumber where the assertion occurred, and if your compiler
+    supports it, the name of the function where it occurred.</p><p>You can customize this mechanism by adding extra information. To do this, derive a class from
+    <code class="classname">ModAssert::Context</code>, and redefine the macro <code class="code">MOD_ASSERT_CONTEXT</code>
+    to construct an object of your class with the necessary arguments. Override the method
+    <code class="code">streamout</code>, to have the information in your class displayed, and call
+    <code class="code">streamout</code> of the parent class.</p><p>The constructor of <code class="classname">ModAssert::Context</code> has three parameters:
+    the filename, the linenumber and the functionname. Your derived class should at least have these
+    three as constructor arguments and pass it to the constructor of
+    <code class="classname">ModAssert::Context</code>, and your redefinition of the macro should
+    give <code class="code">__FILE__</code>, <code class="code">__LINE__</code> and <code class="code">MOD_ASSERT_FUNCTION</code>
+    as values for these arguments of the constructor.</p><p>Then include the headerfile where you define your derived class and your redefinition
+    of the macro, after the headerfile <code class="filename">modassert/assert.hpp</code>.</p><p>Note: the ModAssert library itself doesn't need to be rebuilt with this redefined
+    macro <code class="code">MOD_ASSERT_CONTEXT</code>. It uses references to the base class
+    <code class="classname">ModAssert::Context</code>, and the extra information is obtained
+    through the virtual method <code class="code">streamout</code>.</p><p>This method was introduced to e.g. add the thread id, the time, a backtrace,
+    or the state of your application. However, this can also be done with an
+	<code class="classname">InfoProvider</code> derived object (see <a href="ar01s17.html#InfoProvider" title="Providing extra information">the section called &#8220;Providing extra information&#8221;</a>), which is easier, since you don't need
+	to add an include file to every source file where you want it. If some information is only interesting in certain sourcefiles,
+	you should use default parameters.</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s22.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ix01.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Warning levels </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Index</td></tr></table></div></body></html>

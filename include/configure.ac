@@ -1,0 +1,5 @@
+AC_INIT([include], [2.0.6])
+AC_CONFIG_AUX_DIR([.])
+AM_INIT_AUTOMAKE
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT

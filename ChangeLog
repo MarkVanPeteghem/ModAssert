@@ -1,0 +1,439 @@
+
+Change log
+
+New in version 2.0.6
+
+     * The autoconf and automake files are made mostly non-recursive, to
+       solve some problems.
+       
+New in version 2.0.5
+
+     * Minor adjustments for the next version of UquoniTest.
+       
+New in version 2.0.4b
+
+     * Some problems with project files were solved.
+     * Code::Blocks project files for LibInDLL and LibInExe were added.
+       
+New in version 2.0.4
+
+     * The functions GetState and SetState are added to use one instance
+       of ModAssert in an executable and the DLLs that are loaded.
+     * Project files for VC++ 2010 are added.
+       
+New in version 2.0.3
+
+     * A problem with the configuration scripts is solved.
+       
+New in version 2.0.2
+
+     * The assertion macro MOD_VERIFY_B and variations are added
+     * The macros IF_NOT_MOD_ASSERT_REPORTS, IF_MOD_ASSERT_REPORTS_ELSE,
+       IF_NOT_MOD_CHECK_REPORTS and IF_MOD_CHECK_REPORTS_ELSE are added
+     * The Properties class can tell whether the assertion or check can
+       stop displaying. The provided responders use this feature.
+     * The provided assertion handlers for consoles, Win32 and WxWidgets
+       now allow to break into code when NDEBUG is defined
+     * When you remove the text from a condition, it is no longer
+       reported as unconditional
+     * Bug fixed: the WxWidgets dialog box now correctly uses
+       GetAllowBreakIntoDebugger() on Linux
+     * Bug fixed: && is now shown correctly in the Windows dialog box
+       
+New in version 2.0.1
+
+     * The bug that caused a compile error when ModAssert::UseBool is
+       used as a return value of a function, is solved.
+       
+New in version 2.0
+
+     * There are now variations of MOD_VERIFY that return the result of
+       the condition argument, or the first argument of a Rich Boolean if
+       the condition is a Rich Boolean, and variations of MOD_CHECK that
+       return a value or a boolean.
+     * There is now a default responder, that terminates the application
+       if an assertion fails or shows a warning (not if it is a check)
+       depending on the level. You can set the minimum level for both of
+       these.
+     * There is another default responder, that shows a warning if an
+       assertion fails (not if it is a check). You can set the minimum
+       level for this.
+     * The class AutoResponder is renamed ResponderSwitcher (but there is
+       a typedef to AutoResponder), and can now also add objects derived
+       from Responder.
+     * The functions SetConsoleHandler, SetWin32Handler, and SetWxHandler
+       are deprecated (but still available) and are replaced by
+       SetupForConsole, SetupForWin32 and SetupForWxWidgets, which show
+       debug information in debug builds and continue silently in release
+       builds. They all have an overloaded version that takes a Mode
+       argument, to specify what should happen if an assertion fails:
+       show debug information, show a simple warning, continue silently
+       or terminate.
+     * The new headerfile modassert/assertd.hpp has definitions for
+       ASSERT and VERIFY to map to ModAssert equivalents.
+     * The new headerfile modassert/verifyv.hpp has definitions for
+       ASSERT and a VERIFY macro that returns its argument to map to
+       ModAssert equivalents.
+     * The new headerfile modassert/wxassert.hpp has definitions for all
+       runtime assertions in wxWidgets to map them to ModAssert
+       equivalents.
+     * If ModAssert is not yet active, or no longer active, failing
+       assertions are redirected to assert() (checks are ignored at those
+       stages).
+     * ModAssert groups that are used as member variables of objects
+       should now be declared mutable if you want to use them in const
+       methods. This makes more sense because it stresses that the group
+       is not logically part of the state of the object, and avoids
+       const-casts in ModAssert.
+       
+New in version 1.5.1
+
+     * By default remote drives are no longer used in Win32, but you can
+       turn this on.
+       
+New in version 1.5
+
+     * You can now specify a default optional action per source code
+       file, but still override it if necessary.
+     * The classes InfoProvider and InfoUser are moved to the namespace
+       InfoProviders, as well as the classes derived from InfoProvider.
+       Their interfaces have changed a little.
+     * You can define the preprocessor symbol MOD_ASSERT_NO_TEXT to
+       remove the literal text with the condition from assertions and
+       checks, to reduce the size of the application.
+     * The application infoprovider is added.
+     * Infoproviders for Win32 that give the computername, the username,
+       information about the available drives, the amount of free space
+       on them, the total amount of RAM and available amount of RAM, are
+       added.
+     * Filter objects that only allow assertions and checks, or allow all
+       except assertions and checks, are added.
+     * A bug that caused the info of the Win32 current directory
+       infoprovider to end in a null character, is solved.
+     * Project files for the Code::Blocks IDE are added.
+     * The optional logger is now in the ModAssert package itself. The
+       ModAssertConsole, ModAssertWin32 and ModAssertWxGui libraries use
+       that one instead of their own version.
+     * The optional logger can now have begin and end messages, if
+       desired.
+     * Loggers can be removed by their id, that is returned by
+       AddLogger(...).
+     * Setup code in the demoes is moved to a separate function.
+       
+New in version 1.4.1
+
+     * The headerfiles that cause autolinking for the ModAssertConsole,
+       ModAssertWin32 and ModAssertWxGui libraries, now also cause
+       autolinking for the ModAssert library.
+       
+New in version 1.4
+
+     * You can now specify default parameters per sourcefile
+     * You can now specify a global optional action
+     * For Win32, infoproviders are added that give the current
+       directory, the OS version, and info about the processor
+     * For wxWidgets, infoproviders are added that give the current
+       directory, the OS version, the last system error and the free
+       memory
+     * The Filter derived class FilterMessages is added
+     * InfoUser can now also take InfoProvider objects to include or
+       exclude
+     * With Visual Studio, auto linking is now used
+     * Warning levels are increased to the highest level where possible,
+       and most remaining warnings are eliminated
+       
+New in version 1.3
+
+     * The license has changed to the wxWindows licence
+     * You can now specify default groups
+     * The macro MOD_CHECK_FAIL is added
+     * The interface of InfoProvider has changed.
+     * Each InfoProvider derived object can determine whether it should
+       be reported in case of an assertion, at the beginning of logging
+       and at the end of logging.
+     * For each logger and responder you can override whether an
+       InfoProvider should be used with it
+     * When you add an InfoProvider with ModAssert, you can attach a
+       filter to it. Filters can now also filter out InfoProviders when
+       messages are logged
+     * You can specify at runtime whether the Exit action,
+       BreakIntoDebugger action and Optional action are allowed by
+       responders. The provided responders take this into account by
+       disabling these options.
+     * The Win32ProcessIdInfoProvider is added for Win32, and
+       WxProcessIdInfoProvider for WxWidgets platforms
+     * The InfoProviders that give the treadid, now also tell whether it
+       is the main thread or not
+     * Adjustments to Rich Booleans 1.3
+       
+New in version 1.2.1
+
+   Solution and project files specific for Microsoft Visual Studio 2005
+   are added.
+   
+New in version 1.2
+
+   The major change in this release is the strict distinction between
+   assertions and checks, that is introduced in many parts of the
+   library. Unfortunately this means backwards incompatibilty, but only
+   in the backend processing of assertions - the assertion macros haven't
+   changed.
+     * The class Displayer is renamed to Responder.
+     * The responder, the loggers, the hooks and the infoproviders are
+       now aware whether the assertion comes from a check macro (i.e. the
+       macros that start with MOD_CHECK) or not, and their methods are
+       now const. Unfortunately this changes their interface: their
+       arguments are now grouped in two objects.
+     * The functions GetDisplayAll, SetDisplayAll, GetLogAll, SetLogAll,
+       SetDisplayInFile, GetDisplayInFile SetLogInFile, GetLogInFile,
+       Level<...>::GetDisplay, Level<...>::SetDisplay, Level<...>::GetLog
+       and Level<...>::SetLog now have an extra argument to distinguish
+       between assertions and checks.
+     * The definition of the symbols MOD_ASSERT_REPORT,
+       MOD_ASSERT_DONT_REPORT, MOD_ASSERT_REPORT_FILE,
+       MOD_ASSERT_DONT_REPORT_FILE and MOD_ASSERT_LEVEL now only
+       influence assertion macro, not check macros. For check macros
+       there are now the equivalent symbols MOD_CHECK_REPORT,
+       MOD_CHECK_DONT_REPORT, MOD_CHECK_REPORT_FILE,
+       MOD_CHECK_DONT_REPORT_FILE and MOD_CHECK_LEVEL
+     * The Responder class's method OnAssert also has an extra argument
+       bool display, that tells if the assertion should be displayed.
+       ModAssert now always passes assertions to the active responder, so
+       responders have to decide themselves whether they handle an
+       assertion.
+     * The Logger class now has a new pure virtual method
+       AddMessage(const RichBool::String & msg).
+     * The inclusion of headerfiles has changed a little. Where you
+       include modassert/assert.hpp, you may have to replace it with, or
+       add, modassert/handler.hpp.
+     * The method GetType of InfoProvider now returns by const reference
+       instead of by value.
+     * You can now add a filter to loggers and the responder, so they're
+       used only for certain types of assertions. Many implementations of
+       these filters are provided.
+     * The class GroupList now has the method Has(const char*) that
+       returns true only if it has a group with that name.
+     * The provided responders let you optionally log to another logger,
+       that you can set.
+     * The loggers and responders for Win32, wxWidgets and console
+       applications are now put in libraries, to make it easier to use
+       them.
+     * An AutoResponder class is added that implements the Responder
+       interface, that doesn't display anything to the user but decides
+       what response to give based on filters that you add to it.
+     * The class TimeInfoProvider is added, that inherits from
+       InfoProvider, and gives the date and time. This is automatically
+       used if you call ModAssert::SetWin32Handler,
+       ModAssert::SetWxHandler or ModAssert::SetConsoleHandler.
+     * The function SetConsoleModAssertHandler is renamed to
+       SetConsoleHandler, and is put in the ModAssert namespace (this was
+       forgotten in the previous release).
+     * ModAssert now adds a message to a logger when it is added with the
+       date and time, as well as when it is removed.
+     * Assertions are ignored as long as no responder is set and no
+       logger is added, to prevent that the synchronization mechanism is
+       used before it is initialized.
+     * Assertions are ignored after the destructor of a
+       ModAssert::AutoShutdown object is called, to prevent that the
+       synchronization mechanism is used after it is disabled.
+       
+New in version 1.1
+
+     * You can now add hooks that are notified before the loggers and the
+       displayer
+     * You can now add InfoProviders, to return extra information in a
+       string, that is used by the loggers and the displayer
+     * A logger is now provided that logs the assertion information to a
+       file, but opens the file for every assertion and appends the
+       information
+     * The dialogs now show a green icon if an assertion succeeds
+     * The dialog for Windows 32 now shows the return value of
+       GetLastError() if it is not 0, and the corresponding text.
+     * The functions SetWin32ModAssertHandler, SetWxModAssertHandler and
+       SetConsoleModAssertHandler are renamed to SetWin32Handler,
+       SetWxHandler and SetConsoleHandler, and are put in the ModAssert
+       namespace
+     * The ModAssert handler for Win32 now returns 0 if an assertion or
+       check fails in another thread and no debugger is attached
+       
+New in version 1.0
+
+     * Makefiles with a configure script are added, so compilation should
+       work on most UNIX-like systems.
+     * The include directory is now called modassert
+     * The ModAssert handler for MFC is replaced with a ModAssert handler
+       for Win32, using only the pure Win32 API.
+     * A bug is solved where the analysis in ModAssert dialogs was not
+       legible on high resolution screens, by setting the font size to 0,
+       so a reasonable default is used.
+     * A bug is solved where the ModAssert handler for console
+       application allowed '0' as part of the input.
+     * MOD_ASSERT_ENABLE is renamed to MOD_ASSERT_REPORT,
+       MOD_ASSERT_DISABLE is renamed to MOD_ASSERT_DONT_REPORT,
+       MOD_ASSERT_ENABLE_FILE is renamed to MOD_ASSERT_REPORT_FILE, and
+       MOD_ASSERT_DISABLE_FILE is renamed to MOD_ASSERT_DONT_REPORT_FILE.
+     * The project files for Visual Studio now have in addition to
+       MultiThread DLL code generation also configurations for
+       MultiThread and Singlethread code generation.
+     * The macro BREAK_HERE is renamed to MOD_ASSERT_BREAK_HERE.
+     * Level groups can now only be added to a group with operator%,
+       which allows only one level group per combination.
+     * Some non-locking methods are added in handler.cpp to prevent a
+       deadlock on platforms that don't have recursive locks
+       
+New in version 0.9
+
+     * Threadsafety: only one thread at a time can now log and display
+       assertion information
+     * The level ModAssert::Debug is replaced by ModAssert::Warning, and
+       level ModAssert::Error is now the default level (Debug doesn't
+       sound like a severity level, and Error seems more natural for a
+       default)
+     * ModAssert::IfSuccess and group objects with template argument
+       ModAssert::ReportAll now have operator() to combine them with
+       other group objects to replace operator&&, to preserve their
+       behavior with succeeding assertions
+     * Group objects with template argument ModAssert::ReportAll now
+       appear as two groups when displayed, one for succeeding assertions
+       and one for failing assertions
+       
+New in version 0.8.1
+
+     * Tests and demos are adjusted to Rich Booleans version 0.8 (the
+       ModAssert library itself is unchanged).
+     * Breaking into code is tested and works with Dev-C++.
+       
+New in version 0.8
+
+     * It is now possible to have the information of selected assertions
+       displayed and logged if the conditions succeeds.
+     * The class ModAssert::Type is renamed to ModAssert::GroupList, to
+       avoid confusion with the C++ meaning of a type. Therefore the
+       suffix T of the assertion macros is changed to G.
+     * The class ModAssert::Off is renamed to ModAssert::ReportNone, and
+       the class ModAssert::On is renamed to ModAssert::ReportFailure, to
+       avoid confusion with the macros MOD_ASSERT_ON and
+       IF_MOD_ASSERT_ON.
+     * The class ModAssert::ValueList is renamed to
+       ModAssert::ParameterList, to better show the correspondence with
+       the suffix P of the macros.
+     * A bug that caused a crash when wxASSERT (i.e. without a message)
+       is rerouted to MOD_ASSERT, is solved.
+     * A bug that disabled the option to abort when wxASSERT (or another
+       wxWidgets assertion macro) is rerouted to MOD_ASSERT, is solved.
+     * A bug where the Rich Booleans rbAND and rbOR couldn't be used in
+       MOD_VERIFY and MOD_CHECK when assertions are compiled out, is
+       solved.
+       
+New in version 0.7
+
+     * It is now possible to group assertions by adding a group object to
+       an assertions type. Displaying and logging the assertion data can
+       be set per group. Assertions can also be compiled out per group,
+       drastically improving the possibility to selectively compile out
+       assertions.
+     * Groups and levels can be combined with && and ||.
+     * Reusable code is separated from the samples, to make reuse easier
+       (especially for MFC)
+     * The class ModAssert::InformUser is renamed ModAssert::Displayer
+     * The interface of ModAssert::Displayer and ModAssert::Logger have
+       changed to allow the new functionality of the groups.
+     * MOD_ASSERT_KEEP is renamed MOD_ASSERT_ENABLE, and
+       MOD_ASSERT_DISABLE is added to compile out assertions when NDEBUG
+       is not defined.
+     * MOD_ASSERT_ENABLE_FILE and MOD_ASSERT_DISABLE_FILE can be defined
+       in a file to locally turn on or off assertions at compiletime
+     * Methods to control logging for all assertions or per source code
+       file at runtime, are added
+     * ModAssert::SetIgnoreAll and ModAssert::GetIgnoreAll are renamed to
+       ModAssert::SetDisplayAll and ModAssert::GetDisplayAll, and the
+       meaning of the boolean is inverted
+     * ModAssert::SetIgnoreFile and ModAssert::GetIgnoreFile are renamed
+       to ModAssert::SetDisplayInFile and ModAssert::GetDisplayInFile,
+       and the meaning of the boolean is inverted
+     * The type ModAssert::Action is renamed to ModAssert::Response, to
+       avoid confusion with optional actions and failure actions.
+     * A bug where the failure action was not performed when assertions
+       are compiled out, is solved.
+       
+New in version 0.6
+
+     * Code for wxWidgets is adjusted to wxWidgets 2.6.x (adjusting
+       include and library directories)
+     * Adjustments to Rich Booleans 0.6 (some classnames changed)
+     * It is now possible to specify more than one action if an assertion
+       failed, e.g. 'ignore file' and 'ignore level' at the same time
+     * Logic to ignore a file or a level is moved to the assertion
+       library
+     * The suffix L to specify a level in an assertion macro changed to
+       T, because in a future version the argument will be generalized to
+       a type of assertion
+     * The suffix A to specify an optional action in an assertion macro
+       changed to O, to make the distinction between optional actions and
+       failure actions more clear
+       
+New in version 0.5
+
+     * A demo console application is added, with a reusable class
+       inherited from ModAssert::InformUser
+     * Header files have now the extension .hpp, because they all contain
+       C++ code
+     * A bug that caused a chrash when 'debug' is pressed in Release
+       mode, is solved
+     * A bug that caused a chrash when the wxWidgets assertion dialog was
+       closed in Release mode, is solved
+       
+New in version 0.4
+
+     * The macro MOD_CHECK - and variations with suffixes P, L and A -
+       are added, that have an action as an extra argument that will be
+       executed if the condition fails
+     * A bug was solved that made it impossible to use break as an
+       optional action
+     * The macro IF_MOD_ASSERT_ON is added, that evaluates its argument
+       only if ModAssert is on
+       
+New in version 0.3.1
+
+     * Sample code is adjusted to changes in Rich Booleans 0.4
+       
+New in version 0.3
+
+     * The first argument of the macro MOD_ASSERT_P and other macros that
+       can have parameters, now has the form expr1 << expr2 << ... <<
+       exprN instead of maPARAM(expr1)(expr2)...(exprN); the level can no
+       longer be given here
+     * The macros MOD_ASSERT_1P, MOD_ASSERT_2P and other macros that
+       could take one or two parameters, have been removed
+     * Variations of the MOD_ASSERT and others were made that take a
+       level as a separate argument
+     * Assertions can be compiled out per level, if the compiler
+       optimizes
+     * The class ModAssert::AssertLogger is renamed to ModAssert::Logger,
+       and the methods ModAssert::AddAssertLogger and
+       ModAssert::RemoveAssertLogger are renamed to ModAssert::AddLogger
+       and ModAssert::RemoveLogger
+     * The class ModAssert::StreamLogger is made, that implements the
+       interface ModAssert::Logger, and its constructor has a stream
+       object as its argument, to which output of failing assertions is
+       streamed
+     * The class ModAssert::Context is introduced, that contains the
+       filename and linenumber where an assertion occurs. For compilers
+       that support it, it also has the function name. This class can be
+       derived by the user to contain more information, which can be
+       automatically used by all assertion macros
+     * The class ValueList::List has been renamed ModAssert::ValueList,
+       and the class ModAssert::AssertData has been removed.
+     * The class ModAssert::AskForAction has been renamed
+       ModAssert::InformUser, and the function ModAssert::SetAskForAction
+       has been renamed ModAssert::SetInformUser.
+     * The method ModAssert::RemoveLogger has been added
+       
+New in version 0.2
+
+     * The class ModAssert::AssertHandler is removed, and the classes
+       ModAssert::AskForAction and ModAssert::Logger were added to
+       replace it
+     * Functionality to ignore assertions per case, file and level is
+       implemented
+     * Adjustments for changes in new version of Rich Booleans

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Default workspace">
+		<Project filename="ModAssert.cbp" />
+		<Project filename="console/ModAssertConsole.cbp" />
+		<Project filename="Win32/ModAssertWin32.cbp" />
+		<Project filename="test/main/TestMain.cbp" active="1" />
+		<Project filename="test/nomodassert/NoModAssert.cbp" />
+		<Project filename="demos/Console/DemoConsole.cbp" />
+		<Project filename="demos/Win32/DemoWin32.cbp" />
+		<Project filename="demos/LibInDLL/DemoLibInDLL_AssertionInExe.cbp" />
+		<Project filename="demos/LibInDLL/DemoLibInDLL.cbp" />
+		<Project filename="demos/LibInExe/DemoLibInExe.cbp" />
+		<Project filename="demos/LibInExe/DemoLibInExe_AssertionInDLL.cbp" />
+	</Workspace>
+</CodeBlocks_workspace_file>

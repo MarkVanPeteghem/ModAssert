@@ -1,0 +1,1292 @@
+<sect1 id="macros"><title>The available assertion macros</title>
+
+<sect2><title>Statement assertion and check macros</title>
+
+<para>The assertions macros in this section are statements, so
+you can't assign them to a left value.</para>
+
+<sect3><title>MOD_ASSERT</title>
+<indexterm><primary>MOD_ASSERT</primary></indexterm>
+<para>The simplest assertion macro is <code>MOD_ASSERT</code>. It has one argument, a boolean expression
+or a Rich Boolean. If its argument evaluates to false, it will
+inform the user about this failure if there is an active responder, and log it if loggers were added.
+<programlisting>
+  MOD_ASSERT(n==0);
+</programlisting>
+Its argument could also be a Rich Boolean:
+<programlisting>
+  MOD_ASSERT(rbEQUAL(n, 0));
+</programlisting>
+This is equivalent to the first <code>MOD_ASSERT</code>, but will also display the value of <code>n</code>
+when the condition fails.
+</para>
+</sect3>
+
+<sect3><title>MOD_VERIFY</title>
+<indexterm><primary>MOD_VERIFY</primary></indexterm>
+<para><code>MOD_VERIFY</code> is similar <code>MOD_ASSERT</code>, the only difference
+is that <code>MOD_VERIFY</code> will evaluate its
+condition when reporting of assertions is disabled, but if the condition fails it will not
+be displayed or logged. So unlike <code>MOD_ASSERT</code>, <code>MOD_VERIFY</code> is
+never compiled out completely,
+but its code size is still reduced if reporting of assertions is disabled.
+When reporting of assertions is enabled, it is equivalent to <code>MOD_ASSERT</code>.
+This can be important if you have to call a function, and check whether its return value
+is as expected, but don't need the return value later:
+<programlisting>
+  <remark>// foo() is still evaluated if reporting of assertions is disabled</remark>
+  MOD_VERIFY(foo()&lt;<literal>10</literal>);
+</programlisting>
+Note that well written Rich Booleans still evaluate their arguments in a
+<code>MOD_VERIFY</code> macro (and variations) when reporting of assertions
+is disabled, but without creating a <classname>RichBool::Analysis</classname> object.
+Even the condition is not tested, to save processing time.
+<programlisting>
+  <remark>// foo() is still evaluated if assertions are not reported,
+  // but the condition foo()&lt;10 is not evaluated</remark>
+  MOD_VERIFY(rbLESS(foo(), <literal>10</literal>));
+</programlisting>
+</para>
+</sect3>
+
+<sect3><title>MOD_FAIL</title>
+<indexterm><primary>MOD_FAIL</primary></indexterm>
+<para>The macro <code>MOD_FAIL</code> doesn't have a condition argument, and always fails
+(so it is not modular, because it doesn't have a condition, but it has the prefix <code>MOD_</code>
+because it is part of the ModAssert package).
+This is useful if a certain part of your code shouldn't be reachable.
+</para>
+<para>Example:
+<programlisting>
+    for (int i=0; i&lt;n; ++i)
+    {
+        if (a[i]&gt;10)
+            return a[i];
+    }
+    // at least one should be bigger than 10
+    MOD_FAIL;
+</programlisting>
+</para>
+</sect3>
+
+<sect3 id='ModCheck'><title>MOD_CHECK</title>
+<indexterm><primary>MOD_CHECK</primary></indexterm>
+<para><code>MOD_CHECK</code> is similar to <code>MOD_VERIFY</code>, except that
+<code>MOD_CHECK</code> has a <emphasis>failure action</emphasis>
+as the last argument after the condition, which will be evaluated if the condition fails.
+<code>MOD_CHECK</code> is called a <emphasis>check</emphasis>, not an assertion,
+because it is not meant to test for bugs, but rather
+for other errors, such as invalid input by the user. Normally execution of the application will continue after the
+failure action is executed.</para>
+<para>When reporting of checks is disabled, it will still evaluate its argument, test the condition
+(without creating an analysis if the condition is a Rich Boolean), and evaluate its
+failure action if the condition fails, but it will not be displayed or logged
+(therefore <code>MOD_CHECK</code> can be thought of as <code>MOD_VERIFY</code>
+with a failure action). So <code>MOD_CHECK</code> is never compiled out completely,
+but its code size is still reduced if reporting of checks is disabled.</para>
+<para>The failure action could e.g. throw an exception, return with an error value, break
+from a loop, or continue a loop to skip the rest of the loops body.
+Everywhere you have error handling in your code, you might consider
+using a <code>MOD_CHECK</code> macro (or a variation).
+<programlisting>
+  MOD_CHECK(p!=NULL, throw IllegalArgumentException());
+</programlisting>
+Note that well written Rich Booleans still evaluate their arguments and condition in this case when
+reporting of checks is disabled, but without creating a <classname>RichBool::Analysis</classname> object.
+<programlisting>
+  <remark>// the condition foo()&lt;10 is still evaluated
+  //if reporting of checks is disabled</remark>
+  MOD_CHECK(rbLESS(foo(), <literal>10</literal>), throw IllegalArgumentException());
+</programlisting>
+</para>
+<para>Note: responders and loggers are aware whether a failure comes from an assertion or a check,
+and might treat them differently. This is because these macros are meant
+for handling errors that are beyond the control of the programmer, whereas assertion macros are meant
+for bugs. See also <xref linkend='BugsVsChecks' /></para>
+</sect3>
+
+<sect3><title>MOD_CHECK_FAIL</title>
+<indexterm><primary>MOD_CHECK_FAIL</primary></indexterm>
+<para>The macro <code>MOD_CHECK_FAIL(action)</code> is equivalent to <code>MOD_CHECK(false, action)</code>.
+It is useful when a part of your code should be unreachable under normal circumstances, and it is an error and
+not a bug if that part is reached.</para>
+</sect3>
+</sect2>
+
+<sect2><title>Expression assertion and check macros</title>
+<indexterm><primary>Expression assertion and check macros</primary></indexterm>
+<indexterm><primary>V suffix</primary></indexterm>
+<indexterm><primary>B suffix</primary></indexterm>
+<para>The assertions macros in this section are expressions, so
+you can assign them to a left value.</para>
+
+<para>If you want to use a Rich Boolean with the macros in this section,
+you have to use one of a different kind, the ones that
+start with <code>rbv</code> instead of <code>rb</code>. The value that is returned by the
+<code>MOD_VERIFY_V</code> and <code>MOD_CHECK_V</code> macro is one of the arguments of the Rich Boolean macro, 
+usually the first one. These Rich Booleans still evaluate their arguments when reporting of assertions
+is disabled, but without creating a <classname>RichBool::Analysis</classname> object.
+Even the condition is not tested, to save processing time.</para>
+
+<sect3><title>MOD_VERIFY_V</title>
+<indexterm><primary>MOD_VERIFY_V</primary></indexterm>
+<para><code>MOD_VERIFY_V</code> is the same as <code>MOD_VERIFY</code>, but it returns
+the value of the condition. Often the condition is a pointer returned by a call, that shouldn't be NULL.
+<programlisting>
+  <remark>// GetWidget() is still evaluated if reporting of assertions is disabled
+  // This macro returns a value</remark>
+  Widget *w = MOD_VERIFY_V(GetWidget());
+</programlisting>
+Using a Rich Boolean you can perform tests on the returned value for a lot more than just not being NULL.
+<programlisting>
+  <remark>// Here MOD_VERIFY_V will return the value of foo()
+  // (most Rich Booleans return their first argument).
+  // foo() is still evaluated if assertions are not reported,
+  // but the condition foo()&lt;10 is then not evaluated.</remark>
+  int f = MOD_VERIFY_V(rbvLESS(foo(), <literal>10</literal>));
+</programlisting>
+</para>
+</sect3>
+
+<sect3><title>MOD_VERIFY_B</title>
+<indexterm><primary>MOD_VERIFY_B</primary></indexterm>
+<para><code>MOD_VERIFY_B</code> is the same as <code>MOD_VERIFY_V</code>, except that it returns a
+<code>ModAssert::UseBool</code> object.
+See <xref linkend='UseBool' />.
+<programlisting>
+  if (!MOD_VERIFY_B(rbvLESS(foo(), <literal>10</literal>)))
+  {
+    ...
+  };
+</programlisting>
+Note that you most likely won't need this, because if this part of your application works well the condition will
+always succeed. Only if your application should always make sure that it corrects errors, even errors
+that are a consequence of bugs, you should use this.
+</para>
+</sect3>
+
+<sect3 id='ModCheckV'><title>MOD_CHECK_V</title>
+<indexterm><primary>MOD_CHECK_V</primary></indexterm>
+<para><code>MOD_CHECK_V</code> is the same as <code>MOD_CHECK</code>, but it returns the condition,
+or, if you use a Rich Boolean, one of the arguments of the Rich Boolean. The failure action has
+to be an object on which <code>operator()()</code> is defined (the return value doesn't matter,
+and it can be <code>const</code> or not).
+<programlisting>
+  struct ThrowIllegalArgumentException
+  {
+    void operator()() const
+    {
+      throw IllegalArgumentException();
+    }
+  } throwIllegalArgumentException;
+
+  int *p = MOD_CHECK_V(foo(), throwIllegalArgumentException);</programlisting>
+</para>
+</sect3>
+
+<sect3 id='ModCheckB'><title>MOD_CHECK_B</title>
+<indexterm><primary>MOD_CHECK_B</primary></indexterm>
+<para><code>MOD_CHECK_B</code> is the same as <code>MOD_CHECK_V</code>, except that it returns a
+<code>ModAssert::UseBool</code> object, and doesn't have a failure action. See <xref linkend='UseBool' />.
+<programlisting>
+  // Ok.
+  if (!MOD_CHECK_B(rbvLESS(a, 10)))
+  {
+    DecreaseValues();
+    throw MyException();
+  }</programlisting>
+<programlisting>
+  // Not ok.
+  MOD_CHECK_B(rbvLESS(a, 10));</programlisting>
+<programlisting>
+  // Ok if caller checks the value.
+  ModAssert::UseBool foo()
+  {
+    ...
+    return MOD_CHECK_B(rbvLESS(a, 10));
+  }</programlisting>
+Note that in the last example the function should not return bool, because then the <code>ModAssert::UseBool</code>
+will assume that the value is checked, but the caller of the function might ignore the return value.
+<programlisting>
+  // Not ok, but no assertion will fail
+  bool foo()
+  {
+    ...
+    return MOD_CHECK_B(rbvLESS(a, 10));
+  }</programlisting>
+</para>
+</sect3>
+
+<sect3 id='UseBool'><title>UseBool objects</title>
+<indexterm><primary>UseBool</primary></indexterm>
+<para><code>MOD_VERIFY_B</code> and <code>MOD_CHECK_B</code> return a <classname>ModAssert::UseBool</classname>
+object. Objects of this class can be converted to a boolean, so you can assign them to a boolean
+or use them as the condition in e.g. an if-statement or while-statement.</para>
+<para>You should always use a <classname>ModAssert::UseBool</classname> by converting it to a boolean.
+If you don't, its destructor will cause an assertion to fail, to remind you that you ignored it.
+Note that this is not fool proof, one could assign it to a boolean but not use the boolean.</para>
+<para>You can turn checking of the usage of <code>ModAssert::UseBool</code> objects on or off by calling
+<code>ModAssert::UseBool::SetCheck(bool b)</code>. If <code>NDEBUG</code> is defined, this is off by default,
+otherwise it is on. The checking is also affected by the setup functions.</para>
+<para><classname>ModAssert::UseBool</classname> objects have transfer semantics. This implies
+that if you assign a <classname>ModAssert::UseBool</classname> to another
+<classname>ModAssert::UseBool</classname> object, the original one will not check if it is used, but the
+new one still will. This means that you can use it as the return value of a function, if you want to
+leave the checking of the condition to the caller.</para>
+</sect3>
+
+<para>Note: if a Rich Boolean fails, it may be because the condition failed or because a bad value was given
+as a consequence of dereferencing an invalid pointer (see the documentation of Rich Booleans).
+If it happens because of a bad value, then:
+<itemizedlist mark='bullet'>
+<listitem>it will have a level Fatal, and no group, even if you used a group and or a level
+in the assertion or check</listitem>
+<listitem>in a <code>MOD_CHECK</code>, ModAssert will
+treat it as a failing assertion, because this is not an expected error</listitem>
+</itemizedlist>
+</para>
+</sect2>
+
+<sect2 id='parameters'><title>Adding expressions and messages</title>
+<indexterm><primary>Adding expressions and messages</primary></indexterm>
+<indexterm><primary>expressions</primary></indexterm>
+<indexterm><primary>messages</primary></indexterm>
+<indexterm><primary>P suffix</primary></indexterm>
+<para>Adding the suffix <code>_P</code> (or <code>P</code> if it already has a suffix <code>_V</code>)
+allows to add expressions before the condition, e.g. <code>MOD_ASSERT_P</code>,
+<code>MOD_VERIFY_VP</code>. If the condition fails,
+these expressions will be evaluated, and shown and logged together with a failure message. This gives a
+programmer a better understanding of what is going on. They are a little different
+for different types of assertions and checks.
+<itemizedlist mark='bullet'>
+<listitem>For statement macros the first argument
+is a number of expressions separated by &lt;&lt;, and only if the assertion is reported, these will be
+evaluated and shown with their expressions. Here the number of expressions is not limited.</listitem>
+<listitem>For expression macros the first argument is a comma separated list of expressions embraced by parentheses,
+that are always evaluated if reporting of the macro is enabled, but only converted to a
+string if it is reported. Here the maximum number of expressions is 8. Note that they have to be enclosed by parentheses
+even if there is only one expression.</listitem>
+</itemizedlist>
+For both types it is recommended to use only expressions that don't have side effects.
+<programlisting>
+  int b = foo(a);
+  MOD_ASSERT_P(a, rbLESS(b, 10));
+  ...
+  int n = nrSpaces+nrTabs;
+  MOD_ASSERT_P(nrSpaces &lt;&lt; nrTabs, rbLESS_OR_EQUAL(n, str.size()));
+  
+  int len = str.size();
+  int p = MOD_VERIFY_VP((nrSpaces, nrTabs), rbvLESS_OR_EQUAL(n, len));
+</programlisting>
+</para>
+<para><emphasis>Example output:</emphasis><screen>`b':&lt;12&gt; &lt; `10':&lt;10&gt; nok
+a: 17
+...
+`n':&lt;8&gt; &lt;= `str.size()':&lt;7&gt; nok
+nrSpaces: 5
+nrTabs: 3</screen></para>
+<para>This macro also accepts literal strings,
+which will be shown as messages instead of as expressions.
+<programlisting>
+  int b = foo(a);
+  MOD_ASSERT_P(a, rbLESS(b, 10));
+  ...
+  int n = nrSpaces+nrTabs;
+  MOD_ASSERT_P(
+    "the number of spaces or the number of tabs was miscalculated"
+        &lt;&lt; nrSpaces &lt;&lt; nrTabs,
+    rbLESS_OR_EQUAL(n, str.size()));
+</programlisting>
+<emphasis>Example output:</emphasis><screen>`n':&lt;8&gt; &lt;= `str.size()':&lt;7&gt; nok
+message: the number of spaces or the number of tabs was miscalculated
+nrSpaces: 5
+nrTabs: 3</screen>
+
+Note that there is no use in adding the expressions in the rich boolean (<code>n</code> and <code>str.size()</code>
+in the example) to the parameters, since these will already be shown.
+</para>
+</sect2>
+
+<sect2><title>Adding a group</title>
+<indexterm><primary>Adding a group</primary></indexterm>
+<indexterm><primary>Groups</primary></indexterm>
+<indexterm><primary>ReportFailure</primary></indexterm>
+<indexterm><primary>ReportNone</primary></indexterm>
+<para>You can also specify a group in an assertion or a check. To do this, create an object of the class
+<classname>ModAssert::Group&lt;ModAssert::ReportFailure&gt;</classname>,
+add a suffix <code>G</code> to the assertion macro (after P if you add parameters), and give the object as argument before
+the condition, and after the parameters (if you add parameters).
+<programlisting>
+  ModAssert::Group&lt;ModAssert::ReportFailure&gt; modAssertGroup("group 1");
+  ...
+  MOD_ASSERT_G(modAssertGroup, rbLESS(n, str.size()));
+</programlisting>
+<classname>ModAssert::Group&lt;ModAssert::ReportFailure&gt;</classname> has a constructor
+that takes a <classname>const char*</classname> as its argument, to give it a name.
+If such an assertion fails, its name will be shown and you'll have the option to stop displaying
+all assertions that are in this group.</para>
+<para>If you want to disable reporting of assertions in that group at compile time, you can
+do so by changing the groups type to <classname>ModAssert::Group&lt;ModAssert::ReportNone&gt;</classname>:
+<programlisting>
+  ModAssert::Group&lt;ModAssert::ReportNone&gt; modAssertGroup("group 1");
+  ...
+  MOD_ASSERT_G(modAssertGroup, rbLESS(n, str.size()));
+</programlisting>
+This will reduce the executable size (if the compiler optimizes).
+</para>
+<para>Usually group objects are declared inside a class, as a static variable or an instance
+variable (depending on whether you want to control assertions for a whole class at once or per object).
+If they are an instance variable, you should make them <code>mutable</code>, because assertions and checks
+need non-const groups. ModAssert could easily apply <code>const_cast</code>, but it is better to
+use <code>mutable</code> because this indicates that the group is not a part of the state of the object.
+</para>
+</sect2>
+
+<sect2><title>Adding a level</title>
+<indexterm><primary>Adding a level</primary></indexterm>
+<indexterm><primary>Levels</primary></indexterm>
+<indexterm><primary>Fatal level</primary></indexterm>
+<indexterm><primary>Error level</primary></indexterm>
+<indexterm><primary>Warning level</primary></indexterm>
+<indexterm><primary>Info level</primary></indexterm>
+<para>Another type of groups are level groups, which have an integer valued level. You can add a level group
+for the assertion, to indicate how serious the assertion is; you can choose from <code>Info</code>,
+<code>Warning</code>, <code>Error</code> or <code>Fatal</code> in the <code>ModAssert</code> namespace.
+These are objects of the class <classname>ModAssert::Level&lt;...&gt;</classname>.
+</para>
+<para>Note: this has nothing to do with the levels in Rich Booleans.</para>
+<para>The assertion in the following example has a level group:
+<programlisting>
+  MOD_ASSERT_G(ModAssert::Fatal, rbLESS(n, str.size()));
+</programlisting>
+The assertion in the following example has an expression and a level group:
+<programlisting>
+  MOD_ASSERT_PG(a, ModAssert::Fatal, rbLESS(n, str.size()));
+</programlisting>
+</para>
+<para>The advantage of adding a level, is that reporting of assertions
+can be controlled per level group at runtime, and even at compile time,
+which can reduce the executable size (see <xref linkend='TurnOffPerLevel' />).</para>
+<para>Note: <code>ModAssert::Error</code> is implicitly added if a group is used that is not a level,
+or no group at all is used. This means that if
+displaying an assertion is turned off for that level, assertions with a levelless group will also not be displayed
+(just like assertions without a group or level). See also <xref linkend='TurnOffPerLevel' />.</para>
+<para>Note: the levels remember whether to log or display a failure separately for assertions and checks.
+So e.g. if an assertion or check is reported, and you choose to stop displaying assertions of that level, checks with that level
+will still be displayed.</para>
+</sect2>
+
+<sect2><title>Combining groups</title>
+<indexterm><primary>Combining groups</primary></indexterm>
+<indexterm><primary>operator&amp;&amp;</primary></indexterm>
+<indexterm><primary>operator%</primary></indexterm>
+<para>Groups that are not level groups can be combined with <code>operator&amp;&amp;</code>. An assertion will then
+only be displayed when they both have to be displayed. Likewise they will only be logged if they both
+have to be logged. Level groups can be added to a group that is not a level group, or a combination of such groups,
+with <code>operator%</code>, where the level group should be the second operand. If a level group is combined with another group,
+the combination is considered to have the same level as the level group. Groups of any kind cannot be added to a
+combination of a group and a level group (so only one level group per combination is allowed).
+<programlisting>
+  ModAssert::Group&lt;ModAssert::ReportFailure&gt; modAssertGroup1("group 1"),
+    modAssertGroup2("group 2");
+  ...
+  MOD_ASSERT_G(modAssertGroup1 &amp;&amp; modAssertGroup2, rbLESS(n, str.size()));
+  ...
+  MOD_ASSERT_G(modAssertGroup1 % ModAssert::Warning, rbLESS(n, str.size()));
+  ...
+  MOD_ASSERT_G((modAssertGroup1 &amp;&amp; modAssertGroup2)% ModAssert::Warning,
+    rbLESS(n, str.size()));
+</programlisting>
+This also allows to disable reporting of assertions by turning off one of them, which can still reduce the
+executable size:
+<programlisting>
+  ModAssert::Group&lt;ModAssert::ReportNone&gt; modAssertGroup1("group 1");
+  ModAssert::Group&lt;ModAssert::ReportFailure&gt; modAssertGroup2("group 2");
+  ...
+  // this will be compiled out:
+  MOD_ASSERT_G(modAssertGroup1 &amp;&amp; modAssertGroup2, rbLESS(n, str.size()));
+  ...
+  // this will be compiled out:
+  MOD_ASSERT_G(modAssertGroup1 % ModAssert::Warning, rbLESS(n, str.size()));
+</programlisting>
+The following will not compile:
+<programlisting>
+  ModAssert::Group&lt;ModAssert::ReportFailure&gt; modAssertGroup1("group 1"),
+    modAssertGroup2("group 2");
+  ...
+  // error: use operator% to add a level group
+  MOD_ASSERT_G(modAssertGroup1 &amp;&amp; ModAssert::Warning, rbLESS(n, str.size()));
+  ...
+  // error: only one level group allowed per combination
+  MOD_ASSERT_G((modAssertGroup1 % ModAssert::Error) % ModAssert::Warning,
+    rbLESS(n, str.size()));
+  ...
+  // error: can't add group to a combination of a group and a level group
+  MOD_ASSERT_G((modAssertGroup1 % ModAssert::Warning) &amp;&amp; modAssertGroup2,
+    rbLESS(n, str.size()));
+  ...
+  // error: level group should be the second operand
+  MOD_ASSERT_G((ModAssert::Warning % modAssertGroup1, rbLESS(n, str.size()));
+</programlisting>
+</para>
+<para>You can also combine groups with <code>operator||</code>. In this
+case, a failed assertion will be reported when at least one should be reported. They will not be
+reported if they both aren't.
+</para>
+<para>Note: if no level group is in the combination, <code>ModAssert::Error</code> is implicitly added.
+This means that if
+displaying an assertion is turned off for that level group, assertions with a group also will not be displayed
+(just like assertions without a group or level). See also <xref linkend='TurnOffPerLevel' />.</para>
+</sect2>
+
+<sect2><title>Displaying and logging an assertion if it succeeds</title>
+<indexterm><primary>ReportAll</primary></indexterm>
+<indexterm><primary>IfSuccess</primary></indexterm>
+<para id='IfSuccess'>In certain cases you want to see the information of an assertion, even if the
+condition succeeds. The analysis and the expressions can be handy when debugging an application. You can
+do so by changing the groups type to <classname>ModAssert::Group&lt;ModAssert::ReportAll&gt;</classname>.
+This will cause all assertions with this group, to report the assertion, even if the condition succeeds.
+You can also do this for individual assertions by using <code>ModAssert::IfSuccess</code> as
+the group of an assertion.
+<programlisting>
+  ModAssert::Group&lt;ModAssert::ReportAll&gt; modAssertGroup("group 1");
+  ...
+  MOD_ASSERT_G(modAssertGroup, rbLESS(n, str.size()));
+  MOD_ASSERT_G(ModAssert::IfSuccess, rbLESS(n, str.size()));
+</programlisting>
+</para>
+<para>This poses a problem if you want to combine such a group object with another
+group object by using <code>operator&amp;&amp;</code>, because the other object
+returns <literal>false</literal> if the condition succeeds, so in that case
+there is no use in using them.
+<programlisting>
+  ModAssert::Group&lt;ModAssert::ReportAll&gt; modAssertGroup1("group 1");
+  ModAssert::Group&lt;ModAssert::ReportFailure&gt; modAssertGroup2("group 2");
+  ...
+  // next two will NOT be displayed or logged if the condition succeeds
+  MOD_ASSERT_G(modAssertGroup1 &amp;&amp; modAssertGroup2, rbLESS(n, str.size()));
+  MOD_ASSERT_G(ModAssert::IfSuccess &amp;&amp; modAssertGroup2, rbLESS(n, str.size()));
+</programlisting>
+To solve this problem, group objects of the types
+<classname>ModAssert::Group&lt;ModAssert::ReportNone&gt;</classname>,
+<classname>ModAssert::Group&lt;ModAssert::ReportFailure&gt;</classname> and
+<classname>ModAssert::Group&lt;ModAssert::ReportAll&gt;</classname>,
+as well as the object <code>ModAssert::IfSuccess</code> have a
+template <code>operator()</code>, which takes one argument, that should be a
+group object. If the condition of the assertion succeeds, the first object
+is asked what to do when a condition succeeds, and the second (the argument) is asked what to
+do if a condition <emphasis>fails</emphasis> (for both displaying and logging,
+separately).
+<programlisting>
+  ModAssert::Group&lt;ModAssert::ReportAll&gt; modAssertGroup1("group 1");
+  ModAssert::Group&lt;ModAssert::ReportFailure&gt; modAssertGroup2("group 2");
+  ...
+  // next two will be displayed and logged if the condition succeeds
+  MOD_ASSERT_G(modAssertGroup1(modAssertGroup2), rbLESS(n, str.size()));
+  MOD_ASSERT_G(ModAssert::IfSuccess(modAssertGroup2), rbLESS(n, str.size()));
+</programlisting>
+However, don't use them the other way around:
+<programlisting>
+  ModAssert::Group&lt;ModAssert::ReportAll&gt; modAssertGroup1("group 1");
+  ModAssert::Group&lt;ModAssert::ReportFailure&gt; modAssertGroup2("group 2");
+    ...
+  // next two will not be displayed or logged:
+  MOD_ASSERT_G(modAssertGroup2(modAssertGroup1), rbLESS(n, str.size()));
+  MOD_ASSERT_G(modAssertGroup2(ModAssert::IfSuccess), rbLESS(n, str.size()));
+</programlisting>
+A more complicated, less legible, example:
+<programlisting>
+  ModAssert::Group&lt;ModAssert::ReportAll&gt; group1("group 1"),
+    group2("group 2");
+  ModAssert::Group&lt;ModAssert::ReportFailure&gt; group3("group 3"),
+    group4("group 4");
+  ...
+  // next one will be displayed and logged if the condition succeeds
+  MOD_ASSERT_G((group1 &amp;&amp; group2)(group3 || group4),
+        rbLESS(n, str.size()));
+</programlisting>
+Note that using <code>operator()</code> has no use for objects of the type
+<classname>ModAssert::Group&lt;ModAssert::ReportNone&gt;</classname> or
+<classname>ModAssert::Group&lt;ModAssert::ReportFailure&gt;</classname>,
+because then it is equivalent to using <code>operator&amp;&amp;</code>,
+but they can use this mechanism anyway, so one can easily switch between
+the three types.
+</para>
+<para>Also note that this problem doesn't exist with <code>operator||</code>.</para>
+</sect2>
+
+<sect2 id='OptionalAction'><title>Optional actions</title>
+<indexterm><primary>Optional actions</primary></indexterm>
+<indexterm><primary>O suffix</primary></indexterm>
+<para>
+Sometimes it is desirable to be able to perform a certain action when an assertion or check is reported,
+especially when an assertion or check often fails, and we want to stop the execution of that part of the code.
+One might want to throw an exception, return false or break from a loop. This is
+possible with macros similar to the ones already discussed, with a suffix 'O', a capital letter o.
+(<code>MOD_ASSERT_O</code>, <code>MOD_ASSERT_PO</code>, <code>MOD_VERIFY_O</code>, <code>MOD_CHECK_O</code>,
+<code>MOD_FAIL_O</code>, ...). The suffix O should come after the suffixes P and/or G if you use these.
+These macros have two extra arguments before the condition (and after the parameters and group,
+if you use these): the optional action,
+and a description of the optional action. For expression assertion and checks,
+the optional action has to be an object on which <code>operator()()</code> is defined (the return value doesn't matter,
+and it can be <code>const</code> or not); if the user chooses to perform the optional action,
+<code>operator()()</code> is called.
+For the statement assertions and checks, it can be any expression, that is
+only performed it the user chooses to. Example:
+<programlisting>
+  MOD_ASSERT_O(throw std::invalid_argument(), "throw", p!=NULL);
+
+  ...
+
+  void throw_invalid_argument()
+  {
+    throw invalid_argument();
+  }
+
+  ...
+  
+  int *p = MOD_VERIFY_VO(throw_invalid_argument, "throw", foo());
+</programlisting>
+</para>
+</sect2>
+
+<sect2 id='ReturnValue'><title>Performance of expression assertions and checks</title>
+<indexterm><primary>Performance of expression assertions and checks</primary></indexterm>
+<para>You should note that some variations of <code>MOD_VERIFY_V</code>,
+<code>MOD_CHECK_V</code> and <code>MOD_CHECK_B</code> are less performant than the ones
+that don't return a value or boolean.
+<itemizedlist mark='bullet'>
+<listitem>If they add expressions, the expressions are evaluated and a temporary object
+is created to hold references to the values of these expressions, regardless of whether
+the condition succeeds, but only if reporting
+is enabled at compile time (separately for assertions and checks). If there is only one
+expression, this causes no overhead. For two or more expressions, this causes a little
+overhead.</listitem>
+<listitem>If you use a Rich Boolean for the condition, a temporary object is created to
+hold a reference to every argument of the Rich Boolean that is not returned, regardless
+of whether reporting is enabled at compile time or not. Most Rich Booleans only have
+two arguments so the temporary object has a reference to just one argument, which most likely
+is easy to optimize by compilers.</listitem>
+</itemizedlist>
+</para>
+</sect2>
+
+<sect2><title>Default parameters</title>
+<indexterm><primary>Default parameters</primary></indexterm>
+<indexterm><primary>MOD_ASSERT_DEFAULT_PARAMETERS</primary></indexterm>
+<indexterm><primary>MOD_ASSERT_DEFAULT_PARAMETERS_V</primary></indexterm>
+<indexterm><primary>NP suffix</primary></indexterm>
+<indexterm><primary>SP suffix</primary></indexterm>
+<para>Defining the macros <code>MOD_ASSERT_DEFAULT_PARAMETERS</code> and
+<code>MOD_ASSERT_DEFAULT_PARAMETERS_V</code> before including
+<filename>modassert/assert.hpp</filename> allows you to define default parameters
+for all assertion and check macros. You should define it to an expression that contains
+the parameters separated by <code>&lt;&lt;</code> for <code>MOD_ASSERT_DEFAULT_PARAMETERS</code>
+and by a comma with the whole enclosed by parentheses for <code>MOD_ASSERT_DEFAULT_PARAMETERS_V</code>
+(i.e. in the same way as you add parameters to an assertion or check macro). If an assertion or check macro has
+its own parameters to be shown, they will be added before the default ones.
+The maximum number of expressions you can give in <code>MOD_ASSERT_DEFAULT_PARAMETERS_V</code>
+is 8; so the maximum number of expressions that an assertion that returns a value can have, is 16: 8
+default ones and 8 explicit ones. Note that you could use different expressions for
+<code>MOD_ASSERT_DEFAULT_PARAMETERS</code> and <code>MOD_ASSERT_DEFAULT_PARAMETERS_V</code>,
+but this is not recommended. It is even recommended to use both even if you need only one,
+because you may use assertions or checks of the other kind later, and forget to define
+its default parameters.</para>
+<para>Therefore the listing
+<programlisting>
+#include "modassert/assert.hpp"
+
+void foo()
+{
+	MOD_ASSERT_P(a, rbEQUAL(b, c));
+	...
+	int n = MOD_VERIFY_VP((a), rbEQUAL(b, c));
+	...
+	MOD_CHECK_P(a, rbLESS(b, c), return);
+	...
+	MOD_ASSERT(b &lt;&lt; a, rbEQUAL(c, 10));
+}</programlisting>
+is equivalent to this listing:
+<programlisting>
+#define MOD_ASSERT_DEFAULT_PARAMETERS a
+#define MOD_ASSERT_DEFAULT_PARAMETERS_V (a)
+#include "modassert/assert.hpp"
+
+void foo()
+{
+	MOD_ASSERT(rbEQUAL(b, c));
+	...
+	int n = MOD_VERIFY_V(rbEQUAL(b, c));
+	...
+	MOD_CHECK(rbLESS(b, c), return);
+	...
+	MOD_ASSERT_P(b, rbEQUAL(c, 10));
+}</programlisting>
+</para>
+<para>You can ignore the default parameters by inserting <code>NP</code> where you usually
+insert <code>P</code>. If you want to ignore the default parameters and use some specific parameters,
+insert <code>SP</code> instead.
+<programlisting>
+#define MOD_ASSERT_DEFAULT_PARAMETERS a
+#define MOD_ASSERT_DEFAULT_PARAMETERS_V (a)
+#include "modassert/assert.hpp"
+
+void foo()
+{
+	// shows parameter a:
+	MOD_ASSERT(rbEQUAL(b, c));
+	...
+	// shows parameters a and n:
+	MOD_ASSERT_P(n, rbEQUAL(b, c));
+	...
+	// shows no parameters:
+	MOD_ASSERT_NP(rbEQUAL(b, c));
+	...
+	// shows only parameter n:
+	MOD_ASSERT_SP(n, rbEQUAL(b, c));
+}</programlisting>
+</para>
+<para>If <code>MOD_ASSERT_DEFAULT_PARAMETERS</code> and <code>MOD_ASSERT_DEFAULT_PARAMETERS_V</code>
+are not defined, macros with
+<code>NP</code> are equivalent to macros without it, and macros with
+<code>SP</code> are equivalent to macros with <code>P</code>. So defining and
+undefining <code>MOD_ASSERT_DEFAULT_PARAMETERS</code> and <code>MOD_ASSERT_DEFAULT_PARAMETERS_V</code>
+makes no difference to these macros.</para>
+</sect2>
+
+<sect2><title>Default groups</title>
+<indexterm><primary>Default groups</primary></indexterm>
+<indexterm><primary>MOD_ASSERT_DEFAULT_GROUP</primary></indexterm>
+<indexterm><primary>MOD_CHECK_DEFAULT_GROUP</primary></indexterm>
+<para>You can define a default group per source code file, for assertions and checks.
+For assertions, define the macro <code>MOD_ASSERT_DEFAULT_GROUP</code>
+before including <filename>modassert/assert.hpp</filename> to the group.
+For checks, do the same with the macro <code>MOD_CHECK_DEFAULT_GROUP</code>.
+They can be anything that can be given as a group to an assertion or check.
+Assertions and checks that specify a group ignore this.
+<programlisting>// define these before including modassert/assert.hpp:
+#define MOD_ASSERT_DEFAULT_GROUP group1
+#define MOD_CHECK_DEFAULT_GROUP group2
+
+#include "modassert/assert.hpp"
+
+// these have to be declared after including modassert/assert.hpp:
+ModAssert::Group&lt;ModAssert::ReportFailure&gt; group1("group1"),
+    group2("group2"), group3("group3");
+...
+// this will have the group group1:
+MOD_ASSERT(rbMORE(a, 0));
+
+// this will have the group group2:
+MOD_CHECK(rbMORE(a, 0), return false);
+
+// this will have the group group3:
+MOD_ASSERT_G(group3, rbMORE(a, 0));
+</programlisting>
+</para>
+</sect2>
+
+<sect2><title>Default optional action</title>
+<indexterm><primary>Default optional action</primary></indexterm>
+<indexterm><primary>MOD_ASSERT_DEFAULT_OPTIONAL_ACTION</primary></indexterm>
+<indexterm><primary>MOD_ASSERT_DEFAULT_OPTIONAL_ACTION_V</primary></indexterm>
+<indexterm><primary>MOD_ASSERT_DEFAULT_OPTIONAL_ACTION_TEXT</primary></indexterm>
+<para>You can define a default optional action per source code file,
+by defining the symbol <code>MOD_ASSERT_DEFAULT_OPTIONAL_ACTION</code> and/or
+<code>MOD_ASSERT_DEFAULT_OPTIONAL_ACTION_V</code> with the optional action
+before including <filename>modassert/assert.hpp</filename>.
+If you do this, you should also define <code>MOD_ASSERT_DEFAULT_OPTIONAL_ACTION_TEXT</code>
+to a literal string that will be used by the responder if it asks an action from the user.
+<code>MOD_ASSERT_DEFAULT_OPTIONAL_ACTION</code>
+is used for assertions and checks that don't return a value, and can be any expression, that will
+be evaluated if the user chooses to. <code>MOD_ASSERT_DEFAULT_OPTIONAL_ACTION_V</code>
+is used for assertions and checks that return a value or a boolean, and should be an object
+on which <code>operator()()</code> is defined, which will be called if the user chooses to.
+All assertions and checks without the
+suffix <code>O</code> will then use this optional action.</para>
+<para>If you want another optional action for a particular assertion or check,
+just add the suffix <code>O</code> to it, and add the optional action and its description as usual.</para>
+</sect2>
+
+<sect2><title>Setting a global optional action</title>
+<indexterm><primary>Setting a global optional action</primary></indexterm>
+<indexterm><primary>Global optional action</primary></indexterm>
+<indexterm><primary>SetGlobalOptionalAction</primary></indexterm>
+<para>The function <code>ModAssert::SetGlobalOptionalAction</code> allows you to make a
+function available as an optional action in responders, in addition to the optional actions
+that can be given in individual assertion and check macros. This function takes two arguments.
+The first argument is the address of the function, which should take no arguments and return <code>void</code>.
+The second argument is a short description of the action, which should be a <code>const char*</code>
+(usually a string literal).
+This description will be shown by responders. You can get the global optional by calling
+<code>GetGlobalOptionalAction</code> and get the description by calling
+<code>GetGlobalOptionalActionDescription</code>.</para>
+<para>Note that this has restrictions when compared to the optional actions that you
+give directly in statement assertion and check macros, because it is impossible to return with a value,
+or break or continue a loop. However, the advantage of the global optional action is
+that it can be set and modified at runtime, and you only have to do it once.</para>
+</sect2>
+
+<sect2 id='actions'><title>What is allowed for the actions</title>
+<indexterm><primary>Allowed actions</primary></indexterm>
+<para>
+The macro <code>MOD_CHECK</code> and its variations have failure actions, and
+the macros with a suffix <code>O</code> have optional actions (macros like
+<code>MOD_CHECK_O</code> even have both).
+For expression assertions and checks, this is rather limited.
+For statement assertions and checks, there are more
+possibilities. Because these actions are the argument
+of a macro, they have one limitation as a consequence of the C/C++ parsing rules:
+they can't have commas inside of them, unless the comma is between parentheses.
+This limitation can be circumvented by first defining a macro that contains the
+action with the comma, and use that macro as the action:
+<programlisting>#define ACTION ++a, ++b
+MOD_ASSERT_O(ACTION, "++a, ++b", rbMORE(a, 0));
+</programlisting>
+However, in this example it would be better to use semicolons:
+<programlisting>
+MOD_ASSERT_O(++a; ++b;, "++a, ++b", rbMORE(a, 0));
+</programlisting>
+(the semicolon after <code>++b</code> actually isn't necessary) or add parentheses:
+<programlisting>
+MOD_ASSERT_O( (++a, ++b), "++a, ++b", rbMORE(a, 0));
+</programlisting>
+</para>
+<para>Note that all code that can be in a scope, is allowed for these actions,
+as long as it doesn't contain commas outside of an expression. So this is possible:
+<programlisting>MOD_ASSERT_O(
+    if (b)
+    {
+        int n=0;
+        foo(n, 1); // fine, comma is between parentheses
+    },
+    "call foo",
+    rbMORE(a, 0)
+);
+</programlisting>
+but the following is not possible:
+<programlisting>MOD_ASSERT_O(
+    if (b)
+    {
+        int n=0, p=1; // error: the compiler sees an extra macro argument
+        foo(n, p);    // fine, comma is between parentheses
+    },
+    "call foo",
+    rbMORE(a, 0)
+);
+</programlisting>
+</para>
+</sect2>
+
+<sect2><title>Overview</title>
+<indexterm><primary>Overview of available assertion macros</primary></indexterm>
+<table frame='all' pgwide='1'><title>Overview of available assertion macros</title>
+<?dbhtml table-width="75%" ?>
+<?dbfo table-width="75%" ?>
+    <tgroup cols='9' colsep='1' rowsep='1'>
+    <colspec align='left'  colwidth='3.4*'/>
+    <colspec align='center' colwidth="1*"/>
+    <colspec align='center' colwidth="1*"/>
+    <colspec align='center' colwidth="1.5*"/>
+    <colspec align='center' colwidth="1.5*"/>
+    <colspec align='center' colwidth="1*"/>
+    <colspec align='center' colwidth='1.5*'/>
+    <colspec align='center' colwidth='1*'/>
+    <colspec align='center' colwidth='1*'/>
+    <thead>
+    <row>
+        <entry>Macro</entry>
+        <entry>Parameters</entry>
+        <entry>Groups</entry>
+        <entry>Optional Action</entry>
+        <entry>Failure Action</entry>
+        <entry>Condition</entry>
+		<entry>Returns</entry>
+        <entry>Arguments always evaluated</entry>
+        <entry>Uses default parameters</entry>
+    </row>
+    </thead>
+    <tbody>
+    <row>
+        <entry>MOD_ASSERT</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_P</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_G</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_PG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_O</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_PO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_GO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_PGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>Y</entry>
+    </row>
+
+    <row>
+        <entry>MOD_VERIFY</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_P</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_G</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_PG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_O</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_PO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_GO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_PGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+
+    <row>
+        <entry>MOD_VERIFY_V</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+
+<row>
+        <entry>MOD_VERIFY_B</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+
+    <row>
+        <entry>MOD_CHECK</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_P</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_G</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_PG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_O</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_PO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_GO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_PGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+
+    <row>
+        <entry>MOD_CHECK_V</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+
+    <row>
+        <entry>MOD_CHECK_B</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>Y</entry>
+    </row>
+
+    <row>
+        <entry>MOD_FAIL</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_P</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_G</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_PG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_O</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_PO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_GO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_PGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+
+    <row>
+        <entry>MOD_CHECK_FAIL</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_P</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_G</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_PG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_O</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_PO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_GO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_PGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>Y</entry>
+    </row>
+
+    <row>
+        <entry>MOD_ASSERT_NP</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_SP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_NPG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_SPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_NPO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_SPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_NPGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_ASSERT_SPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>N</entry><entry>N</entry>
+    </row>
+
+    <row>
+        <entry>MOD_VERIFY_NP</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_SP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_NPG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_SPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_NPO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_SPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_NPGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_SPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+
+    <row>
+        <entry>MOD_VERIFY_VNP</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VSP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VNPG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VSPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VNPO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VSPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VNPGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_VSPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+
+    <row>
+        <entry>MOD_VERIFY_BNP</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BSP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BNPG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BSPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BNPO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BSPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BNPGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_VERIFY_BSPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+
+    <row>
+        <entry>MOD_CHECK_NP</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_SP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_NPG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_SPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_NPO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_SPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_NPGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_SPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>void</entry><entry>Y</entry><entry>N</entry>
+    </row>
+
+    <row>
+        <entry>MOD_CHECK_VNP</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VSP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VNPG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VSPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VNPO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VSPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VNPGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_VSPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>value</entry><entry>Y</entry><entry>N</entry>
+    </row>
+
+
+    <row>
+	<entry>MOD_CHECK_BNP</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BSP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BNPG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BSPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BNPO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BSPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BNPGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_BSPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>UseBool</entry><entry>Y</entry><entry>N</entry>
+    </row>
+
+    <row>
+        <entry>MOD_FAIL_NP</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_SP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_NPG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_SPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_NPO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_SPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_NPGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_FAIL_SPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+
+    <row>
+        <entry>MOD_CHECK_FAIL_NP</entry><entry>N</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_SP</entry><entry>Y</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_NPG</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_SPG</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_NPO</entry><entry>N</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_SPO</entry><entry>Y</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_NPGO</entry><entry>N</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+    <row>
+        <entry>MOD_CHECK_FAIL_SPGO</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>Y</entry><entry>N</entry><entry>void</entry><entry>-</entry><entry>N</entry>
+    </row>
+
+    </tbody>
+    </tgroup>
+</table>
+<para>Note that the arguments appear in the same order as the suffixes that indicate that the
+    argument is present, and that this order is always the same. I.e. first come the parameters,
+    then the groups, and then the optional action (for which there are two arguments). The condition
+    is always the last argument, except for <code>MOD_CHECK</code> and its variations, where the failure action
+    comes after the condition. Expression assertions and checks have a suffix V just before
+	the other suffixes. Checks that return a boolean have a suffix B just before
+	the other suffixes.</para>
+</sect2>
+
+<sect2 id='BugsVsChecks'><title>Bugs versus other errors</title>
+<indexterm><primary>Bugs versus other errors</primary></indexterm>
+<para>It is important to understand the following design decision in ModAssert:
+the assertion macros that begin with <code>MOD_ASSERT</code>, <code>MOD_VERIFY</code>
+and <code>MOD_FAIL</code> are meant for bugs in your application, while the macros that begin with
+<code>MOD_CHECK</code> are meant for other errors, i.e. errors that are not under the control of
+the programmers. Loggers and responders are aware of this distinction, and can act differently depending on this.
+E.g. to be safe, an application should shut down if a bug is encountered, otherwise worse things could happen
+(although ModAssert doesn't enforce this), unless it is a critical application that should recover from bugs.
+On the other hand, if an error occurs due to other causes, the failure action of the <code>MOD_CHECK</code>
+macro should be executed. The application developer decides what that failure action is. Typically it is throwing
+an exception, that is caught elsewhere, so execution of the application continues, but it can also be aborting
+the application.</para>
+<para>Actually, the distinction also depends on what you want to happen. E.g. if your application detects
+that there is no more memory available, it might be wise to shut down the application, so you could
+use e.g. <code>MOD_ASSERT(p!=NULL)</code>, although <code>MOD_CHECK(p!=NULL, terminate())</code>
+is better.</para>
+</sect2>
+
+</sect1>

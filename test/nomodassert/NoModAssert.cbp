@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="NoModAssert" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="GCC-Mingw">
+				<Option output="Mingw\NoModAssert.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="Mingw" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectResourceIncludeDirsRelation="1" />
+			</Target>
+			<Target title="GCC-Cygwin">
+				<Option output="Cygwin\NoModAssert.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="Cygwin" />
+				<Option type="1" />
+				<Option compiler="cygwin" />
+				<Option projectResourceIncludeDirsRelation="1" />
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="GCC-Mingw;GCC-Cygwin;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-ansi -Wconversion -Wshadow -Wcast-qual -Wwrite-strings" />
+			<Add option="-DMOD_ASSERT_DONT_REPORT" />
+			<Add directory="%RICHBOOL%\include" />
+			<Add directory="..\..\include" />
+		</Compiler>
+		<Unit filename="TestNoModAssert.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

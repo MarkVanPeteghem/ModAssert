@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="DemoWin32" />
+		<Option pch_mode="0" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="GCC-Mingw">
+				<Option output="Mingw\DemoWin32.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="Mingw" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectResourceIncludeDirsRelation="0" />
+				<Linker>
+					<Add library="richbool-mingw" />
+					<Add library="modassertWin32-mingw" />
+					<Add library="modassert-mingw" />
+				</Linker>
+			</Target>
+			<Target title="GCC-Cygwin">
+				<Option output="Cygwin\DemoWin32.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="Cygwin" />
+				<Option type="0" />
+				<Option compiler="cygwin" />
+				<Option projectResourceIncludeDirsRelation="0" />
+				<Linker>
+					<Add library="richbool-cygwin" />
+					<Add library="modassertWin32-cygwin" />
+					<Add library="modassert-cygwin" />
+				</Linker>
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="GCC-Mingw;GCC-Cygwin;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-ansi -pedantic -Wconversion -Wshadow -Wcast-qual -Wwrite-strings" />
+			<Add directory="..\..\Win32" />
+			<Add directory="%RICHBOOL%\include" />
+			<Add directory="..\..\include" />
+		</Compiler>
+		<ResourceCompiler>
+			<Add directory="..\..\include" />
+		</ResourceCompiler>
+		<Linker>
+			<Add library="comctl32" />
+			<Add directory="..\..\lib" />
+		</Linker>
+		<Unit filename="DemoWin32.cpp" />
+		<Unit filename="DemoWin32.rc">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="Examples.cpp" />
+		<Unit filename="Examples.h" />
+		<Unit filename="NoText.cpp" />
+		<Unit filename="OtherFile.cpp" />
+		<Unit filename="resource.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,12 @@
+rm -rf *
+
+cd .deps
+rm -rf *
+cd ..
+rmdir .deps
+
+cd .objs-cygwin
+rm -rf *
+cd ..
+rmdir .objs-cygwin
+

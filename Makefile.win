@@ -1,0 +1,85 @@
+# Project: ModAssert
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = 
+OBJ  = GnuWin32/strmlog.o GnuWin32/context.o GnuWin32/handler.o GnuWin32/levels.o GnuWin32/ifsuccess.o GnuWin32/parmlist.o GnuWin32/threads.o GnuWin32/info.o GnuWin32/timeinfo.o GnuWin32/filters.o GnuWin32/categories.o GnuWin32/infouser.o GnuWin32/logger.o GnuWin32/appinfo.o GnuWin32/infostore.o GnuWin32/use_bool.o GnuWin32/terminate_message.o GnuWin32/warning_message.o GnuWin32/responder_switcher.o $(RES)
+LINKOBJ  = GnuWin32/strmlog.o GnuWin32/context.o GnuWin32/handler.o GnuWin32/levels.o GnuWin32/ifsuccess.o GnuWin32/parmlist.o GnuWin32/threads.o GnuWin32/info.o GnuWin32/timeinfo.o GnuWin32/filters.o GnuWin32/categories.o GnuWin32/infouser.o GnuWin32/logger.o GnuWin32/appinfo.o GnuWin32/infostore.o GnuWin32/use_bool.o GnuWin32/terminate_message.o GnuWin32/warning_message.o GnuWin32/responder_switcher.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib"  -s 
+INCS =  -I"C:/Dev-Cpp/include" 
+CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include" 
+BIN  = lib/libmodassert.a
+CXXFLAGS = $(CXXINCS) -ansi -pedantic -Wall -W -Wconversion -Wshadow -Wcast-qual -Wwrite-strings   -fexceptions -O3
+CFLAGS = $(INCS)   -fexceptions -O3
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before lib/libmodassert.a all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(LINKOBJ)
+	ar r $(BIN) $(LINKOBJ)
+	ranlib $(BIN)
+
+GnuWin32/strmlog.o: src/strmlog.cpp
+	$(CPP) -c src/strmlog.cpp -o GnuWin32/strmlog.o $(CXXFLAGS)
+
+GnuWin32/context.o: src/context.cpp
+	$(CPP) -c src/context.cpp -o GnuWin32/context.o $(CXXFLAGS)
+
+GnuWin32/handler.o: src/handler.cpp
+	$(CPP) -c src/handler.cpp -o GnuWin32/handler.o $(CXXFLAGS)
+
+GnuWin32/levels.o: src/levels.cpp
+	$(CPP) -c src/levels.cpp -o GnuWin32/levels.o $(CXXFLAGS)
+
+GnuWin32/ifsuccess.o: src/ifsuccess.cpp
+	$(CPP) -c src/ifsuccess.cpp -o GnuWin32/ifsuccess.o $(CXXFLAGS)
+
+GnuWin32/parmlist.o: src/parmlist.cpp
+	$(CPP) -c src/parmlist.cpp -o GnuWin32/parmlist.o $(CXXFLAGS)
+
+GnuWin32/threads.o: src/threads.cpp
+	$(CPP) -c src/threads.cpp -o GnuWin32/threads.o $(CXXFLAGS)
+
+GnuWin32/info.o: src/info.cpp
+	$(CPP) -c src/info.cpp -o GnuWin32/info.o $(CXXFLAGS)
+
+GnuWin32/timeinfo.o: src/timeinfo.cpp
+	$(CPP) -c src/timeinfo.cpp -o GnuWin32/timeinfo.o $(CXXFLAGS)
+
+GnuWin32/filters.o: src/filters.cpp
+	$(CPP) -c src/filters.cpp -o GnuWin32/filters.o $(CXXFLAGS)
+
+GnuWin32/categories.o: src/categories.cpp
+	$(CPP) -c src/categories.cpp -o GnuWin32/categories.o $(CXXFLAGS)
+
+GnuWin32/infouser.o: src/infouser.cpp
+	$(CPP) -c src/infouser.cpp -o GnuWin32/infouser.o $(CXXFLAGS)
+
+GnuWin32/logger.o: src/logger.cpp
+	$(CPP) -c src/logger.cpp -o GnuWin32/logger.o $(CXXFLAGS)
+
+GnuWin32/appinfo.o: src/appinfo.cpp
+	$(CPP) -c src/appinfo.cpp -o GnuWin32/appinfo.o $(CXXFLAGS)
+
+GnuWin32/infostore.o: src/infostore.cpp
+	$(CPP) -c src/infostore.cpp -o GnuWin32/infostore.o $(CXXFLAGS)
+
+GnuWin32/use_bool.o: src/use_bool.cpp
+	$(CPP) -c src/use_bool.cpp -o GnuWin32/use_bool.o $(CXXFLAGS)
+
+GnuWin32/terminate_message.o: src/terminate_message.cpp
+	$(CPP) -c src/terminate_message.cpp -o GnuWin32/terminate_message.o $(CXXFLAGS)
+
+GnuWin32/warning_message.o: src/warning_message.cpp
+	$(CPP) -c src/warning_message.cpp -o GnuWin32/warning_message.o $(CXXFLAGS)
+
+GnuWin32/responder_switcher.o: src/responder_switcher.cpp
+	$(CPP) -c src/responder_switcher.cpp -o GnuWin32/responder_switcher.o $(CXXFLAGS)

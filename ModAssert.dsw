@@ -1,0 +1,233 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "DemoConsole"=".\demos\Console\DemoConsole.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ModAssert
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ModAssertConsole
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "DemoLibInDLL"=".\demos\LibInDLL\DemoLibInDLL.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ModAssert
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "DemoLibInDLL_AssertionInExe"=".\demos\LibInDLL\DemoLibInDLL_AssertionInExe.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ModAssert
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DemoLibInDLL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "DemoLibInExe"=".\demos\LibInExe\DemoLibInExe.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name DemoLibInExe_AssertionInDLL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ModAssert
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "DemoLibInExe_AssertionInDLL"=".\demos\LibInExe\DemoLibInExe_AssertionInDll.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ModAssert
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "DemoMFC"=".\demos\MFC\DemoMFC.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ModAssert
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ModAssertWin32
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "DemoWin32"=".\demos\Win32\DemoWin32.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ModAssert
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ModAssertWin32
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "DemoWx"=".\demos\WxWidgets\DemoWx.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ModAssert
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ModAssertWxGui
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ModAssert"=".\ModAssert.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ModAssertConsole"=".\Console\ModAssertConsole.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ModAssertWin32"=".\Win32\ModAssertWin32.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ModAssertWxGui"=".\wxgui\ModAssertWxGui.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "Test Main"=".\test\main\TestMain.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ModAssert
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ModAssertConsole
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "TestNoModAssert"=".\test\NoModAssert\NoModAssert.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

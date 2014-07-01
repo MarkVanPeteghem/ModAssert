@@ -1,0 +1,6 @@
+This package is a library for showing and logging assertions
+from ModAssert in Win32 applications. It also works with MFC
+applications.
+
+To use it, you need to link the Rich Booleans library, the
+ModAssert library and this library to your application.

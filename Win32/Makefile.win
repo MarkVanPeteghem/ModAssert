@@ -1,0 +1,76 @@
+# Project: ModAssertWin32
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = 
+OBJ  = src/Win32Displayer.o src/Win32Dlg.o src/Win32ThreadId.o src/Win32Handler.o src/Win32LastError.o src/Win32Trace.o src/Win32ProcessId.o src/Win32Processor.o src/Win32OSVersion.o src/Win32CurrentDirectory.o src/Win32DiskSpace.o src/Win32MemoryStatus.o src/Win32UserName.o src/Win32ComputerName.o src/Win32TerminateMessage.o src/Win32WarningMessage.o $(RES)
+LINKOBJ  = src/Win32Displayer.o src/Win32Dlg.o src/Win32ThreadId.o src/Win32Handler.o src/Win32LastError.o src/Win32Trace.o src/Win32ProcessId.o src/Win32Processor.o src/Win32OSVersion.o src/Win32CurrentDirectory.o src/Win32DiskSpace.o src/Win32MemoryStatus.o src/Win32UserName.o src/Win32ComputerName.o src/Win32TerminateMessage.o src/Win32WarningMessage.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib"   -s 
+INCS =  -I"C:/Dev-Cpp/include" 
+CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include" 
+BIN  = ../lib/libmodassertWin32.a
+CXXFLAGS = $(CXXINCS) -ansi -pedantic -Wall -W -Wconversion -Wshadow -Wcast-qual -Wwrite-strings   -fexceptions -fexpensive-optimizations
+CFLAGS = $(INCS)   -fexceptions -fexpensive-optimizations
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before ../lib/libmodassertWin32.a all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(LINKOBJ)
+	ar r $(BIN) $(LINKOBJ)
+	ranlib $(BIN)
+
+src/Win32Displayer.o: src/Win32Displayer.cpp
+	$(CPP) -c src/Win32Displayer.cpp -o src/Win32Displayer.o $(CXXFLAGS)
+
+src/Win32Dlg.o: src/Win32Dlg.cpp
+	$(CPP) -c src/Win32Dlg.cpp -o src/Win32Dlg.o $(CXXFLAGS)
+
+src/Win32ThreadId.o: src/Win32ThreadId.cpp
+	$(CPP) -c src/Win32ThreadId.cpp -o src/Win32ThreadId.o $(CXXFLAGS)
+
+src/Win32Handler.o: src/Win32Handler.cpp
+	$(CPP) -c src/Win32Handler.cpp -o src/Win32Handler.o $(CXXFLAGS)
+
+src/Win32LastError.o: src/Win32LastError.cpp
+	$(CPP) -c src/Win32LastError.cpp -o src/Win32LastError.o $(CXXFLAGS)
+
+src/Win32Trace.o: src/Win32Trace.cpp
+	$(CPP) -c src/Win32Trace.cpp -o src/Win32Trace.o $(CXXFLAGS)
+
+src/Win32ProcessId.o: src/Win32ProcessId.cpp
+	$(CPP) -c src/Win32ProcessId.cpp -o src/Win32ProcessId.o $(CXXFLAGS)
+
+src/Win32Processor.o: src/Win32Processor.cpp
+	$(CPP) -c src/Win32Processor.cpp -o src/Win32Processor.o $(CXXFLAGS)
+
+src/Win32OSVersion.o: src/Win32OSVersion.cpp
+	$(CPP) -c src/Win32OSVersion.cpp -o src/Win32OSVersion.o $(CXXFLAGS)
+
+src/Win32CurrentDirectory.o: src/Win32CurrentDirectory.cpp
+	$(CPP) -c src/Win32CurrentDirectory.cpp -o src/Win32CurrentDirectory.o $(CXXFLAGS)
+
+src/Win32DiskSpace.o: src/Win32DiskSpace.cpp
+	$(CPP) -c src/Win32DiskSpace.cpp -o src/Win32DiskSpace.o $(CXXFLAGS)
+
+src/Win32MemoryStatus.o: src/Win32MemoryStatus.cpp
+	$(CPP) -c src/Win32MemoryStatus.cpp -o src/Win32MemoryStatus.o $(CXXFLAGS)
+
+src/Win32UserName.o: src/Win32UserName.cpp
+	$(CPP) -c src/Win32UserName.cpp -o src/Win32UserName.o $(CXXFLAGS)
+
+src/Win32ComputerName.o: src/Win32ComputerName.cpp
+	$(CPP) -c src/Win32ComputerName.cpp -o src/Win32ComputerName.o $(CXXFLAGS)
+
+src/Win32TerminateMessage.o: src/Win32TerminateMessage.cpp
+	$(CPP) -c src/Win32TerminateMessage.cpp -o src/Win32TerminateMessage.o $(CXXFLAGS)
+
+src/Win32WarningMessage.o: src/Win32WarningMessage.cpp
+	$(CPP) -c src/Win32WarningMessage.cpp -o src/Win32WarningMessage.o $(CXXFLAGS)

@@ -1,0 +1,23 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Considerations related to macros</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.1"><link rel="start" href="index.html" title="Modular Assertions version 2.0.6"><link rel="up" href="index.html" title="Modular Assertions version 2.0.6"><link rel="prev" href="ar01s19.html" title="Thread safety"><link rel="next" href="ar01s21.html" title="Security"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Considerations related to macros</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s19.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s21.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id544024"></a>Considerations related to macros</h2></div></div></div><p>Some programmers avoid macros because of the problems that are associated
+with them. However, the macros in the ModAssert package are constructed
+with great care, to avoid these dangers.
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc">The arguments of the macros are evaluated at most once, except for the groups
+argument; however, using groups as an argument is very unlikely to have side effects.
+Note that <code class="code">MOD_ASSERT</code> and variations of it are removed entirely if reporting
+of assertions is disabled at compile time, so the arguments are not evaluated.
+Consider using <code class="code">MOD_VERIFY</code> or a variation of it if
+the condition has necessary side effects, and you can't easily move the side effect out of it.
+The condition of <code class="code">MOD_CHECK</code> is always evaluated.
+Rich Booleans also evaluate their arguments only once.
+Therefore constructions like <code class="code">MOD_VERIFY_GO(group1, ++c, "inc c", rbEQUAL(a++, b++))</code>
+are safe and do what you would expect,
+but of course <code class="code">++c</code> is only evaluated if the user of the application chooses to.
+Also note that the parameters and the text of the optional action are only evaluated
+if the assertion or check is reported, so you should not write code in these arguments
+that has side effects. Of course the optional action is only evaluated
+if the user wants this to happen. The level or group argument can be evaluated up
+to three times, but this is usually a constant expression with no side effects.</li><li style="list-style-type: disc">The arguments of the macros are separated by commas and parentheses from other expressions
+in the macros, so they can't interfere with these other expressions in the macros</li><li style="list-style-type: disc">The ModAssert macros are wrapped in <code class="code">if { ... } else 0</code> (a variation
+of <code class="code">do { ... } while (0)</code>), so they
+can be used safely in a if-else construct without surrounding bracelets</li></ul></div><p>
+</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s19.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ar01s21.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Thread safety </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Security</td></tr></table></div></body></html>

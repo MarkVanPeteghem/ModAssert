@@ -1,0 +1,36 @@
+# Project: DemoConsole
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe -D__DEBUG__
+CC   = gcc.exe -D__DEBUG__
+WINDRES = windres.exe
+RES  = 
+OBJ  = GNUWin32/main.o GNUWin32/otherfile.o GNUWin32/NoText.o $(RES)
+LINKOBJ  = GNUWin32/main.o GNUWin32/otherfile.o GNUWin32/NoText.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib" -lrichbool -lmodassertConsole -lmodassert  -g3 
+INCS =  -I"C:/Dev-Cpp/include"  -I"../../Console" 
+CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"../../Console" 
+BIN  = DemoConsole.exe
+CXXFLAGS = $(CXXINCS) -ansi -pedantic -Wconversion -Wshadow -Wcast-qual -Wwrite-strings -DWIN32   -fexceptions -g3
+CFLAGS = $(INCS)   -fexceptions -g3
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before DemoConsole.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "DemoConsole.exe" $(LIBS)
+
+GNUWin32/main.o: main.cpp
+	$(CPP) -c main.cpp -o GNUWin32/main.o $(CXXFLAGS)
+
+GNUWin32/otherfile.o: otherfile.cpp
+	$(CPP) -c otherfile.cpp -o GNUWin32/otherfile.o $(CXXFLAGS)
+
+GNUWin32/NoText.o: NoText.cpp
+	$(CPP) -c NoText.cpp -o GNUWin32/NoText.o $(CXXFLAGS)

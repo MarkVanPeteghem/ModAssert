@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+<!DOCTYPE chapter PUBLIC '-//OASIS//DTD DocBook XML V4.1.2//EN'
+                      'http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd'>
+-->
+
+<!DOCTYPE book [
+    <!ENTITY Version "2.0.6">
+    <!ENTITY Intro SYSTEM "intro.xml">
+    <!ENTITY Macros SYSTEM "macros.xml">
+    <!ENTITY Control SYSTEM "control.xml">
+    <!ENTITY Handling SYSTEM "handling.xml">
+    <!ENTITY Extra SYSTEM "extra.xml">
+]>
+
+<article>
+&Intro;
+&Macros;
+&Control;
+&Handling;
+&Extra;
+
+<index></index>
+
+</article>

@@ -1,0 +1,53 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Installation</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.1"><link rel="start" href="index.html" title="Modular Assertions version 2.0.6"><link rel="up" href="index.html" title="Modular Assertions version 2.0.6"><link rel="prev" href="ar01s04.html" title="Requirements"><link rel="next" href="ar01s06.html" title="Adding ModAssert to individual projects"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Installation</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s04.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s06.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id512764"></a>Installation</h2></div></div></div><a class="indexterm" name="id512769"></a><p>Make sure the Rich Booleans library is installed properly.</p><p>Download the file and decompress its contents to a directory.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id512783"></a>Build the library</h3></div></div></div>
+Below are instructions to build the ModAssert library in the configurations that you need.
+You certainly need to build the ModAssert library, and possibly also the ModAssertConsole,
+ModAssertWin32 and/or ModAssertWxGui libraries. The projects whose name contains 'demo'
+may be of interest to you to see how you can use the ModAssert library.
+The projects whose name contains 'test'
+are only provided for experienced users who wish to test ModAssert
+in different ways than was already done (although it is unlikely that this is necessary).
+<div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id512788"></a>Using the Visual Studio project files</h4></div></div></div><p>Please use the workspace, solution and project files that are specific to the version of your compiler
+(<code class="filename">*.dsw</code> and <code class="filename">*.dsp</code> for VC++ 6.0,
+<code class="filename">*7.1.sln</code> and <code class="filename">*7.1.vcproj</code> for VC++ 2003,
+<code class="filename">*8.0.sln</code> and <code class="filename">*8.0.vcproj</code> for VC++ 2005,
+<code class="filename">*9.0.sln</code> and <code class="filename">*9.0.vcproj</code> for VC++ 2008,
+<code class="filename">*10.0.sln</code> and <code class="filename">*10.0.vcproj</code> for VC++ 2010).
+Converting these files to another version may require adjustments.</p><p>Note that these project files are not tested with Visual Studio Express but
+you probably can just use the same project files.</p><p>The included Visual Studio project files have many configurations. The configurations that
+have ST in their name (Debug ST, Release ST) are for applications built with the Single-Threaded
+option, the ones that have MT in their name (Debug MT, ...) are for applications built with the Multithreaded
+option, and the ones that have MTD in their name (Debug MTD, Debug Wx MTD, ...) are for applications built with the Multithreaded DLL
+option.</p><p>The configurations that have Wx in their name (Debug Wx MTD, Release Wx MTD) are for use with wxWidgets;
+these have only been tested without Unicode support, and with the static library version.
+For wxWidgets, there are only configuations with MTD in their name, because the wxWidgets libraries
+are built with the Multithreaded DLL option by default.</p><p>The libraries are built in the directory <code class="filename">lib</code>.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id512851"></a>Using the GNU makefiles</h4></div></div></div><p>To use the GNU makefiles, enter the command <code class="code">./configure</code>, followed by <code class="code">make</code>.
+You can also build the wxWidgets version by entering the command
+<code class="code">./configure --with-wx</code> instead of <code class="code">./configure</code>,
+this defines the symbol <code class="code">RICHBOOL_USE_WX</code> during compilation.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id512879"></a>Using the Windows makefiles for Mingw gcc</h4></div></div></div><p>The makefiles <code class="filename">Makefile.win</code> in several directories can be used to build
+the ModAssert library and the tests, but you will probably have to adjust the directories
+for the include files and library files.
+They have only one configuration, the one that doesn't use wxWidgets.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id512892"></a>Using the Code::Blocks project files</h4></div></div></div><p>The files with the extension <code class="filename">cbp</code> and <code class="filename">workspace</code> in several directories are respectively Code::Blocks project files and workspaces.
+They have only one configuration, the one that doesn't use wxWidgets.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id512909"></a>Other compilers</h4></div></div></div><p>Create a library project (or makefile), add the <code class="filename">include</code> directory to
+the include path, and add all the .cpp files, except the ones that start with 'mfc'.</p></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id512923"></a>Adjusting your development environment to use ModAssert</h3></div></div></div><a class="indexterm" name="id512928"></a><p>To use ModAssert in your application or library,
+	you need to specify the include and library directory.
+	There are two options to do this: one option makes ModAssert available
+	to all your projects, the other option is to specify it only for the projects
+	in which you want to use ModAssert. The first option is preferred,
+	especially if you plan to use ModAssert in many projects. There is no
+	danger for confusion with include files from other libraries with the same name,
+	as long as you keep the include files in the <code class="filename">modassert</code> directory
+	and only add its parent directory to the include path.</p><p>This section describes how to make ModAssert available to
+	<span class="emphasis"><em>all</em></span> your projects.</p><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id512947"></a>Microsoft Visual C++</h4></div></div></div><p>Add the directory called
+	<code class="filename">include</code> in the ModAssert directory to the VC++ include directories
+    (Tools -&gt; Options -&gt; Projects and solutions -&gt; VC++ Directories,
+	and select Include files in the combo box on the right),
+    and add the directory called <code class="filename">lib</code> in the ModAssert directory to the VC++ include directories
+    (Tools -&gt; Options -&gt; Projects and solutions -&gt; VC++ Directories, and select Library files in the combo box on the right)</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id512964"></a>gcc</h4></div></div></div><p>Install the library in
+	<code class="filename">/usr/local/lib/</code> and the header files (the directory <code class="filename">modassert</code>,
+	not only the headerfiles in it) in
+	<code class="filename">/usr/local/include</code> (or in other directories that are respectively in LIBRARY_PATH
+	and CPLUS_INCLUDE_PATH). You can do this with the command <code class="code">make install</code>
+	(as a superuser), this builds the library and installs it in
+	<code class="filename">/usr/local/lib/</code> and puts
+	the header files in <code class="filename">/usr/local/include</code>.
+	An alternative is to add the directories to LIBRARY_PATH and CPLUS_INCLUDE_PATH.</p></div><div class="sect3" lang="en"><div class="titlepage"></div>For other compilers, consult the documentation of your compiler.</div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s04.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ar01s06.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Requirements </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Adding ModAssert to individual projects</td></tr></table></div></body></html>

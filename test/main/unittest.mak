@@ -1,0 +1,2 @@
+all-after: $(BIN)
+	./$(BIN)

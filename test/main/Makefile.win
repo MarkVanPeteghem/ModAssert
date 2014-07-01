@@ -1,0 +1,199 @@
+# Project: TestMain
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe -D__DEBUG__
+CC   = gcc.exe -D__DEBUG__
+WINDRES = windres.exe
+RES  = 
+OBJ  = GNUWin32/TestAssert.o GNUWin32/TestAssertLogger.o GNUWin32/TestIgnore.o GNUWin32/TestOptionalAction.o GNUWin32/TestSideEffects.o GNUWin32/TestExpressions.o GNUWin32/TestContext.o GNUWin32/TestLevelToString.o GNUWin32/TestStreamLogger.o GNUWin32/TestCheck.o GNUWin32/TestAssertInIf.o GNUWin32/ModAssertTest.o GNUWin32/main.o GNUWin32/TestCombinedTypes.o GNUWin32/TestGroups.o GNUWin32/TestEnabled.o GNUWin32/TestDisabled.o GNUWin32/TestIfSuccess.o GNUWin32/TestGetLevel.o GNUWin32/TestHook.o GNUWin32/TestFilters.o GNUWin32/TestAssertLevel3.o GNUWin32/TestAssertOffCheckOff.o GNUWin32/TestAssertOffCheckOn.o GNUWin32/TestAssertOnCheckOff.o GNUWin32/TestAssertOnCheckOn.o GNUWin32/TestCheckLevel1.o GNUWin32/TestCheckLevel3.o GNUWin32/TestAssertLevel1.o GNUWin32/TestOutput.o GNUWin32/TestDefaultGroup.o GNUWin32/TestLoggerInfo.o GNUWin32/TestAllowResponses.o GNUWin32/TestThreadSafety.o GNUWin32/TestAssert2DefaultParams.o GNUWin32/TestAssertDontReportFile.o GNUWin32/TestAssertReportFile.o GNUWin32/TestCheck1DefaultParam.o GNUWin32/TestCheck2DefaultParams.o GNUWin32/TestCheckDontReportFile.o GNUWin32/TestCheckReportFile.o GNUWin32/TestSetOptionalAction.o GNUWin32/TestAssert1DefaultParam.o GNUWin32/TestNoText.o GNUWin32/TestLoggerId.o GNUWin32/TestSetOptionalLogger.o GNUWin32/TestDefaultOptionalAction.o GNUWin32/TestParamListWithCommas.o GNUWin32/TestVerifyV.o GNUWin32/TestWxAssert.o GNUWin32/TestAssertD.o GNUWin32/TestResponderSwitcher.o GNUWin32/TestUseBool.o GNUWin32/TestVersion.o GNUWin32/TestAssertLevel3Check.o GNUWin32/TestCheckLevel3Assert.o GNUWin32/TestStreamLogger_NoText.o $(RES)
+LINKOBJ  = GNUWin32/TestAssert.o GNUWin32/TestAssertLogger.o GNUWin32/TestIgnore.o GNUWin32/TestOptionalAction.o GNUWin32/TestSideEffects.o GNUWin32/TestExpressions.o GNUWin32/TestContext.o GNUWin32/TestLevelToString.o GNUWin32/TestStreamLogger.o GNUWin32/TestCheck.o GNUWin32/TestAssertInIf.o GNUWin32/ModAssertTest.o GNUWin32/main.o GNUWin32/TestCombinedTypes.o GNUWin32/TestGroups.o GNUWin32/TestEnabled.o GNUWin32/TestDisabled.o GNUWin32/TestIfSuccess.o GNUWin32/TestGetLevel.o GNUWin32/TestHook.o GNUWin32/TestFilters.o GNUWin32/TestAssertLevel3.o GNUWin32/TestAssertOffCheckOff.o GNUWin32/TestAssertOffCheckOn.o GNUWin32/TestAssertOnCheckOff.o GNUWin32/TestAssertOnCheckOn.o GNUWin32/TestCheckLevel1.o GNUWin32/TestCheckLevel3.o GNUWin32/TestAssertLevel1.o GNUWin32/TestOutput.o GNUWin32/TestDefaultGroup.o GNUWin32/TestLoggerInfo.o GNUWin32/TestAllowResponses.o GNUWin32/TestThreadSafety.o GNUWin32/TestAssert2DefaultParams.o GNUWin32/TestAssertDontReportFile.o GNUWin32/TestAssertReportFile.o GNUWin32/TestCheck1DefaultParam.o GNUWin32/TestCheck2DefaultParams.o GNUWin32/TestCheckDontReportFile.o GNUWin32/TestCheckReportFile.o GNUWin32/TestSetOptionalAction.o GNUWin32/TestAssert1DefaultParam.o GNUWin32/TestNoText.o GNUWin32/TestLoggerId.o GNUWin32/TestSetOptionalLogger.o GNUWin32/TestDefaultOptionalAction.o GNUWin32/TestParamListWithCommas.o GNUWin32/TestVerifyV.o GNUWin32/TestWxAssert.o GNUWin32/TestAssertD.o GNUWin32/TestResponderSwitcher.o GNUWin32/TestUseBool.o GNUWin32/TestVersion.o GNUWin32/TestAssertLevel3Check.o GNUWin32/TestCheckLevel3Assert.o GNUWin32/TestStreamLogger_NoText.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib" -lrichbool -lmodassert -lmodassertConsole  -g3 
+INCS =  -I"C:/Dev-Cpp/include"  -I"../Common" 
+CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"../Common" 
+BIN  = TestMain.exe
+CXXFLAGS = $(CXXINCS) -ansi -pedantic -Wconversion -Wshadow -Wcast-qual -Wwrite-strings   -fexceptions -g3
+CFLAGS = $(INCS)    -fexceptions -g3
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before TestMain.exe all-after
+
+include unittest.mak
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "TestMain.exe" $(LIBS)
+
+GNUWin32/TestAssert.o: TestAssert.cpp
+	$(CPP) -c TestAssert.cpp -o GNUWin32/TestAssert.o $(CXXFLAGS)
+
+GNUWin32/TestAssertLogger.o: TestAssertLogger.cpp
+	$(CPP) -c TestAssertLogger.cpp -o GNUWin32/TestAssertLogger.o $(CXXFLAGS)
+
+GNUWin32/TestIgnore.o: TestIgnore.cpp
+	$(CPP) -c TestIgnore.cpp -o GNUWin32/TestIgnore.o $(CXXFLAGS)
+
+GNUWin32/TestOptionalAction.o: TestOptionalAction.cpp
+	$(CPP) -c TestOptionalAction.cpp -o GNUWin32/TestOptionalAction.o $(CXXFLAGS)
+
+GNUWin32/TestSideEffects.o: TestSideEffects.cpp
+	$(CPP) -c TestSideEffects.cpp -o GNUWin32/TestSideEffects.o $(CXXFLAGS)
+
+GNUWin32/TestExpressions.o: TestExpressions.cpp
+	$(CPP) -c TestExpressions.cpp -o GNUWin32/TestExpressions.o $(CXXFLAGS)
+
+GNUWin32/TestContext.o: TestContext.cpp
+	$(CPP) -c TestContext.cpp -o GNUWin32/TestContext.o $(CXXFLAGS)
+
+GNUWin32/TestLevelToString.o: TestLevelToString.cpp
+	$(CPP) -c TestLevelToString.cpp -o GNUWin32/TestLevelToString.o $(CXXFLAGS)
+
+GNUWin32/TestStreamLogger.o: TestStreamLogger.cpp
+	$(CPP) -c TestStreamLogger.cpp -o GNUWin32/TestStreamLogger.o $(CXXFLAGS)
+
+GNUWin32/TestCheck.o: TestCheck.cpp
+	$(CPP) -c TestCheck.cpp -o GNUWin32/TestCheck.o $(CXXFLAGS)
+
+GNUWin32/TestAssertInIf.o: TestAssertInIf.cpp
+	$(CPP) -c TestAssertInIf.cpp -o GNUWin32/TestAssertInIf.o $(CXXFLAGS)
+
+GNUWin32/ModAssertTest.o: ../Common/ModAssertTest.cpp
+	$(CPP) -c ../Common/ModAssertTest.cpp -o GNUWin32/ModAssertTest.o $(CXXFLAGS)
+
+GNUWin32/main.o: ../Common/main.cpp
+	$(CPP) -c ../Common/main.cpp -o GNUWin32/main.o $(CXXFLAGS)
+
+GNUWin32/TestCombinedTypes.o: TestCombinedTypes.cpp
+	$(CPP) -c TestCombinedTypes.cpp -o GNUWin32/TestCombinedTypes.o $(CXXFLAGS)
+
+GNUWin32/TestGroups.o: TestGroups.cpp
+	$(CPP) -c TestGroups.cpp -o GNUWin32/TestGroups.o $(CXXFLAGS)
+
+GNUWin32/TestEnabled.o: TestEnabled.cpp
+	$(CPP) -c TestEnabled.cpp -o GNUWin32/TestEnabled.o $(CXXFLAGS)
+
+GNUWin32/TestDisabled.o: TestDisabled.cpp
+	$(CPP) -c TestDisabled.cpp -o GNUWin32/TestDisabled.o $(CXXFLAGS)
+
+GNUWin32/TestIfSuccess.o: TestIfSuccess.cpp
+	$(CPP) -c TestIfSuccess.cpp -o GNUWin32/TestIfSuccess.o $(CXXFLAGS)
+
+GNUWin32/TestGetLevel.o: TestGetLevel.cpp
+	$(CPP) -c TestGetLevel.cpp -o GNUWin32/TestGetLevel.o $(CXXFLAGS)
+
+GNUWin32/TestHook.o: TestHook.cpp
+	$(CPP) -c TestHook.cpp -o GNUWin32/TestHook.o $(CXXFLAGS)
+
+GNUWin32/TestFilters.o: TestFilters.cpp
+	$(CPP) -c TestFilters.cpp -o GNUWin32/TestFilters.o $(CXXFLAGS)
+
+GNUWin32/TestAssertLevel3.o: TestAssertLevel3.cpp
+	$(CPP) -c TestAssertLevel3.cpp -o GNUWin32/TestAssertLevel3.o $(CXXFLAGS)
+
+GNUWin32/TestAssertOffCheckOff.o: TestAssertOffCheckOff.cpp
+	$(CPP) -c TestAssertOffCheckOff.cpp -o GNUWin32/TestAssertOffCheckOff.o $(CXXFLAGS)
+
+GNUWin32/TestAssertOffCheckOn.o: TestAssertOffCheckOn.cpp
+	$(CPP) -c TestAssertOffCheckOn.cpp -o GNUWin32/TestAssertOffCheckOn.o $(CXXFLAGS)
+
+GNUWin32/TestAssertOnCheckOff.o: TestAssertOnCheckOff.cpp
+	$(CPP) -c TestAssertOnCheckOff.cpp -o GNUWin32/TestAssertOnCheckOff.o $(CXXFLAGS)
+
+GNUWin32/TestAssertOnCheckOn.o: TestAssertOnCheckOn.cpp
+	$(CPP) -c TestAssertOnCheckOn.cpp -o GNUWin32/TestAssertOnCheckOn.o $(CXXFLAGS)
+
+GNUWin32/TestCheckLevel1.o: TestCheckLevel1.cpp
+	$(CPP) -c TestCheckLevel1.cpp -o GNUWin32/TestCheckLevel1.o $(CXXFLAGS)
+
+GNUWin32/TestCheckLevel3.o: TestCheckLevel3.cpp
+	$(CPP) -c TestCheckLevel3.cpp -o GNUWin32/TestCheckLevel3.o $(CXXFLAGS)
+
+GNUWin32/TestAssertLevel1.o: TestAssertLevel1.cpp
+	$(CPP) -c TestAssertLevel1.cpp -o GNUWin32/TestAssertLevel1.o $(CXXFLAGS)
+
+GNUWin32/TestOutput.o: TestOutput.cpp
+	$(CPP) -c TestOutput.cpp -o GNUWin32/TestOutput.o $(CXXFLAGS)
+
+GNUWin32/TestDefaultGroup.o: TestDefaultGroup.cpp
+	$(CPP) -c TestDefaultGroup.cpp -o GNUWin32/TestDefaultGroup.o $(CXXFLAGS)
+
+GNUWin32/TestLoggerInfo.o: TestLoggerInfo.cpp
+	$(CPP) -c TestLoggerInfo.cpp -o GNUWin32/TestLoggerInfo.o $(CXXFLAGS)
+
+GNUWin32/TestAllowResponses.o: TestAllowResponses.cpp
+	$(CPP) -c TestAllowResponses.cpp -o GNUWin32/TestAllowResponses.o $(CXXFLAGS)
+
+GNUWin32/TestThreadSafety.o: TestThreadSafety.cpp
+	$(CPP) -c TestThreadSafety.cpp -o GNUWin32/TestThreadSafety.o $(CXXFLAGS)
+
+GNUWin32/TestAssert2DefaultParams.o: TestAssert2DefaultParams.cpp
+	$(CPP) -c TestAssert2DefaultParams.cpp -o GNUWin32/TestAssert2DefaultParams.o $(CXXFLAGS)
+
+GNUWin32/TestAssertDontReportFile.o: TestAssertDontReportFile.cpp
+	$(CPP) -c TestAssertDontReportFile.cpp -o GNUWin32/TestAssertDontReportFile.o $(CXXFLAGS)
+
+GNUWin32/TestAssertReportFile.o: TestAssertReportFile.cpp
+	$(CPP) -c TestAssertReportFile.cpp -o GNUWin32/TestAssertReportFile.o $(CXXFLAGS)
+
+GNUWin32/TestCheck1DefaultParam.o: TestCheck1DefaultParam.cpp
+	$(CPP) -c TestCheck1DefaultParam.cpp -o GNUWin32/TestCheck1DefaultParam.o $(CXXFLAGS)
+
+GNUWin32/TestCheck2DefaultParams.o: TestCheck2DefaultParams.cpp
+	$(CPP) -c TestCheck2DefaultParams.cpp -o GNUWin32/TestCheck2DefaultParams.o $(CXXFLAGS)
+
+GNUWin32/TestCheckDontReportFile.o: TestCheckDontReportFile.cpp
+	$(CPP) -c TestCheckDontReportFile.cpp -o GNUWin32/TestCheckDontReportFile.o $(CXXFLAGS)
+
+GNUWin32/TestCheckReportFile.o: TestCheckReportFile.cpp
+	$(CPP) -c TestCheckReportFile.cpp -o GNUWin32/TestCheckReportFile.o $(CXXFLAGS)
+
+GNUWin32/TestSetOptionalAction.o: TestSetOptionalAction.cpp
+	$(CPP) -c TestSetOptionalAction.cpp -o GNUWin32/TestSetOptionalAction.o $(CXXFLAGS)
+
+GNUWin32/TestAssert1DefaultParam.o: TestAssert1DefaultParam.cpp
+	$(CPP) -c TestAssert1DefaultParam.cpp -o GNUWin32/TestAssert1DefaultParam.o $(CXXFLAGS)
+
+GNUWin32/TestNoText.o: TestNoText.cpp
+	$(CPP) -c TestNoText.cpp -o GNUWin32/TestNoText.o $(CXXFLAGS)
+
+GNUWin32/TestLoggerId.o: TestLoggerId.cpp
+	$(CPP) -c TestLoggerId.cpp -o GNUWin32/TestLoggerId.o $(CXXFLAGS)
+
+GNUWin32/TestSetOptionalLogger.o: TestSetOptionalLogger.cpp
+	$(CPP) -c TestSetOptionalLogger.cpp -o GNUWin32/TestSetOptionalLogger.o $(CXXFLAGS)
+
+GNUWin32/TestDefaultOptionalAction.o: TestDefaultOptionalAction.cpp
+	$(CPP) -c TestDefaultOptionalAction.cpp -o GNUWin32/TestDefaultOptionalAction.o $(CXXFLAGS)
+
+GNUWin32/TestParamListWithCommas.o: TestParamListWithCommas.cpp
+	$(CPP) -c TestParamListWithCommas.cpp -o GNUWin32/TestParamListWithCommas.o $(CXXFLAGS)
+
+GNUWin32/TestVerifyV.o: TestVerifyV.cpp
+	$(CPP) -c TestVerifyV.cpp -o GNUWin32/TestVerifyV.o $(CXXFLAGS)
+
+GNUWin32/TestWxAssert.o: TestWxAssert.cpp
+	$(CPP) -c TestWxAssert.cpp -o GNUWin32/TestWxAssert.o $(CXXFLAGS)
+
+GNUWin32/TestAssertD.o: TestAssertD.cpp
+	$(CPP) -c TestAssertD.cpp -o GNUWin32/TestAssertD.o $(CXXFLAGS)
+
+GNUWin32/TestResponderSwitcher.o: TestResponderSwitcher.cpp
+	$(CPP) -c TestResponderSwitcher.cpp -o GNUWin32/TestResponderSwitcher.o $(CXXFLAGS)
+
+GNUWin32/TestUseBool.o: TestUseBool.cpp
+	$(CPP) -c TestUseBool.cpp -o GNUWin32/TestUseBool.o $(CXXFLAGS)
+
+GNUWin32/TestVersion.o: TestVersion.cpp
+	$(CPP) -c TestVersion.cpp -o GNUWin32/TestVersion.o $(CXXFLAGS)
+
+GNUWin32/TestAssertLevel3Check.o: TestAssertLevel3Check.cpp
+	$(CPP) -c TestAssertLevel3Check.cpp -o GNUWin32/TestAssertLevel3Check.o $(CXXFLAGS)
+
+GNUWin32/TestCheckLevel3Assert.o: TestCheckLevel3Assert.cpp
+	$(CPP) -c TestCheckLevel3Assert.cpp -o GNUWin32/TestCheckLevel3Assert.o $(CXXFLAGS)
+
+GNUWin32/TestStreamLogger_NoText.o: TestStreamLogger_NoText.cpp
+	$(CPP) -c TestStreamLogger_NoText.cpp -o GNUWin32/TestStreamLogger_NoText.o $(CXXFLAGS)

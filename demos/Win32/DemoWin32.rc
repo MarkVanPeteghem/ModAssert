@@ -1,0 +1,219 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "windows.h"
+
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Dutch (Belgium) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NLB)
+#ifdef _WIN32
+LANGUAGE LANG_DUTCH, SUBLANG_DUTCH_BELGIAN
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MOD_ASSERTDEMOWIN32_DIALOG DIALOGEX 0, 0, 563, 214
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "DemoWin32"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "End",IDOK,506,7,50,14
+    GROUPBOX        "Succeeding assertions",-1,7,7,90,175
+    PUSHBUTTON      "Equal int",IDC_EQUAL_INT,16,20,71,18
+    PUSHBUTTON      "Equal string",IDC_EQUAL_STRING,16,66,71,18
+    PUSHBUTTON      "Equal string with \\",IDC_EQUAL_STRING_WITH_ESCAPE,16,89,71,18
+    PUSHBUTTON      "Equal vectors",IDC_EQUAL_VECTOR,16,112,71,18
+    PUSHBUTTON      "Equal vector and list",IDC_EQUAL_VECTOR_AND_LIST,16,135,71,18
+    PUSHBUTTON      "Equal int with data",IDC_EQUAL_INT_WITH_DATA,16,43,71,18
+    GROUPBOX        "Demonstration of different Rich Booleans",-1,103,7,173,175
+    PUSHBUTTON      "Diff int",IDC_DIFF_INT,113,20,71,18
+    PUSHBUTTON      "Diff string",IDC_DIFF_STRING,113,66,71,18
+    PUSHBUTTON      "Diff string with \\",IDC_DIFF_STRING_WITH_ESCAPE,113,89,71,18
+    PUSHBUTTON      "Diff vectors",IDC_DIFF_VECTOR,113,112,71,18
+    PUSHBUTTON      "Diff vector and list",IDC_DIFF_VECTOR_AND_LIST,113,135,71,18
+    PUSHBUTTON      "Diff int with data",IDC_DIFF_INT_WITH_DATA,113,43,71,18
+    PUSHBUTTON      "Diff vector<vector>",IDC_DIFF_VECTOR_VECTOR,113,158,71,18
+    PUSHBUTTON      "Fail Pred1",IDC_DIFF_FAIL_PRED_1,195,43,71,18
+    PUSHBUTTON      "Fail Pred2",IDC_DIFF_FAIL_PRED_2,195,65,71,18
+    PUSHBUTTON      "Fail Pred3",IDC_DIFF_FAIL_PRED_3,195,89,71,18
+    PUSHBUTTON      "Fail Less on vector",IDC_DIFF_FAIL_LESS_VECTOR,195,20,71,18
+    PUSHBUTTON      "And",IDC_AND,195,112,71,18
+    GROUPBOX        "Features of ModAssert",-1,285,7,214,198
+    PUSHBUTTON      "Fail with group",IDC_FAIL_WITH_GROUP,296,20,93,18
+    PUSHBUTTON      "Fail with 2 groups",IDC_FAIL_WITH_TWO_GROUPS,398,20,93,18
+    PUSHBUTTON      "Fail Level Warning",IDC_FAIL_WITH_LEVEL_WARNING,295,43,93,18
+    PUSHBUTTON      "Fail Level Fatal",IDC_FAIL_LEVEL_FATAL,398,43,93,18
+    PUSHBUTTON      "Fail 1 Group % Warning",IDC_FAIL_WITH_ONE_GROUP_AND_LEVEL_WARNING,295,65,93,18
+    PUSHBUTTON      "Fail 2 Groups % Warning",IDC_FAIL_TWO_GROUPS_AND_LEVEL_WARNING,398,65,93,18
+    PUSHBUTTON      "Fail with optional",IDC_FAIL_WITH_OPTIONAL,296,89,93,18
+    PUSHBUTTON      "Check and throw",IDC_CHECK_AND_THROW,398,89,93,18
+    PUSHBUTTON      "Success",IDC_SUCCESS,296,112,93,18
+    PUSHBUTTON      "GetLastError",IDC_GETLASTERROR,398,112,93,18
+    PUSHBUTTON      "Report All",IDC_REPORT_ALL,296,135,93,18
+    PUSHBUTTON      "Fail in other file",IDC_FAIL_IN_OTHER_FILE,398,135,93,18
+    PUSHBUTTON      "Fail in other thread",IDC_FAIL_IN_OTHER_THREAD,296,158,93,18
+    PUSHBUTTON      "MOD_VERIFY_V",IDC_VERIFY_V,398,158,93,18
+    PUSHBUTTON      "No text",IDC_NO_TEXT,296,181,93,18
+    DEFPUSHBUTTON   "End",IDOK2,506,7,50,14
+    GROUPBOX        "Succeeding assertions",-1,7,7,90,175
+    PUSHBUTTON      "Equal int",IDC_EQUAL_INT2,16,20,71,18
+    PUSHBUTTON      "Equal string",IDC_EQUAL_STRING2,16,66,71,18
+    PUSHBUTTON      "Equal string with \\",IDC_EQUAL_STRING_WITH_ESCAPE2,16,89,71,18
+    PUSHBUTTON      "Equal vectors",IDC_EQUAL_VECTOR2,16,112,71,18
+    PUSHBUTTON      "Equal vector and list",IDC_EQUAL_VECTOR_AND_LIST2,16,135,71,18
+    PUSHBUTTON      "Equal int with data",IDC_EQUAL_INT_WITH_DATA2,16,43,71,18
+    GROUPBOX        "Demonstration of different Rich Booleans",-1,103,7,173,175
+    PUSHBUTTON      "Diff int",IDC_DIFF_INT2,113,20,71,18
+    PUSHBUTTON      "Diff string",IDC_DIFF_STRING2,113,66,71,18
+    PUSHBUTTON      "Diff string with \\",IDC_DIFF_STRING_WITH_ESCAPE2,113,89,71,18
+    PUSHBUTTON      "Diff vectors",IDC_DIFF_VECTOR2,113,112,71,18
+    PUSHBUTTON      "Diff vector and list",IDC_DIFF_VECTOR_AND_LIST2,113,135,71,18
+    PUSHBUTTON      "Diff int with data",IDC_DIFF_INT_WITH_DATA2,113,43,71,18
+    PUSHBUTTON      "Diff vector<vector>",IDC_DIFF_VECTOR_VECTOR2,113,158,71,18
+    PUSHBUTTON      "Fail Pred1",IDC_DIFF_FAIL_PRED_4,195,43,71,18
+    PUSHBUTTON      "Fail Pred2",IDC_DIFF_FAIL_PRED_5,195,65,71,18
+    PUSHBUTTON      "Fail Pred3",IDC_DIFF_FAIL_PRED_6,195,89,71,18
+    PUSHBUTTON      "Fail Less on vector",IDC_DIFF_FAIL_LESS_VECTOR2,195,20,71,18
+    PUSHBUTTON      "And",IDC_AND2,195,112,71,18
+    GROUPBOX        "Features of ModAssert",-1,285,7,214,198
+    PUSHBUTTON      "Fail with group",IDC_FAIL_WITH_GROUP2,296,20,93,18
+    PUSHBUTTON      "Fail with 2 groups",IDC_FAIL_WITH_TWO_GROUPS2,398,20,93,18
+    PUSHBUTTON      "Fail Level Warning",IDC_FAIL_WITH_LEVEL_WARNING2,295,43,93,18
+    PUSHBUTTON      "Fail Level Fatal",IDC_FAIL_LEVEL_FATAL2,398,43,93,18
+    PUSHBUTTON      "Fail 1 Group % Warning",IDC_FAIL_WITH_ONE_GROUP_AND_LEVEL_WARNING2,295,65,93,18
+    PUSHBUTTON      "Fail 2 Groups % Warning",IDC_FAIL_TWO_GROUPS_AND_LEVEL_WARNING2,398,65,93,18
+    PUSHBUTTON      "Fail with optional",IDC_FAIL_WITH_OPTIONAL2,296,89,93,18
+    PUSHBUTTON      "Check and throw",IDC_CHECK_AND_THROW2,398,89,93,18
+    PUSHBUTTON      "Success",IDC_SUCCESS2,296,112,93,18
+    PUSHBUTTON      "GetLastError",IDC_GETLASTERROR2,398,112,93,18
+    PUSHBUTTON      "Report All",IDC_REPORT_ALL2,296,135,93,18
+    PUSHBUTTON      "Fail in other file",IDC_FAIL_IN_OTHER_FILE2,398,135,93,18
+    PUSHBUTTON      "Fail in other thread",IDC_FAIL_IN_OTHER_THREAD2,296,158,93,18
+    PUSHBUTTON      "MOD_VERIFY_V",IDC_VERIFY_V2,398,158,93,18
+    PUSHBUTTON      "No text",IDC_NO_TEXT2,296,181,93,18
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "DemoMFC MFC Application"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "DemoMFC"
+            VALUE "LegalCopyright", "Copyright (C) 2005"
+            VALUE "OriginalFilename", "DemoMFC.EXE"
+            VALUE "ProductName", "DemoMFC Application"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_MOD_ASSERTDEMOWIN32_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 556
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 205
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""windows.h""\r\n"
+    "\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#include ""res\\DemoWin32.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""modassert/modassert.rc""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\DemoWin32.ico"
+#endif    // Dutch (Belgium) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "res\DemoWin32.rc2"  // non-Microsoft Visual C++ edited resources
+#include "modassert/modassert.rc"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

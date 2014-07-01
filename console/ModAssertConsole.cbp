@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="ModAssertConsole" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="GCC-Mingw">
+				<Option output="..\lib\libmodassertConsole-mingw.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="Mingw" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option projectResourceIncludeDirsRelation="2" />
+			</Target>
+			<Target title="GCC-Cygwin">
+				<Option output="..\lib\libmodassertConsole-cygwin.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="Cygwin" />
+				<Option type="2" />
+				<Option compiler="cygwin" />
+				<Option createDefFile="1" />
+				<Option projectResourceIncludeDirsRelation="2" />
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="GCC-Mingw;GCC-Cygwin;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-ansi -pedantic -Wall -W -Wconversion -Wshadow -Wcast-qual -Wwrite-strings" />
+			<Add directory="%RICHBOOL%\include" />
+			<Add directory="..\include" />
+		</Compiler>
+		<Unit filename="src\consoledisplayer.cpp" />
+		<Unit filename="src\consolehandler.cpp" />
+		<Unit filename="src\consoleterminate.cpp" />
+		<Unit filename="src\consolewarning.cpp" />
+		<Unit filename="..\include\modassert\consoledisplayer.hpp" />
+		<Unit filename="..\include\modassert\consolehandler.hpp" />
+		<Unit filename="..\include\modassert\consoleterminate.hpp" />
+		<Unit filename="..\include\modassert\consolewarning.hpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

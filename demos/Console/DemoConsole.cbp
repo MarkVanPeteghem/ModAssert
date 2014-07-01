@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="DemoConsole" />
+		<Option pch_mode="0" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="GCC-Mingw">
+				<Option output="Mingw\DemoConsole.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="Mingw" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="-d" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Linker>
+					<Add library="richbool-mingw" />
+					<Add library="modassertConsole-mingw" />
+					<Add library="modassert-mingw" />
+				</Linker>
+			</Target>
+			<Target title="GCC-Cygwin">
+				<Option output="Cygwin\DemoConsole.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="Cygwin" />
+				<Option type="1" />
+				<Option compiler="cygwin" />
+				<Option parameters="-d" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Linker>
+					<Add library="richbool-cygwin" />
+					<Add library="modassertConsole-cygwin" />
+					<Add library="modassert-cygwin" />
+				</Linker>
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="GCC-Mingw;GCC-Cygwin;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-ansi -pedantic -Wconversion -Wshadow -Wcast-qual -Wwrite-strings" />
+			<Add directory="..\..\Console" />
+			<Add directory="%RICHBOOL%\include" />
+			<Add directory="..\..\include" />
+		</Compiler>
+		<Linker>
+			<Add directory="..\..\lib" />
+		</Linker>
+		<Unit filename="NoText.cpp" />
+		<Unit filename="main.cpp" />
+		<Unit filename="otherfile.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

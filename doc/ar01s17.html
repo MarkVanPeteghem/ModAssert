@@ -1,0 +1,537 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Processing assertions (advanced)</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.1"><link rel="start" href="index.html" title="Modular Assertions version 2.0.6"><link rel="up" href="index.html" title="Modular Assertions version 2.0.6"><link rel="prev" href="ar01s16.html" title="Using the available responders and loggers"><link rel="next" href="ar01s18.html" title="Redefining existing assertion macros"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Processing assertions (advanced)</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s16.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s18.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="modasserthandler"></a>Processing assertions (advanced)</h2></div></div></div><a class="indexterm" name="id534619"></a><p>This section explains how to process assertions if you don't use any of the
+provided setup functions described in the previous sections, e.g. if you use a
+different GUI. It is also of interest if you want to modify part of the
+behaviour a setup function described in the previous sections.</p><p>It also explains how to write your own loggers, which can be useful
+even if you use a setup function described in the previous sections.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="Display"></a>The Responder object</h3></div></div></div><a class="indexterm" name="id534637"></a><a class="indexterm" name="id534642"></a><p>If a modular assertion or check is reported, the information about it is passed to the virtual method</p><p>
+<code class="methodsynopsis"><span class="type">ModAssert::Response </span><span class="methodname">OnAssert</span>(<span class="methodparam"><span class="type">const Properties &amp; </span><span class="parameter">properties</span></span>,<br>                             <span class="methodparam"><span class="type">const Result &amp; </span><span class="parameter">result</span></span>,<br>                             <span class="methodparam"><span class="type">bool </span><span class="parameter">display</span></span>);</code>
+</p><p>
+of the class <code class="classname">ModAssert::Responder</code>, which has to be overridden by
+a derived class. See below for a description of the classes <code class="classname">Properties</code>
+and <code class="classname">Result</code>.
+<code class="code">display</code> tells whether the assertion should be displayed. Responders that display an assertion
+to the user, should check this; if it is <code class="literal">false</code>, it should not display it. The value of this boolean
+is determined by ModAssert, and can be influenced with <code class="code">ModAssert::SetDisplayAll(...)</code>,
+<code class="code">ModAssert::SetDisplayInFile(...)</code>, the method <code class="code">SetDisplay()</code> of the
+group and level objects, the filter that is set with <code class="code">ModAssert::SetDisplayFilter(...)</code> and the boolean
+that every statement assertion and check keeps,
+which is set to <code class="literal">false</code> if the user selects 'stop displaying this assertion'
+(expression assertions and checks don't have such a boolean because of the impossibility to have
+a static variable in an expression).
+</p><p>To handle assertions with a responder, derive a class from <code class="classname">ModAssert::Responder</code>
+and override this method. Your class could e.g. show a dialog to the user, or print it out, and ask for an action;
+or it could decide on its own what response to return.
+Then create an object of your class, and pass it to
+<code class="code">ModAssert::SetResponder</code> (defined in <code class="filename">modassert/handler.hpp</code>).
+Only one object of the type <code class="classname">ModAssert::Responder</code>
+can be active at a time. To disable displaying of assertions, call
+<code class="code">ModAssert::SetResponder(NULL)</code>. Important: call this function only after <code class="code">main</code>
+is entered (see <a href="ar01s17.html#WhenModassertIsActive" title="When ModAssert is active">the section called &#8220;When ModAssert is active&#8221;</a>).</p><p>
+<a class="indexterm" name="id534757"></a>
+<a class="indexterm" name="id534762"></a>
+<a class="indexterm" name="id534766"></a>
+<a class="indexterm" name="id534771"></a>
+<a class="indexterm" name="id534776"></a>
+<a class="indexterm" name="id534781"></a>
+<a class="indexterm" name="id534786"></a>
+<a class="indexterm" name="id534790"></a>
+The return value is a <code class="code">ModAssert::Response</code>, and can be <code class="code">Abort</code>,
+<code class="code">StopDisplayingThis</code>, <code class="code">StopDisplayingFile</code>, 
+<code class="code">StopDisplayingAll</code>,
+<code class="code">BreakIntoDebugger</code>, <code class="code">Optional</code> or <code class="code">StopDisplayingCustom&lt;N&gt;</code>,
+where <span class="symbol">N</span> can be from 1 to 8 (all in the <code class="code">ModAssert</code> namespace).
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc">Use <code class="code">Abort</code> if you want the application to end by calling <code class="code">abort()</code>.</li><li style="list-style-type: disc">Use <code class="code">StopDisplayingThis</code> if you no longer want this particular assertion displayed
+(this has no effect on expression assertions and checks).</li><li style="list-style-type: disc">Use <code class="code">StopDisplayingFile</code> if you no longer want assertions in the same file displayed.</li><li style="list-style-type: disc">Use <code class="code">StopDisplayingAll</code> if you no longer want any assertions displayed.</li><li style="list-style-type: disc">Use <code class="code">BreakIntoDebugger</code> if you want to break into the debugger. Note that this may crash
+your application if no debugger is attached.</li><li style="list-style-type: disc">Use <code class="code">Optional</code> if you want the optional action to be executed. If there is no optional action,
+this has no effect.</li><li style="list-style-type: disc">Use <code class="code">StopDisplayingCustom&lt;N&gt;</code> to stop displaying assertions of a given type,
+like <code class="code">ModAssert::Error</code> or a custom group.</li></ul></div><p>
+It can also be a combination of these, by or'ing them. If no action has to be taken, return
+<code class="code">(ModAssert::Response)0</code>.
+The order in which they are processed after the responder returns, is as follows:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc">First <code class="code">StopDisplayingThis</code>, <code class="code">StopDisplayingFile</code>,
+<code class="code">StopDisplayingAll</code> and <code class="code">StopDisplayingCustom&lt;N&gt;</code> are processed.</li><li style="list-style-type: disc">Next <code class="code">BreakIntoDebugger</code> is processed.</li><li style="list-style-type: disc">Next <code class="code">Optional</code> is processed.</li><li style="list-style-type: disc">Next <code class="code">Abort</code> is processed.</li></ul></div><p>
+</p><div class="example"><a name="id534943"></a><p class="title"><b>Example 1. Overriding <code class="code">ModAssert::Responder::OnAssert</code></b></p><div class="example-contents"><pre class="programlisting">
+ModAssert::Response MyAssertHandler::OnAssert(
+		const Properties &amp;properties,
+		const Result &amp;assertionResult,
+		bool display)
+{
+	// if your responder needs the attention of the user,
+	// check the value of display:
+	if (!display)
+		return (ModAssert::Response)0;
+
+	// show information to the user
+	...
+
+	// return a response:
+	return ModAssert::BreakIntoDebugger | ModAssert::StopDisplayingCustom1;
+}
+</pre></div></div><p><br class="example-break">
+</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id534957"></a>The class WarningMessage</h3></div></div></div><a class="indexterm" name="id534962"></a><p><code class="classname">WarningMessage</code> is a class that is defined in the file
+<code class="filename">modassert/warning_message.hpp</code> and is derived from <code class="classname">Responder</code>,
+that is called when an assertion fails and a setup function was called with the mode
+<code class="code">continueWithWarningOnFailure</code> or <code class="code">terminateOnFailure</code> (depending on the
+level of the assertion). It has the method
+<code class="code">void SetText(const std::string &amp; str)</code> to set the message to display, and
+<code class="code">const std::string&amp; GetText()</code> to retrieve that message.</p><p>If you need a custom warning message, derive your own class of <code class="classname">WarningMessage</code>
+and override <code class="code">OnAssert</code> (of the class <code class="classname">Responder</code>).
+Preferably use the message that is returned by its parent method <code class="code">GetText()</code>.</p><p>Then create an object of your class, and pass a pointer to it to
+<code class="code">ModAssert::SetWarningMessage</code>.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id535022"></a>The class TerminateMessage</h3></div></div></div><a class="indexterm" name="id535027"></a><p><code class="classname">TerminateMessage</code> is a class that is defined in the file
+<code class="filename">modassert/terminate_message.hpp</code>,
+that is called when the application will terminate due to a failing assertion fails
+(i.e. if a setup function was called with the mode <code class="code">terminateOnFailure</code>
+and the level of the assertion is high enough). It has the method
+<code class="code">void SetText(const std::string &amp; str)</code> to set the message to display, and
+<code class="code">const std::string&amp; GetText()</code> to retrieve that message.</p><p>If you need a custom terminate message, derive your own class of <code class="classname">TerminateMessage</code>
+and override <code class="code">void OnAssert(const Properties &amp;properties, const Result &amp;result)</code>.
+Preferably use the message that is returned by its parent method <code class="code">GetText()</code>.</p><p>Then create an object of your class, and pass a pointer to it to <code class="code">ModAssert::SetTerminateMessage</code>.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id535075"></a>The function Setup</h3></div></div></div><a class="indexterm" name="id535080"></a><p>Instead of calling <code class="code">ModAssert::SetResponder</code>, <code class="code">ModAssert::SetWarningMessage</code>
+and <code class="code">ModAssert::SetTerminateMessage</code>, you can also call
+<code class="code">void ModAssert::Setup(const ModAssert::Responder *responder)</code>
+which only sets the responder if <code class="code">NDEBUG</code> is not defined, and calls
+<code class="code">UseBool::SetCheck</code> with <code class="code">true</code> if <code class="code">NDEBUG</code> is not defined,
+<code class="code">false</code> otherwise.</p><p>For more control, you can call the overloaded
+<code class="code">void ModAssert::Setup(ModAssert::Mode mode, const ModAssert::Responder *responder,
+ModAssert::WarningMessage *warningMessage, ModAssert::TerminateMessage *terminateMessage)</code>,
+which ignores whether <code class="code">NDEBUG</code> is defined, and takes care of setting up
+ModAssert to handle assertions according to the mode.
+It calls <code class="code">UseBool::SetCheck</code> with <code class="code">true</code> if <code class="code">mode</code> is <code class="code">ModAssert::testMode</code>,
+<code class="code">false</code> otherwise.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id535152"></a>The Logger objects</h3></div></div></div><a class="indexterm" name="id535156"></a><a class="indexterm" name="id535161"></a><a class="indexterm" name="id535166"></a><p>In addition, the information is also given to a number of objects that implement
+the interface <code class="classname">ModAssert::Logger</code>, by calling the pure virtual method
+</p><p>
+<code class="methodsynopsis"><span class="type">void </span><span class="methodname">OnAssert</span>(<span class="methodparam"><span class="type">const Properties &amp; </span><span class="parameter">properties</span></span>,<br>              <span class="methodparam"><span class="type">const Result &amp; </span><span class="parameter">result</span></span>);</code>
+</p><p>
+on them, which has to be implemented by derived classes. The arguments are the same as for
+<code class="code">ModAssert::Responder::OnAssert</code>, except that <code class="code">display</code> 
+is not given. Note that this method returns <code class="code">void</code>.
+See below for a description of the classes <code class="classname">Properties</code>
+and <code class="classname">Result</code>.
+</p><p>In addition, this class has another pure virtual method
+<code class="methodsynopsis"><span class="type">void </span><span class="methodname">AddMessage</span>(<span class="methodparam"><span class="type">const std::string &amp; </span><span class="parameter">message</span></span>);</code>
+For now, this is only called (multiple times) when the logger is added to ModAssert and when it is removed or when the destructor
+of a <code class="code">ModAssert::AutoShutdown</code> object is called, but it may be called at other times in the future.
+Derived classes should implement this method. Note that they should add a newline themselves if necessary.
+</p><p>Note: replace <code class="classname">std::string</code> with <code class="classname">wxString</code> if you use wxWidgets.
+</p><p>To use loggers, derive one or more classes from <code class="classname">ModAssert::Logger</code>,
+implement <code class="code">OnAssert</code> and <code class="code">AddMessage</code>, and add them by calling
+<code class="code">ModAssert::AddLogger</code> with
+pointers to the objects. This method returns an id of the type <code class="code">size_t</code>, that is
+unique for every logger and at least 1. You can remove a logger again by calling
+<code class="code">ModAssert::RemoveLogger</code> with a pointer to the object or its id.
+These functions are defined in <code class="filename">modassert/handler.hpp</code>.
+ModAssert doesn't copy loggers, so the logger object must exist until it is removed (manually or by the destructor
+of a <code class="code">ModAssert::AutoShutdown</code> object) or until the application ends.
+Important: call <code class="code">ModAssert::AddLogger</code> only after <code class="code">main</code>
+is entered (see <a href="ar01s17.html#WhenModassertIsActive" title="When ModAssert is active">the section called &#8220;When ModAssert is active&#8221;</a>).</p><p>Note: the <code class="classname">ModAssert::Context</code> object in <code class="code">properties</code> and
+the <code class="classname">ModAssert::ParameterList</code> object in <code class="code">result</code>
+are temporay objects on the stack, so they no longer exist after <code class="code">OnAssert</code>
+is called on these objects, so you can't store pointers to them for later usage.
+However, the <code class="classname">ModAssert::ParameterList</code> object can be cloned.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id535329"></a>Hooks</h3></div></div></div><a class="indexterm" name="id535334"></a><a class="indexterm" name="id535339"></a><a class="indexterm" name="id535344"></a><p>In addition, the information is also given to a number of objects that implement
+the interface <code class="classname">ModAssert::Hook</code>, by calling the virtual method
+</p><p>
+<code class="methodsynopsis"><span class="type">void </span><span class="methodname">OnAssert</span>(<span class="methodparam"><span class="type">const Properties &amp; </span><span class="parameter">properties</span></span>,<br>              <span class="methodparam"><span class="type">const Result &amp; </span><span class="parameter">result</span></span>);</code>
+</p><p>
+on them, which has to be implemented by derived classes. These are called before any logger or responder
+is notified of the assertion. The arguments are the same as for <code class="code">ModAssert::Logger::OnAssert</code>.
+See below for a description of the classes <code class="classname">Properties</code>
+and <code class="classname">Result</code>.</p><p>To use hooks, derive one or more classes from <code class="classname">ModAssert::Hook</code>,
+implement <code class="code">OnAssert</code>, and add objects of those classes by calling <code class="code">ModAssert::AddHook</code>
+with a pointer to the objects. You can remove a hook again by calling <code class="code">ModAssert::RemoveHook</code>
+with a pointer to the object. These two functions are defined in <code class="filename">modassert/handler.hpp</code>.
+The hook object must exist until it is removed or until the application ends.
+Important: call <code class="code">ModAssert::AddHook</code> only after <code class="code">main</code>
+is entered (see <a href="ar01s17.html#WhenModassertIsActive" title="When ModAssert is active">the section called &#8220;When ModAssert is active&#8221;</a>).</p><p>Note: the <code class="classname">ModAssert::Context</code> object in <code class="code">properties</code> and
+the <code class="classname">ModAssert::ParameterList</code> object in <code class="code">result</code>
+are temporay objects on the stack, so they no longer exist after <code class="code">OnAssert</code>
+is called on these objects, so you can't store pointers to them for later usage.
+However, the <code class="classname">ModAssert::ParameterList</code> object can be cloned.</p><p>Hooks are only useful in some rare situations. One situation is storing the return value
+of <code class="code">GetLastError()</code> in Windows. The return value of that function is altered if you
+log to a file or display a dialog box, so it has to be stored before any logger or the responder is called.
+See the Win32 demo for an example of how this is done. Another usage may be a 'rainy day fund'.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="Properties"></a>The class <code class="classname">ModAssert::Properties</code></h3></div></div></div><a class="indexterm" name="id535471"></a><p>A <code class="classname">ModAssert::Properties</code> object represents all the
+attributes of an assertion or a check that are always the same. It has the following
+public methods:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="code">const CategoryBase* GetCategory() const</code>: returns an object that describes the category
+of the assertion or check. The caller should not delete this.</li><li style="list-style-type: disc"><code class="code">bool IsUnconditional()</code>: returns whether the assertion or check is unconditional
+(e.g. <code class="literal">false</code> for <code class="code">MOD_ASSERT</code>, <code class="literal">true</code> for <code class="code">MOD_FAIL</code>)</li><li style="list-style-type: disc"><code class="code">const Context&amp; GetContext() const</code>: returns the context</li><li style="list-style-type: disc"><code class="code">const char* GetCondition() const</code>: returns the condition as a character string.
+The caller should not delete this.</li><li style="list-style-type: disc"><code class="code">const GroupList* GetGroupList() const</code>: returns a list of all the groups that were added
+(or were added as a default). The caller should not delete this.</li><li style="list-style-type: disc"><code class="code">const char* GetOptional() const</code>: returns a character string with the optional action;
+this is <code class="literal">NULL</code> if no optional action was given. The caller should not delete this.</li><li style="list-style-type: disc"><code class="code">bool CanStopDisplayingThis() const</code>: returns whether the flag
+<code class="code">StopDisplayingThis</code> in the return value of a responder will have any influence
+(e.g. it will have no influence on expression assertions and checks). If this returns false,
+your responder should not offer the possibility to stop displaying an assertion or check.</li></ul></div><p>
+</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="Result"></a>The class <code class="classname">ModAssert::Result</code></h3></div></div></div><a class="indexterm" name="id535561"></a><p>A <code class="classname">ModAssert::Result</code> object represents all the
+attributes of an assertion or a check that can vary every time it is evaluated.
+It has the following public methods:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="code">bool Succeeded() const</code>: returns <code class="literal">false</code> if the condition failed,
+<code class="literal">true</code> otherwise</li><li style="list-style-type: disc"><code class="code">const RichBool::SharedAnalysis GetAnalysis() const</code>: returns the analysis
+of the condition if a Rich Boolean was used</li><li style="list-style-type: disc"><code class="code">const ParameterList* GetParameterList() const</code>: returns the parameterlist
+if parameters were added; <code class="literal">NULL</code> otherwise. The caller should not delete this.</li></ul></div><p>
+</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="Category"></a>The class <code class="classname">ModAssert::CategoryBase</code></h3></div></div></div><a class="indexterm" name="id535616"></a><p>A <code class="classname">ModAssert::CategoryBase</code> object represents the
+category of an assertion or a check. It has the following public methods:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="code">bool IsAssertion() const</code>: returns <code class="literal">true</code> if it represents an
+assertion, <code class="literal">false</code> otherwise</li><li style="list-style-type: disc"><code class="code">bool IsCheck() const</code>: returns <code class="literal">true</code> if it represents a
+check, <code class="literal">false</code> otherwise</li><li style="list-style-type: disc"><code class="code">const char* GetName() const</code>: returns the name of the category
+it represents as a character string. The caller should not delete this. For now this can only be <code class="literal">"assert"</code>
+or <code class="literal">"check"</code>.</li></ul></div><p>
+</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="WhenModassertIsActive"></a>When ModAssert is active</h3></div></div></div><a class="indexterm" name="id535680"></a><a class="indexterm" name="id535684"></a><p>It is important that <code class="code">ModAssert::SetResponder</code>, <code class="code">ModAssert::AddLogger</code> and
+<code class="code">ModAssert::AddHook</code> should only be called after
+the <code class="code">main</code> function has been entered and before it is left.
+I.e. it should not be called from the constructor or destructor of a global object.
+These functions are thread safe. Furthermore, calling one of these functions activates ModAssert
+and failing assertions are synchronized to
+be thread safe, but before <code class="code">main</code> is entered, you can not be sure that the multithreading library
+of your platform is initialized, so this could lead to a crash.</p><p>Likewise, when the function <code class="code">main</code> is exited, different libraries may shutdown. Also the
+multithreading libraries on many platforms. Since ModAssert synchronizes assertions, this may lead
+to a crash if an assertion is reported after your multithreading library has shut down. Assertions
+may be present in code called by destructors of global objects, so this danger is real.</p><p>Therefore ModAssert offers you a way of letting it know that it should shut down as well,
+and ignore assertions from that moment on. This is done in an exceptionsafe way, by declaring
+an object of the class <code class="classname">ModAssert::AutoShutdown</code>, which is declared in
+<code class="filename">modassert/handler.hpp</code>.
+Its destructor sends a message to the loggers that ModAssert stops logging, removes all loggers and the responder.
+Therefore you should declare a non-static object of this class on the stack in your <code class="code">main</code> (or another
+similar function), right before or after you initialize ModAssert by setting a responder or adding a logger.
+You should only create one such object in your application.
+So your <code class="code">main</code> function may look like this:
+</p><pre class="programlisting">
+#include "modassert/assert.hpp"
+#include "modassert/ConsoleHandler.hpp"
+
+int main(int argc, char* argv[])
+{
+	ModAssert::AutoShutdown modAssertAutoShutdown;
+
+	// Assume we use the Console handler:
+	ModAssert::SetupForConsole();
+
+	...
+}</pre><p>
+</p><p>Note that loggers should be defined before the <code class="classname">ModAssert::AutoShutdown</code>
+object (or be global objects), unless you remove them yourself before its destructor is called. Otherwise the destructor
+of <code class="classname">ModAssert::AutoShutdown</code> will try to log the end message to loggers that no longer exist.</p><p>In some environments you can't change <code class="code">main</code> (e.g. wxWidgets), but you can override an
+application objects methods to do the same. In that case, simply create a <code class="classname">ModAssert::AutoShutdown</code>
+object in a method that is called when the application ends.
+</p><pre class="programlisting">bool MyApp::OnInit()
+{
+	// these objects are static, otherwise they would be destroyed
+	// as soon as this method is left:
+	static MyResponder myResponder;
+	static MyLogger myLogger;
+
+	ModAssert::SetResponder(&amp;myResponder);
+	ModAssert::AddLogger(&amp;myLogger);
+
+	... // other setup
+
+	return TRUE;
+}
+
+int MyApp::OnExit()
+{
+	// Add this line to make sure that ModAssert exits
+	// gracefully when the application ends.
+	// This will actually be done from the destructor of this object.
+	ModAssert::AutoShutdown modAssertAutoShutdown;
+	
+	// other shut down code
+	...
+}</pre><p>Some programmers find it tempting to derive a class from <code class="classname">ModAssert::Responder</code>,
+<code class="classname">ModAssert::Logger</code> or <code class="classname">ModAssert::Hook</code>,
+and let the constructor automatically add it to ModAssert,
+and let the destructor remove it again, so you only have to define them as a global object. But in the view
+of synchronization, this is clearly not a good idea.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id535782"></a>Filters for the responder, the loggers, the hooks and the infoproviders</h3></div></div></div><a class="indexterm" name="id535786"></a><p>The functions <code class="code">ModAssert::AddLogger</code>, <code class="code">ModAssert::AddHook</code>
+and  <code class="code">ModAssert::AddInfoProvider</code>
+can take a second argument, a pointer to an object derived from <code class="classname">ModAssert::Filter</code>,
+that has a default value of <code class="code">NULL</code>. These objects decide for their corresponding logger and hook
+whether it should be notified about an assertion.</p><p>You can also give a pointer to such an object to the method
+<code class="code">ModAssert::SetDisplayFilter</code> (defined in <code class="filename">modassert/handler.hpp</code>),
+to let the responder decide whether it should display an assertion.
+Responders are always notified of an assertion, but have an extra argument <code class="code">bool display</code>,
+that is determined by that filter (amongst other things), that tells whether an assertion should be displayed.
+If a <code class="code">NULL</code> value is given, there is no influence.</p><p><code class="classname">ModAssert::Filter</code> has two virtual methods:</p><p><code class="methodsynopsis"><span class="type">bool </span><span class="methodname">Accept</span>(<span class="methodparam"><span class="type">const Properties &amp; </span><span class="parameter">properties</span></span>,<br>            <span class="methodparam"><span class="type">const Result &amp; </span><span class="parameter">result</span></span>);</code><br>
+<code class="methodsynopsis"><span class="type">bool </span><span class="methodname">Accept</span>(<span class="methodparam"><span class="type">const LogType &amp; </span><span class="parameter">logType</span></span>);</code></p><p>which should return true if the filter accepts the assertion or logging type. In the base class they
+always return <code class="code">true</code>. It also has a const non-virtual method:
+<code class="methodsynopsis"><span class="type">const std::string&amp; </span><span class="methodname">GetDescription</span>();</code>
+which gives a description of the filter.
+</p><p>Note: replace <code class="classname">std::string</code> with <code class="classname">wxString</code> if you use wxWidgets.
+</p><p>There are several classes derived from <code class="classname">Filter</code>, described below.</p><p>If you derive your own class of <code class="classname">Filter</code>, you should override at least one
+of the two <code class="code">Accept</code> methods. Furthermore, the constructor should assign a value
+to the protected member <code class="code">description</code>.</p><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id535924"></a>FilterIfFailed</h4></div></div></div><a class="indexterm" name="id535929"></a><p><code class="classname">ModAssert::FilterIfFailed</code> will only accept assertions that failed, i.e. it will not
+pass succeeding assertions that should be reported. You can use the predefined object <code class="code">ModAssert::filterIfFailed</code>,
+that is of this class, so you don't need to define an object yourself.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id535945"></a>FilterIfAssert</h4></div></div></div><a class="indexterm" name="id535950"></a><p><code class="classname">ModAssert::FilterIfAssert</code> will only accept assertions, i.e. that come from the macros that begin
+with <code class="code">MOD_ASSERT</code>, <code class="code">MOD_VERIFY</code> or <code class="code">MOD_FAIL</code>.
+You can use the predefined object <code class="code">ModAssert::filterIfAssert</code>,
+that is of this class, so you don't need to define an object yourself.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id535976"></a>FilterIfCheck</h4></div></div></div><a class="indexterm" name="id535981"></a><p><code class="classname">ModAssert::FilterIfCheck</code> will only accept checks, i.e. that come from the macros that begin
+with <code class="code">MOD_CHECK</code>. You can use the predefined object <code class="code">ModAssert::filterIfCheck</code>,
+that is of this class, so you don't need to define an object yourself.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id536000"></a>FilterIfHasGroup</h4></div></div></div><a class="indexterm" name="id536005"></a><p><code class="classname">ModAssert::FilterIfHasGroup</code> has a constructor that takes a <code class="code">const char *</code>,
+the name of a group. It will only accept assertions that have that group.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id536020"></a>FilterMinimumLevel</h4></div></div></div><a class="indexterm" name="id536025"></a><p><code class="classname">ModAssert::FilterMinimumLevel</code> has a constructor that takes a <code class="code">int</code> or
+a level object. It will only accept assertions that have at least that level.</p><p>Note: with Visual C++ 6.0 you can only pass a level object to the constructor.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id536044"></a>FilterMaximumLevel</h4></div></div></div><a class="indexterm" name="id536049"></a><p><code class="classname">ModAssert::FilterMaximumLevel</code> has a constructor that takes a <code class="code">int</code> or
+a level object. It will only accept assertions that have at most that level.</p><p>Note: with Visual C++ 6.0 you can only pass a level object to the constructor.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id536068"></a>FilterInFile</h4></div></div></div><a class="indexterm" name="id536073"></a><p><code class="classname">ModAssert::FilterInFile</code> has a constructor that takes a <code class="code">const char *</code>,
+the name of a file. It will only accept assertions that appear in that source file. It is recommended to
+use this with the predefined symbol <code class="code">__FILE__</code>, so that moving source code doesn't
+change the applications behaviour.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id536092"></a>FilterMessages</h4></div></div></div><a class="indexterm" name="id536097"></a><p><code class="classname">ModAssert::FilterMessages</code> will only accept messages, i.e. no
+assertions and checks. It is a class without member data, so you can just use
+the instantiation <code class="code">ModAssert::filterMessages</code>.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id536113"></a>FilterLogType</h4></div></div></div><a class="indexterm" name="id536118"></a><p><code class="classname">ModAssert::FilterLogType</code> has a constructor that takes four booleans.
+The first specifies whether logging of assertions and checks is accepted,
+the second specifies whether logging when a logger is added is accepted,
+the third specifies whether logging when a logger is removed is accepted,
+the fourth specifies whether logging data at other times (not assertions and checks) is accepted (this is not yet used).</p><p>Two objects of this type are already provided by ModAssert:
+<code class="code">filterNoAssertionsAndChecks</code>, that doesn't allow assertions and checks, and
+<code class="code">filterOnlyAssertionsAndChecks</code>, that only allows assertions and checks.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id536140"></a>FilterNot</h4></div></div></div><a class="indexterm" name="id536145"></a><p><code class="classname">ModAssert::FilterNot</code> has a constructor that takes a reference to a <code class="classname">ModAssert::Filter</code>
+object. It returns the negation of that filter. The filter that is given to the constructor should exist at least as long as the object
+itself exists.</p><p>Two objects of this class are predefined:
+<code class="code">ModAssert::filterIfSuccess</code> that has <code class="code">ModAssert::filterIfFailed</code> as an argument in
+its constructor, <code class="code">ModAssert::filterIfNotAssert</code> that has <code class="code">ModAssert::filterIfAssert</code>
+as an argument in its constructor, and <code class="code">ModAssert::filterIfNotCheck</code> that has <code class="code">ModAssert::filterIfCheck</code>
+as an argument in its constructor.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id536186"></a>FilterAnd</h4></div></div></div><a class="indexterm" name="id537479"></a><p><code class="classname">ModAssert::FilterAnd</code> has a constructor that takes two references to <code class="classname">ModAssert::Filter</code>
+objects. It will only accept assertions that those filters both accept. The filters that are given to the
+constructor should exist at least as long as the object itself exists.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="id537494"></a>FilterOr</h4></div></div></div><a class="indexterm" name="id537499"></a><p><code class="classname">ModAssert::FilterOr</code> has a constructor that takes two references to <code class="classname">ModAssert::Filter</code>
+objects. It will only accept assertions that at least one of those filters accepts. The filters that are given
+to the constructor should exist at least as long as the object itself exists.</p></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id537516"></a>The ResponderSwitcher class</h3></div></div></div><a class="indexterm" name="id537521"></a><p>In <code class="filename">modassert/responder_switcher.hpp</code> the class
+<code class="classname">ModAssert::ResponderSwitcher</code> is defined. It is derived from <code class="classname">ModAssert::Responder</code>,
+but doesn't show the assertion information to the user like other responders. Instead its implementation of
+<code class="code">OnAssert</code> decides on its own which response should be returned and/or what other <code class="classname">ModAssert::Responder</code>
+should be called,
+based on filters that you add to it.</p><p>The method <code class="code">void AddFilter(ModAssert::Filter *filter, ModAssert::Response response)</code> lets you
+specify that if the filter accepts the assertion, <code class="code">response</code> will be returned.
+The method <code class="code">void AddFilter(ModAssert::Filter *filter, const ModAssert::Responder *responder)</code> lets you
+specify that if the filter accepts the assertion, <code class="code">OnAssert</code> on <code class="code">responder</code> will be called with the same
+arguments, and its return value is returned.</p><p>You can give as many filters as you want.
+The filters will be checked in the order that you added them. The response of the first matching filter will be returned by
+<code class="code">OnAssert</code>. The method <code class="code">void SetDefaultResponse(Response response)</code> lets you
+specify which value should be returned if no matching filter is found, or no filter was added. The method
+<code class="code">void SetDefaultResponder(const Responder *responder)</code> lets you
+specify a responder that should be called if no matching filter is found, or no filter was added, to return its return value.
+Only one of these two can be in effect, so they override each others settings. If you don't call any of these,
+the default response is 0.
+</p><p>The method <code class="code">bool HasDefaultResponse()</code> returns whether a const default response is set.
+The method <code class="code">bool HasDefaultResponder()</code> returns whether a default responder is set. Only one of these
+two can return true. The method <code class="code">Response GetDefaultResponse()</code> return the default response if one was set;
+only call this if <code class="code">bool HasDefaultResponse()</code> returns true. <code class="code">const Responder* GetDefaultResponder()</code>
+returns the default responder, if one was set; only call this if <code class="code">bool HasDefaultResponder()</code> returns true.</p><p>Note: since <code class="classname">ModAssert::ResponderSwitcher</code> is derived from
+<code class="classname">ModAssert::Responder</code>, it is possible to have a circular reference if you add a
+<code class="classname">ModAssert::ResponderSwitcher</code> to another <code class="classname">ModAssert::ResponderSwitcher</code>,
+possibly resulting in an infinite loop. There is no checking for this, so some attention is needed here.</p><p>In the file <code class="filename">modassert/autoresponder.hpp</code> there is a typedef of
+<code class="classname">ModAssert::AutoResponder</code> to
+<code class="classname">ModAssert::ResponderSwitcher</code> for backward compatibility.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="InfoProvider"></a>Providing extra information</h3></div></div></div><a class="indexterm" name="id537649"></a><a class="indexterm" name="id537654"></a><a class="indexterm" name="id537659"></a><a class="indexterm" name="id537663"></a><a class="indexterm" name="id537668"></a><a class="indexterm" name="id537673"></a><a class="indexterm" name="id537678"></a><a class="indexterm" name="id537683"></a><a class="indexterm" name="id537687"></a><p>It is often useful to add extra information to the loggers and the responder when an
+assertion failed. Examples are the thread id, time and date, the OS version, the version of
+your application, a backtrace, or the state of your application (e.g. the documents that are loaded and the active
+document). You can do this by implementing the interface <code class="classname">InfoProviders::InfoProvider</code>
+which is declared in the file <code class="filename">modassert/info.hpp</code>.
+It has a constructor that takes a <code class="classname">InfoProviders::Granularity</code> value,
+and three virtual methods
+</p><p>
+<code class="methodsynopsis"><span class="type">const std::string&amp; </span><span class="methodname">GetType</span>();</code><br>
+<code class="methodsynopsis"><span class="type">bool </span><span class="methodname">HasInfo</span>();</code><br>
+<code class="methodsynopsis"><span class="type">std::string </span><span class="methodname">GetInfo</span>();</code>
+</p><p>Note: replace <code class="classname">std::string</code> with <code class="classname">wxString</code> if you use wxWidgets.
+</p><p>The <code class="classname">InfoProviders::Granularity</code> value in the constructor
+specifies what type of info the infoprovider gives, so ModAssert knows when it
+should be used. It can be one of the following values:
+<a class="indexterm" name="id537752"></a>
+<a class="indexterm" name="id537757"></a>
+<a class="indexterm" name="id537762"></a>
+<a class="indexterm" name="id537767"></a>
+<a class="indexterm" name="id537771"></a>
+<a class="indexterm" name="id537776"></a>
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="code">volatileInfo</code>: this is used for info that is volatile, i.e. that can change
+from one call to the next in the same application. If it is, it will always be used.
+Examples are the time, the current directory and the amount of free memory.</li><li style="list-style-type: disc"><code class="code">thread</code>: this is used for info that is always the same in a thread.
+The trivial example is the thread id.</li><li style="list-style-type: disc"><code class="code">process</code>: this is used for info that is always the same in a process.
+The trivial example is the process id.</li><li style="list-style-type: disc"><code class="code">application</code>: this is used for info that is always the same in an
+application. An example is the application name. This is different from <code class="code">process</code>
+because some info may be the same for different instantiations of the same application.</li><li style="list-style-type: disc"><code class="code">machine</code>: this is used for info that is always the same on a machine.
+Examples are CPU info and the OS version.</li></ul></div><p>
+Note: there is also a granularity <code class="code">customGranularity</code>. If you need to define other granularities,
+use values starting at this value. The maximum value is the number of bits in an <code class="code">unsigned int</code>
+minus one.</p><p>InfoUser objects can specify for each of these granularities (except <code class="code">volatileInfo</code>)
+if it will receive info from more than one InfoProvider object of that granularity or not.
+If it will, it will use the info every time an assertion or check is reported as well as
+when a logger is added or removed; otherwise only when a logger is added,
+because it will always be the same.
+This is mostly of concern for loggers, because they get various info when they are
+added or removed; responders are only called when an assertion or check is reported.
+E.g. by default, they will only use
+application specific and machine specific info at the begin, when a logger is added,
+because it has no use to repeat it every time info is logged to it. If you tell it it is for more than
+one application, e.g. a log file that is used by many applications, it will always use
+application specific info, so you know from which application it comes.
+If you tell it it is for more than one machine, e.g. a log file that is on a shared network folder, it will always use
+machine specific info, so you know every time from which machine it comes.</p><p>Note: if you have a logfile for many applications on a single machine,
+the logger will contain machine specific info every time a logger for that logfile
+is added, so this info will be repeated many times. There is no mechanism in ModAssert
+to prevent this, but it is not a big problem.</p><p><code class="code">HasInfo</code> is implemented by <code class="classname">ModAssert::InfoProvider</code>, and returns
+<code class="literal">true</code>. Derived classes that don't always have useful information,
+should override this method.
+This prevents cluttered output if there are many InfoProviders that rarely have useful information.
+The other two virtual methods have to be implemented by derived classes. <code class="code">GetType</code> should return a brief description of
+the information (e.g. "thread id"), and should always be the same (it is best to create a static const string object
+in the function, and return that). <code class="code">GetInfo</code> should return the information as a string.</p><p><code class="classname">InfoProvider</code> has one more method that tell what
+granularity the information has: <code class="code">Granularity GetGranularity() const</code> (the value given in
+the constructor, see above).</p><p>Create an object of your derived class, and
+add it by giving a pointer to it to <code class="code">ModAssert::AddInfoProvider</code>,
+which is declared in <code class="filename">modassert/infostore.hpp</code>. Optionally you can add
+a pointer to a filter as a second argument, to determine when the infoprovider should be used. You can remove an
+InfoProvider again with <code class="code">ModAssert::RemoveInfoProvider</code>.</p><p>The objects that are added that way are called by any logger or responder
+that is provided in this package. It is recommended to do this also in loggers and responders that
+you create yourself. You can iterate over the active infoproviders by calling <code class="code">ModAssert::beginInfoProviders(...)</code>
+and <code class="code">ModAssert::endInfoProviders()</code>, also declared in <code class="filename">modassert/infostore.hpp</code>,
+which respectively return the iterator to the first and past the last
+infoprovider. <code class="code">ModAssert::beginInfoProviders(...)</code> has two overloaded versions, of which
+the arguments specify which infoproviders should be ignored when you traverse the range, so you don't
+have to take into account whether an InfoProvider should be used.
+Infoproviders for which <code class="code">HasInfo()</code> returns <code class="literal">false</code> are always ignored.
+<code class="code">beginInfoProviders(const Properties &amp;p, const Result &amp;r, const InfoUser &amp;iu)</code>
+should be used by Responders and Loggers when an assertion or a check is reported. The properties and the result
+are given to the method <code class="code">OnAssert</code>, so you simply pass these. The classes
+<code class="classname">ModAssert::Responder</code> and <code class="classname">ModAssert::Logger</code>
+are both derived from <code class="classname">ModAssert::InfoUser</code>, so you can give <code class="code">*this</code>
+for the last argument.
+<code class="code">beginInfoProviders(const LogType &amp;lt, const InfoUser &amp;iu)</code>
+is used by the class <code class="code">Logger</code>, you normally don't need it. The iterators are of the class <code class="classname">InfoProviderIterator</code>.
+You can also get the information of all the infoproviders at once in a string by calling
+<code class="code">ModAssert::GetAllInfo</code>. There are two overloaded versions of this function,
+with the same arguments as <code class="code">ModAssert::beginInfoProviders</code>, and an optional 
+<code class="code">const char *</code> argument that specifies the separator (default is <code class="literal">"\n"</code>).</p><p>The loggers and responders in ModAssert, as well as <code class="code">ModAssert::GetAllInfo</code>, show the information
+in the format "&lt;type&gt;: &lt;info&gt;" for every InfoProvider that is not filtered out.</p><p>See the project Win32, Console or WxWidgets for examples of how all this is done.</p><p>Note: this class has nothing to do with the level <code class="code">ModAssert::Info</code>.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id537975"></a>The class TimeInfoProvider</h3></div></div></div><a class="indexterm" name="id537980"></a><p>In the file <code class="filename">modassert/timeinfo.hpp</code> there is the class
+<code class="classname">InfoProviders::TimeInfoProvider</code>, which is derived from
+<code class="classname">InfoProviders::InfoProvider</code>. Its implementation of <code class="code">GetType</code>
+returns the string "time", and its implementation of <code class="code">GetInfo</code> returns a string
+with the time and date. It uses the function <code class="code">ctime()</code> in the STD configuration.
+In the wxWidgets configuration it uses <code class="code">now.FormatISODate()+' '+now.FormatISOTime()</code>.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id538015"></a>The class ApplicationInfoProvider</h3></div></div></div><a class="indexterm" name="id538020"></a><p>In the file <code class="filename">modassert/appinfo.hpp</code> there is the class
+<code class="classname">InfoProviders::ApplicationInfoProvider</code>, which is derived from
+<code class="classname">InfoProviders::InfoProvider</code>. Its constructor takes a
+<code class="classname">std::string</code> (or <code class="classname">wxString</code> if you use wxWidgets)
+with the name (and perhaps the version) of the application. Its implementation of <code class="code">GetType</code>
+returns the string "application", and its implementation of <code class="code">GetInfo</code> returns the string
+that was passed in its constructor. Create an object of this class and add it if you want to use it.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id538056"></a>The class InfoUser</h3></div></div></div><a class="indexterm" name="id538061"></a><p>The classes <code class="classname">ModAssert::Responder</code> and
+<code class="classname">ModAssert::Logger</code> are both derived from
+the class <code class="classname">InfoProviders::InfoUser</code>. This class has functionality
+to specify at which granularities it works. It can also
+overrule when certain InfoProviders should give information to it (note however that the filter that is
+given with an InfoProvider, can decide to not use an InfoProvider when the InfoUser and/or
+the InfoProvider want to, but not decide to use an InfoProvider when the InfoUser and/or
+the InfoProvider don't want to). This can be useful in certain situations, e.g. if a logfile is used
+by different applications, the processid is useful when an assertion is reported.</p><p><code class="classname">ModAssert::InfoUser</code> has the following methods:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="methodsynopsis"><span class="type">void </span><span class="methodname">AddGranularity</span>(<span class="methodparam"><span class="type">Granularity </span><span class="parameter">granularity</span></span>);</code>
+This specifies that the object is meant for more than one item of the granularity,
+so it will use info of that granularity every time an assertion or check fails.
+</li><li style="list-style-type: disc"><code class="methodsynopsis"><span class="type">void </span><span class="methodname">RemoveGranularity</span>(<span class="methodparam"><span class="type">Granularity </span><span class="parameter">granularity</span></span>);</code>
+This specifies that the object is not meant for more than one item of the granularity,
+so it will no longer use info of that granularity every time an assertion or check fails.
+</li><li style="list-style-type: disc"><code class="methodsynopsis"><span class="type"> </span><span class="methodname">HasGranularity</span>(<span class="methodparam"><span class="type">Granularity </span><span class="parameter">granularity</span></span>);</code>
+This tells whether the object is meant for more than one item of the granularity.
+</li><li style="list-style-type: disc"><code class="methodsynopsis"><span class="type">void </span><span class="methodname">UseInfo</span>(<span class="methodparam"><span class="type">const InfoProvider &amp; </span><span class="parameter">ip</span></span>,<br>             <span class="methodparam"><span class="type">When </span><span class="parameter">when</span></span>);</code>
+This specifies when the given infoprovider should, regardless of granularities.
+<code class="code">When</code> can be <code class="code">Never</code>, <code class="code">Once</code> or <code class="code">Always</code>.
+If it is <code class="code">Never</code>, the infoprovider is never used by this object.
+If it is <code class="code">Once</code>, it is only used when once, e.g. when a logger is added
+to ModAssert.
+If it is <code class="code">Always</code>, it is always used, e.g. also for every assertion and
+check that is reported, and at the end. You usually don't need this method.
+</li><li style="list-style-type: disc"><code class="methodsynopsis"><span class="type">bool </span><span class="methodname">ShouldUseInfo</span>(<span class="methodparam"><span class="type">const InfoProvider &amp; </span><span class="parameter">ip</span></span>,<br>                   <span class="methodparam"><span class="type">When </span><span class="parameter">when</span></span>);</code>
+Returns whether this InfoUser object should use the info of the InfoProvider when logging of the given type is done.
+This takes into account what the InfoProvider object specified in its constructor, and whether it
+was given to <code class="code">ShouldUseInfo</code>. <code class="code">when</code> should be <code class="code">Once</code> or
+<code class="code">Always</code>. If it returns <code class="literal">true</code> when <code class="code">when</code> is <code class="code">Always</code>,
+it will also return <code class="literal">true</code> when <code class="code">when</code> is <code class="code">Once</code>.</li></ul></div><p>
+</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id538257"></a>The class LogType</h3></div></div></div><a class="indexterm" name="id538262"></a><p>The class <code class="classname">LogType</code> is used to specify what kind of logging is done.
+It has one member <code class="code">type</code>, an enum defined inside <code class="classname">LogType</code>,
+that can have these values:
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="code">AtBegin</code>: used when a logger is added to ModAssert</li><li style="list-style-type: disc"><code class="code">AtEnd</code>: used when a logger is removed from ModAssert</li><li style="list-style-type: disc"><code class="code">InBetween</code>: not yet used</li></ul></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id538305"></a>A note on the lifetime of objects given to ModAssert</h3></div></div></div><p>ModAssert never copies objects that you pass to it. It neither takes ownership of them.
+This refers to objects of classes that are derived from <code class="classname">Logger</code>,
+<code class="classname">Hook</code>, <code class="classname">Filter</code> and <code class="classname">InfoProvider</code>.
+This was done to prevent the reporting of memory leaks.
+</p><p>Therefore it is best to create these objects in the main function, or make them
+global in an implementation file, so they are created on the stack
+and live until the end of the application. However, you should always give them to
+ModAssert after the main method is entered, otherwise the arrays to store them in may not yet be initialized,
+and the thread library of your platform may not yet be operable at that time. So don't use selfregistering objects
+to give objects to ModAssert.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id538333"></a>Exceptions thrown by loggers and hooks</h3></div></div></div><a class="indexterm" name="id538338"></a><p>If an assertion is handled, the hooks are called first, then the loggers and then the responder.
+No exceptions are caught by ModAssert, so if a logger throws an exception, the loggers
+after it and the responder will not be called. Likewise, if a hook throws an exception, the hooks
+after it, the loggers and the responder will not be called. If the responder throws an exception,
+nothing is affected. In any case ModAssert will stay in a valid state.
+</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id538347"></a>The StreamLogger objects</h3></div></div></div><a class="indexterm" name="id538352"></a><p>An implementation of the interface <code class="classname">ModAssert::Logger</code>
+    is already provided, the <code class="classname">ModAssert::StreamLogger</code> class.
+    Its constructor takes a stream as an argument, and will write the debugging information
+    to that stream if an assertion or check is reported. By default the streams are of the type
+    <code class="classname">std::ostream</code>.</p><p>If <code class="code">RICHBOOL_USE_WX</code> is defined,
+    the stream can be of type <code class="classname">wxTextOutputStream</code> or
+    <code class="classname">wxOutputStream</code>, but in that case it's actually better to use the logger class
+    <code class="classname">ModAssertWxLog</code>, that is in the files <code class="filename">Wx/modassert/ModAssertWxLog.h</code>
+    and <code class="filename">Wx/modassert/ModAssertWxLog.cpp</code>. This class
+    uses <code class="code">wxLogDebug</code> to output the information, so you can redirect this output to
+    wherever you like using the methods that wxWidgets provides for that.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id538401"></a>The AppendToFileLogger objects</h3></div></div></div><a class="indexterm" name="id538406"></a><p>Another implementation of the interface <code class="classname">ModAssert::Logger</code>
+    is provided, the <code class="classname">ModAssert::AppendToFileLogger</code> class.
+    Its constructor takes a filename as an argument, and will write the debugging information
+    to that file if an assertion or check is reported. Every time an assertion or check is logged, the file is opened in append
+	mode, the information is logged, and the file is closed again.</p><p>Note that this is not the same as passing a filestream to a <code class="classname">StreamLogger</code>
+	object, because then the file is left open as long as the stream object exists (or you close the file yourself).</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id538431"></a>The class <code class="classname">ModAssert::GroupList</code></h3></div></div></div><a class="indexterm" name="id538439"></a><p><code class="classname">ModAssert::GroupList</code> represents the assertion groups that were
+passed in the macro (<code class="code">ModAssert::Error</code> if none is given), e.g.
+<code class="code">ModAssert::Error</code>, <code class="code">modAssertGroup1</code>, <code class="code">ModAssert::Error &amp;&amp; modAssertGroup1</code>
+(if <code class="code">modAssertGroup1</code> is of the class <code class="classname">ModAssert::Group&lt;ModAssert::ReportFailure&gt;</code>).
+<code class="classname">ModAssert::GroupList</code> has the following four methods of interest:
+
+</p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="code">size_t GetSize()</code>: returns the number of embedded types; e.g. 1 for
+    <code class="code">ModAssert::Error</code>, 2 for <code class="code">ModAssert::Error &amp;&amp; modAssertGroup1</code>
+    if <code class="code">modAssertGroup1</code> is of type <code class="code">ModAssert::Group&lt;ModAssert::ReportFailure&gt;</code>,
+    2 for <code class="code">modAssertGroup1</code> (because <code class="code">ModAssert::Error</code> is added implicitly)</li><li style="list-style-type: disc"><code class="code">const std::string&amp; GetName(size_t idx)</code>: returns the name
+    of the embedded type with index <code class="code">idx</code></li><li style="list-style-type: disc"><code class="code">int GetLevel()</code>: returns the level of the groups. Certain loggers might
+    want to ignore assertions of certain levels.</li><li style="list-style-type: disc"><code class="code">bool Has(const char *groupName)</code>: returns whether a group with the given name
+	is present in the group. Certain loggers might want to exclude or include certain groups.</li></ul></div><p>
+</p><p>Note: replace <code class="classname">std::string</code> with <code class="classname">wxString</code> if you use wxWidgets.
+</p><p>It has other methods to determine if assertions of the type should be logged or displayed,
+and also for the embedded types. But these are not of interest here, because
+<code class="code">ModAssert::Responder::OnAssert</code> and <code class="code">ModAssert::Logger::OnAssert</code>
+will only be called if <code class="code">GetDisplay()</code> and <code class="code">GetLog()</code> return true
+respectively.
+</p><p>It has also other methods to stop displaying and/or logging for embedded types, but
+this is better done with the return value of <code class="code">ModAssert::Responder::OnAssert</code>.
+</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id538565"></a>The class <code class="classname">ModAssert::ParameterList</code></h3></div></div></div><a class="indexterm" name="id538572"></a><a class="indexterm" name="id538577"></a><a class="indexterm" name="id538581"></a><a class="indexterm" name="id538586"></a><a class="indexterm" name="id538591"></a><p>Objects of the class <code class="classname">ModAssert::ParameterList</code> hold
+the parameters that are given in assertion macros with a suffix <code class="code">P</code>.
+They hold these in a linked list. Each node holds an expression and its value,
+or a message if it was a string literal. The class can distinguish between string literals
+and other expressions that return a <code class="code">const char *</code> by parsing the stringized
+macro argument (this uses a simple, fast algorithm that passes once through
+the string and supposes that the string represents a correct set of streamed expressions -
+otherwise the code wouldn't have compiled).
+</p><p>Objects of this type can be streamed to a stream. If you need to display them in some
+other way (e.g. in a GUI), you can access the first data by its method <code class="code">GetMessage()</code>,
+and the following ones with the method <code class="code">GetNext()</code>. These are of the type
+<code class="classname">ModAssert::ParameterList::Message</code>. It has a method
+<code class="code">virtual MessageType GetType() const</code>, that returns
+<code class="code">ModAssert::ParameterList::eMessage</code> if it is a
+<code class="classname">ModAssert::ParameterList::Message</code>,
+and <code class="code">ModAssert::ParameterList::eValue</code> if it is a
+<code class="classname">ModAssert::ParameterList::Value</code>, that is derived from
+<code class="classname">ModAssert::ParameterList::Message</code>.
+<code class="classname">ModAssert::ParameterList::Message</code> has also a method
+<code class="code">const ModAssert::SubString&amp; GetMessage()</code>, which holds a substring of
+the stringized macro argument. <code class="classname">ModAssert::SubString</code> can be
+converted to <code class="classname">std::string</code>, and has the methods
+<code class="code">const char* begin()</code>, <code class="code">const char* end()</code> and <code class="code">size_t size()</code>.
+<code class="classname">ModAssert::ParameterList::Value</code> has a method
+<code class="code">const std::string&amp; GetValue()</code> which returns the value of the expression
+as a string; the expression itself is obtained with <code class="code">GetMessage()</code>
+of <code class="classname">ModAssert::ParameterList::Message</code>.</p><p>Note: replace <code class="classname">std::string</code> with <code class="classname">wxString</code> if you use wxWidgets.
+</p><p>
+So code to process a parameterlist
+typically looks like
+</p><pre class="programlisting">
+for (ModAssert::ParameterList::Message *node=pParameterList-&gt;GetFirst();
+	node; node = node-&gt;GetNext())
+{
+	std::string str = node-&gt;GetMessage();
+	if (node-&gt;GetType()==ModAssert::ParameterList::eMessage)
+	{
+	    ...
+	}
+	else if (node-&gt;GetType()==ModAssert::ParameterList::eValue)
+	{
+		ModAssert::ParameterList::Value *nodeValue =
+			(ModAssert::ParameterList::Value*)node;
+		const std::string &amp;value = nodeValue-&gt;GetValue();
+		...
+	}
+}
+</pre><p>
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s16.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ar01s18.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Using the available responders and loggers </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Redefining existing assertion macros</td></tr></table></div></body></html>

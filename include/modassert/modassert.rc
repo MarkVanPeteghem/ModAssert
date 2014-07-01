@@ -1,0 +1,72 @@
+//Microsoft Developer Studio generated resource script.
+//Microsoft Developer Studio generated resource script.
+//
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "windows.h"
+#include "modassert/resource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MOD_ASSERT_DLG DIALOGEX 0, 0, 344, 292
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Assertion failed"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Stop displaying assertions",IDC_MOD_ASSERT_STOP_DISPLAYING,178,195,159,73
+    LTEXT           "",IDC_MOD_ASSERT_DESCRIPTION,7,7,331,17,SS_SUNKEN | SS_NOPREFIX
+    CONTROL         "List1",IDC_MOD_ASSERT_EXPRESSIONS_AND_MESSAGES,
+                    "SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,7,
+                    112,330,48
+    EDITTEXT        IDC_MOD_ASSERT_ANALYSIS,7,47,330,62,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | SS_NOPREFIX
+    EDITTEXT        IDC_MOD_ASSERT_INFO,7,163,330,30,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_VSCROLL | SS_NOPREFIX
+    CONTROL         "This assert",IDC_MOD_ASSERT_KEEP_IGNORING_THIS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,184,239,60,10
+    CONTROL         "In this file",IDC_MOD_ASSERT_KEEP_IGNORING_IN_FILE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,184,224,45,10
+    CONTROL         "All assertions",IDC_MOD_ASSERT_KEEP_IGNORING_ALL,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,184,209,57,10
+    CONTROL         "Debug",IDC_MOD_ASSERT_DEBUG,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,204,37,10
+    CONTROL         "Exit",IDC_MOD_ASSERT_EXIT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,96,204,33,10
+    CONTROL         "",IDC_MOD_ASSERT_OPTIONAL_ACTION1,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,221,166,8
+	CONTROL         "",IDC_MOD_ASSERT_OPTIONAL_ACTION2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,238,166,8
+    PUSHBUTTON   "",IDC_MOD_ASSERT_OPTIONAL_LOGGER,7,249,164,16
+    DEFPUSHBUTTON   "Ok",IDC_MOD_ASSERT_OK,65,269,58,16
+    CONTROL         "",IDC_MOD_ASSERT_KEEP_IGNORING_CUSTOM_1,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,248,208,84,10
+    CONTROL         "",IDC_MOD_ASSERT_KEEP_IGNORING_CUSTOM_2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,248,223,84,10
+    CONTROL         "",IDC_MOD_ASSERT_KEEP_IGNORING_CUSTOM_3,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,248,238,84,10
+    CONTROL         "",IDC_MOD_ASSERT_KEEP_IGNORING_CUSTOM_4,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,248,253,84,10
+    LTEXT           "",IDC_MOD_ASSERT_CONTEXT,7,25,330,20,0,WS_EX_STATICEDGE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+IDC_MOD_ASSERT_ICON_FAILURE     ICON    DISCARDABLE     "modassert/ModAssertF.ico"
+IDC_MOD_ASSERT_ICON_SUCCESS     ICON    DISCARDABLE     "modassert/ModAssertS.ico"

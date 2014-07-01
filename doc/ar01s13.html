@@ -1,0 +1,164 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Enabling and disabling the reporting of Modular Assertions at compile time</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.1"><link rel="start" href="index.html" title="Modular Assertions version 2.0.6"><link rel="up" href="index.html" title="Modular Assertions version 2.0.6"><link rel="prev" href="ar01s12.html" title="Controlling displaying and logging of assertions and checks at runtime"><link rel="next" href="ar01s14.html" title="Using ModAssert with DLLs"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Enabling and disabling the reporting of Modular Assertions at compile time</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s12.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s14.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="controlling-reporting-at-compile-time"></a>Enabling and disabling the reporting of Modular Assertions at compile time</h2></div></div></div><a class="indexterm" name="id529777"></a><p>If reporting of assertions/checks is disabled, this means that
+assertion macros beginning with <code class="code">MOD_ASSERT</code> and <code class="code">MOD_FAIL</code>
+will be equivalent to an empty statement, while assertion macros beginning with
+<code class="code">MOD_VERIFY</code> and <code class="code">MOD_CHECK</code> evaluate their arguments,
+but don't display or log anything if their condition is false. Moreover macros that start with
+<code class="code">MOD_CHECK</code> still execute their failure action if the condition failed.
+So <code class="code">MOD_VERIFY</code> and <code class="code">MOD_CHECK</code> cannot be compiled out completely,
+because they are intended to behave like that.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="TurnOffAll"></a>All at once</h3></div></div></div><a class="indexterm" name="id529816"></a><a class="indexterm" name="id529821"></a><a class="indexterm" name="id529826"></a><a class="indexterm" name="id529831"></a><a class="indexterm" name="id529835"></a><p>By default, reporting of assertions is enabled globally if the symbol <span class="symbol">NDEBUG</span> is not defined,
+and is disabled if it is defined. However, if <span class="symbol">NDEBUG</span> is defined and
+<span class="symbol">MOD_ASSERT_REPORT</span> is also defined, reporting of assertions is enabled. This can
+be useful if you want to deliver an executable to a customer with assertions enabled.
+Likewise, if <span class="symbol">NDEBUG</span> is not defined, you can disable reporting of assertions globally by
+defining <span class="symbol">MOD_ASSERT_DONT_REPORT</span>.
+</p><p>By default, reporting of checks is also enabled globally if the symbol <span class="symbol">NDEBUG</span> is not defined,
+and is disabled if it is defined. However, if <span class="symbol">NDEBUG</span> is defined and
+<span class="symbol">MOD_CHECK_REPORT</span> is also defined, reporting of checks is enabled. This can
+be useful if you want to deliver an executable to a customer with the reporting of checks enabled.
+Likewise, if <span class="symbol">NDEBUG</span> is not defined, you can disable reporting of checks globally by
+defining <span class="symbol">MOD_CHECK_DONT_REPORT</span>.
+</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="TurnOffPerFile"></a>Disabling the reporting of Modular Assertions per source code file</h3></div></div></div><a class="indexterm" name="id529891"></a><a class="indexterm" name="id529895"></a><a class="indexterm" name="id529900"></a><a class="indexterm" name="id529905"></a><p>You can disable the reporting of assertions per source code file, by defining
+<span class="symbol">MOD_ASSERT_DONT_REPORT_FILE</span>
+before including <code class="filename">modassert/assert.hpp</code>. This overrides <span class="symbol">MOD_ASSERT_REPORT</span>.</p><p>Likewise, if reporting of assertions is disabled globally, you can enable reporting of assertions
+per source code file, by defining
+<span class="symbol">MOD_ASSERT_REPORT_FILE</span> before including <code class="filename">modassert/assert.hpp</code>.
+This overrides <span class="symbol">MOD_ASSERT_DONT_REPORT</span> and <span class="symbol">NDEBUG</span>.</p><p>You can do the same for checks with the symbols <span class="symbol">MOD_CHECK_DONT_REPORT_FILE</span>
+and <span class="symbol">MOD_CHECK_REPORT_FILE</span></p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="TurnOffPerLevel"></a>Disabling the reporting of Modular Assertions per level</h3></div></div></div><a class="indexterm" name="id529959"></a><a class="indexterm" name="id529964"></a><p>Defining <span class="symbol">MOD_ASSERT_LEVEL</span> to an integer
+    allows you to disable the reporting of assertions per level. Assertions with a level
+    will not be reported if <code class="code">level &lt; MOD_ASSERT_LEVEL</code>. If
+    <span class="symbol">MOD_ASSERT_LEVEL</span> is not defined, it is set to <code class="literal">0</code>.
+    </p><div class="itemizedlist"><ul type="bullet"><li style="list-style-type: disc"><code class="code">ModAssert::Info</code> has a corresponding level 0</li><li style="list-style-type: disc"><code class="code">ModAssert::Warning</code> has a corresponding level 1</li><li style="list-style-type: disc"><code class="code">ModAssert::Error</code> has a corresponding level 2</li><li style="list-style-type: disc"><code class="code">ModAssert::Fatal</code> has a corresponding level 3</li></ul></div><p>
+    So <code class="literal">0</code> will disable the reporting of no assertions, <code class="literal">1</code>
+    will only disable the reporting of assertions with <code class="code">ModAssert::Info</code>,
+    <code class="literal">2</code> will only disable the reporting of assertions with <code class="code">ModAssert::Info</code>
+    and <code class="code">ModAssert::Warning</code>, and so on.</p><p>Likewise you can define <span class="symbol">MOD_CHECK_LEVEL</span> to an integer
+	to disable checks up to a level.</p><p>These symbols can be defined application wide at the commandline of your compiler
+    (or equivalently in your project settings), or in a source code file before including
+    <code class="filename">modassert/assert.hpp</code>.</p><p>Note that this also affects assertions without a level group, because by default
+    <code class="code">ModAssert::Error</code> is added. So if <span class="symbol">MOD_ASSERT_LEVEL</span>
+    is defined to be <code class="literal">3</code>, assertions like
+    </p><pre class="programlisting">
+    MOD_ASSERT(rbEQUAL(a,5));
+    ModAssert::Group&lt;ModAssert::ReportFailure&gt; modAssertGroup1("group 1");
+    MOD_ASSERT_G(modAssertGroup1, rbEQUAL(a,5));
+   </pre><p>
+    will not be reported because their level is 2, but not assertions like
+    </p><pre class="programlisting">
+    MOD_ASSERT_G(ModAssert::Fatal, rbEQUAL(a,5));
+    ModAssert::Group&lt;ModAssert::ReportFailure&gt; modAssertGroup1("group 1");
+    MOD_ASSERT_G(modAssertGroup1 % ModAssert::Fatal, rbEQUAL(a,5));
+    </pre><p>
+    because these already have a level, so <code class="code">ModAssert::Error</code> is not added to these,
+    and their level is 3.</p></div><p>Note: <span class="symbol">MOD_ASSERT_REPORT</span>, <span class="symbol">MOD_ASSERT_DONT_REPORT</span>,
+<span class="symbol">MOD_ASSERT_REPORT_FILE</span>, <span class="symbol">MOD_ASSERT_DONT_REPORT_FILE</span>,
+<span class="symbol">MOD_ASSERT_LEVEL</span>, <span class="symbol">MOD_CHECK_REPORT</span>, <span class="symbol">MOD_CHECK_DONT_REPORT</span>,
+<span class="symbol">MOD_CHECK_REPORT_FILE</span>, <span class="symbol">MOD_CHECK_DONT_REPORT_FILE</span> and
+<span class="symbol">MOD_CHECK_LEVEL</span> should not be defined when building the ModAssert library.
+Theses symbols only affect code that includes <code class="filename">modassert/assert.hpp</code>. The ModAssert
+librrary doesn't have code that includes that file.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="TurnOffPerGroup"></a>Disabling the reporting of Modular Assertions per group</h3></div></div></div><p>Finally you can disable reporting of assertions per group, by changing the groups type from
+<code class="classname">ModAssert::Group&lt;ModAssert::ReportFailure&gt;</code> to
+<code class="classname">ModAssert::Group&lt;ModAssert::ReportNone&gt;</code>.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id530140"></a>Knowing whether assertions or checks are reported</h3></div></div></div><a class="indexterm" name="id530145"></a><a class="indexterm" name="id530150"></a><a class="indexterm" name="id530155"></a><a class="indexterm" name="id530159"></a><a class="indexterm" name="id530164"></a><a class="indexterm" name="id530169"></a><a class="indexterm" name="id530174"></a><a class="indexterm" name="id530179"></a><p>You can find out in your own code whether reporting of assertions is
+enabled at compile time, by checking the symbol
+<code class="code">MOD_ASSERT_REPORTS</code>, which is non-zero if it is enabled, and <code class="literal">0</code>
+if it is not. This can be useful if you need some extra code to perform an assertion,
+which is otherwise not needed. This applies to both globally disabling reporting of assertions at compile time
+(see <a href="ar01s13.html#TurnOffAll" title="All at once">the section called &#8220;All at once&#8221;</a>) and to disabling reporting of assertions in individual source code files at compile time
+(see <a href="ar01s13.html#TurnOffPerFile" title="Disabling the reporting of Modular Assertions per source code file">the section called &#8220;Disabling the reporting of Modular Assertions per source code file&#8221;</a>). You can do the same for checks with <code class="code">MOD_CHECK_REPORTS</code>.
+There is no similar functionality for groups or levels that are disabled.
+</p><p>
+</p><pre class="programlisting">
+#if MOD_ASSERT_REPORTS
+    int *array = ExpensiveCalculation();
+    for (int i=0; i&lt;100; ++i)
+    {
+        MOD_ASSERT(rbLESS(array[i], 5));
+    }
+    delete array;
+#endif
+</pre><p>
+You can also use it as the condition in an if-statement. This has the advantage that the code in the block
+will still be compiled if it is 0, so you can find compile errors sooner. Most compilers
+will then optimize the code away just as well as with <code class="code">#if MOD_ASSERT_REPORTS</code>
+</p><p>You can also use the macro <code class="code">IF_MOD_ASSERT_REPORTS</code>, which takes one argument,
+that expands to its argument if reporting of assertions is enabled at compile time, and to nothing otherwise,
+<code class="code">IF_NOT_MOD_ASSERT_REPORTS</code>, which takes one argument,
+that expands to its argument if reporting of assertions is disabled at compile time, and to nothing otherwise,
+and <code class="code">IF_MOD_ASSERT_REPORTS_ELSE</code>, which takes two arguments,
+that expands to its first argument if reporting of assertions is enabled at compile time, and to 
+the second argument otherwise.</p><p>You can use the macros <code class="code">IF_MOD_CHECK_REPORTS</code>,
+<code class="code">IF_NOT_MOD_CHECK_REPORTS</code> and <code class="code">IF_MOD_CHECK_REPORTS_ELSE</code>
+that are equivalent for checks.</p><p>This has the advantage that short statements such as declarations can remain oneliners.
+This is e.g. useful to compare a value to an old value in an assertion, that you want to optimize away
+if assertions are compiled out.
+</p><pre class="programlisting">
+void Container::AddElement(int x)
+{
+    IF_MOD_ASSERT_REPORTS(int old_size = size();)
+    ...
+    MOD_ASSERT(rbEQUAL(old_size+1, size()));
+}
+</pre><p>
+Note: because these
+are macros, you can't have commas in it,
+unless they're inside an expression. So in the above example you can't define more than one variable in it,
+but of course you could e.g. have more than one <code class="code">IF_MOD_ASSERT_REPORTS</code>. Another option is to
+define a macro and use that inside one of these macros:
+</p><pre class="programlisting">
+#define DECLARATIONS int old_size=size(), old_a=a;
+IF_MOD_ASSERT_REPORTS(DECLARATIONS)
+...
+MOD_ASSERT(rbEQUAL(old_size+1, size()));
+MOD_ASSERT(rbEQUAL(old_a*2, a));
+</pre><p>
+but this makes your code less readable.</p><p>The argument can even be more code with blocks etc.,
+just like for optional actions and failure actions, but in those cases it's probably better to use
+<code class="code">#if MOD_ASSERT_REPORTS</code>.
+</p><p>Note that the above example doesn't work with <code class="code">MOD_VERIFY</code>
+and its variations, because when reporting of assertions is disabled, these are not compiled out
+completely, and the arguments are still evaluated,
+so the variable is needed.
+</p><pre class="programlisting">
+void Container::AddElement(int x)
+{
+    IF_MOD_ASSERT_REPORTS(int old_size = size();)
+    ...
+    // error, old_size not defined when reporting of assertions is disabled:
+    MOD_VERIFY(rbEQUAL(old_size+1, size()));
+}
+</pre><p>
+but they still can be used in parameter lists and optional actions, because these are
+compiled out when reporting of assertions is disabled (but not in failure actions because these are
+never compiled out).
+</p><pre class="programlisting">
+void Container::AddElement(int x)
+{
+    IF_MOD_ASSERT_REPORTS(int old_size = size();)
+    ...
+    // ok, old_size not defined but not used when reporting of assertions is disabled:
+    MOD_VERIFY_P(old_size, rbEQUAL(n, 10));
+}
+</pre><p>
+The same remark applies for <code class="code">MOD_CHECK</code>, because its condition is always evaluated,
+so this doesn't compile if checks are not reported:
+</p><pre class="programlisting">
+void Container::UpdateA(int x)
+{
+    IF_MOD_CHECK_REPORTS(int old_a = a;)
+    a = f(a, x);
+	
+    // error, old_a not defined when reporting of checks is disabled:
+    MOD_CHECK(rbLESS(old_a, a));
+}
+</pre><p>
+but you could use it in the parameterlist or the optional action:
+</p><pre class="programlisting">
+void Container::UpdateA(int x)
+{
+    IF_MOD_CHECK_REPORTS(int old_a = a;)
+    a = f(a);
+	
+    // ok, old_a not defined but not used when reporting of checks is disabled:
+    MOD_CHECK_P(old_a, rbLESS(a, 10));
+}
+</pre><p>
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s12.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ar01s14.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Controlling displaying and logging of assertions and checks at runtime </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Using ModAssert with DLLs</td></tr></table></div></body></html>
